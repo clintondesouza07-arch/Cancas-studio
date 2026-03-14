@@ -187,7 +187,7 @@ h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,84px);font
 .ind-item{position:relative;height:280px;overflow:hidden;cursor:pointer;}
 .ind-item img{width:100%;height:100%;object-fit:cover;filter:brightness(.45) saturate(.7);transition:all .5s ease;}
 .ind-item:hover img{filter:brightness(.7) saturate(1);transform:scale(1.06);}
-.ind-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 16px;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 60%);}
+.ind-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 16px;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 60%);pointer-events:none;}
 .ind-label{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#fff;}
 .ind-count{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:1px;margin-top:3px;}
 .ind-item:hover .ind-label{color:var(--cyan);}
@@ -288,10 +288,11 @@ h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,84px);font
   justify-content:space-between;
   padding:22px 22px 0;
   gap:10px;
+  min-height:48px;
 }
 .pkg-plan-name{
   font-family:'JetBrains Mono',monospace;
-  font-size:11px;font-weight:700;
+  font-size:13px;font-weight:700;
   letter-spacing:3px;text-transform:uppercase;
   color:var(--cyan);
 }
@@ -1110,6 +1111,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .flip-grid { grid-template-columns: 1fr; }
 }
 
+
+
 </style>
 </head>
 <body>
@@ -1169,42 +1172,42 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- INDUSTRIES STRIP -->
 <div id="industries">
   <div class="ind-strip">
-    <div class="ind-item" onclick="goToCategory('cafe')">
+    <div class="ind-item" onclick="window.goToCategory('cafe')">
       <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80" alt="Cafe">
       <div class="ind-overlay"><div class="ind-label">Cafe &amp; Coffee</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('restaurant')">
+    <div class="ind-item" onclick="window.goToCategory('restaurant')">
       <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" alt="Restaurant">
       <div class="ind-overlay"><div class="ind-label">Restaurants</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('salon')">
+    <div class="ind-item" onclick="window.goToCategory('salon')">
       <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&q=80" alt="Salon">
       <div class="ind-overlay"><div class="ind-label">Salon &amp; Beauty</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('realestate')">
+    <div class="ind-item" onclick="window.goToCategory('realestate')">
       <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=80" alt="Real Estate">
       <div class="ind-overlay"><div class="ind-label">Real Estate</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('fitness')">
+    <div class="ind-item" onclick="window.goToCategory('fitness')">
       <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" alt="Fitness">
       <div class="ind-overlay"><div class="ind-label">Fitness</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('tech')">
+    <div class="ind-item" onclick="window.goToCategory('tech')">
       <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80" alt="Tech">
       <div class="ind-overlay"><div class="ind-label">Tech &amp; SaaS</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('retail')">
+    <div class="ind-item" onclick="window.goToCategory('retail')">
       <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400&q=80" alt="Retail">
       <div class="ind-overlay"><div class="ind-label">Retail &amp; Shop</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
-    <div class="ind-item" onclick="goToCategory('healthcare')">
+    <div class="ind-item" onclick="window.goToCategory('healthcare')">
       <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80" alt="Healthcare">
       <div class="ind-overlay"><div class="ind-label">Healthcare</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
@@ -1275,62 +1278,62 @@ html, body { max-width: 100%; overflow-x: hidden; }
   <h2>EXPLORE OUR<br>PORTFOLIO</h2>
   <p class="s-sub">Browse our template showcase across 8 industries. Click any card to preview the full demo site.</p>
   <div class="p-tabs reveal">
-    <button class="tab-btn active" onclick="showCat('cafe',this)">Cafe &amp; Coffee</button>
-    <button class="tab-btn" onclick="showCat('restaurant',this)">Restaurants</button>
-    <button class="tab-btn" onclick="showCat('salon',this)">Salon &amp; Beauty</button>
-    <button class="tab-btn" onclick="showCat('realestate',this)">Real Estate</button>
-    <button class="tab-btn" onclick="showCat('fitness',this)">Fitness &amp; Wellness</button>
-    <button class="tab-btn" onclick="showCat('tech',this)">Tech &amp; SaaS</button>
-    <button class="tab-btn" onclick="showCat('retail',this)">Retail &amp; Shop</button>
-    <button class="tab-btn" onclick="showCat('healthcare',this)">Healthcare</button>
+    <button class="tab-btn active" onclick="window.showCat('cafe',this)">Cafe &amp; Coffee</button>
+    <button class="tab-btn" onclick="window.showCat('restaurant',this)">Restaurants</button>
+    <button class="tab-btn" onclick="window.showCat('salon',this)">Salon &amp; Beauty</button>
+    <button class="tab-btn" onclick="window.showCat('realestate',this)">Real Estate</button>
+    <button class="tab-btn" onclick="window.showCat('fitness',this)">Fitness &amp; Wellness</button>
+    <button class="tab-btn" onclick="window.showCat('tech',this)">Tech &amp; SaaS</button>
+    <button class="tab-btn" onclick="window.showCat('retail',this)">Retail &amp; Shop</button>
+    <button class="tab-btn" onclick="window.showCat('healthcare',this)">Healthcare</button>
   </div>
 
   <div class="p-section active" id="cat-cafe">
-    <div class="p-card" onclick="openDemo('cafe1')"><img class="p-img" src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=80" alt="Dark artisan coffee shop"><div class="p-body"><h3>Brew &amp; Co — Dark Artisan</h3><p>Moody, premium aesthetic for specialty coffee shops with online ordering, loyalty programme, and events.</p><div class="p-tags"><span class="p-tag">Online Order</span><span class="p-tag">Loyalty</span><span class="p-tag">Events</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('cafe2')"><img class="p-img" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80" alt="French minimalist café"><div class="p-body"><h3>La Petite — French Minimalist</h3><p>Elegant, clean layout for upscale Parisian-style cafés with digital menu, gallery, and reservation widget.</p><div class="p-tags"><span class="p-tag">Reservations</span><span class="p-tag">Gallery</span><span class="p-tag">Menu</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('cafe3')"><img class="p-img" src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80" alt="Urban industrial café"><div class="p-body"><h3>Urban Grind — Industrial</h3><p>Bold, urban aesthetic for trendy city cafés with QR loyalty system, blog, and events calendar.</p><div class="p-tags"><span class="p-tag">Blog</span><span class="p-tag">Events</span><span class="p-tag">QR Menu</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('cafe1')"><img class="p-img" src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=80" alt="Dark artisan coffee shop"><div class="p-body"><h3>Brew &amp; Co — Dark Artisan</h3><p>Moody, premium aesthetic for specialty coffee shops with online ordering, loyalty programme, and events.</p><div class="p-tags"><span class="p-tag">Online Order</span><span class="p-tag">Loyalty</span><span class="p-tag">Events</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('cafe1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('cafe2')"><img class="p-img" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80" alt="French minimalist café"><div class="p-body"><h3>La Petite — French Minimalist</h3><p>Elegant, clean layout for upscale Parisian-style cafés with digital menu, gallery, and reservation widget.</p><div class="p-tags"><span class="p-tag">Reservations</span><span class="p-tag">Gallery</span><span class="p-tag">Menu</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('cafe2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('cafe3')"><img class="p-img" src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80" alt="Urban industrial café"><div class="p-body"><h3>Urban Grind — Industrial</h3><p>Bold, urban aesthetic for trendy city cafés with QR loyalty system, blog, and events calendar.</p><div class="p-tags"><span class="p-tag">Blog</span><span class="p-tag">Events</span><span class="p-tag">QR Menu</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('cafe3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-restaurant">
-    <div class="p-card" onclick="openDemo('rest1')"><img class="p-img" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="Fine dining restaurant"><div class="p-body"><h3>Rosso — Fine Dining</h3><p>Luxury Italian restaurant with online reservations, chef specials, private dining, and wine pairing pages.</p><div class="p-tags"><span class="p-tag">Reservations</span><span class="p-tag">Wine List</span><span class="p-tag">Private Events</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('rest2')"><img class="p-img" src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80" alt="Healthy food restaurant"><div class="p-body"><h3>Verde Kitchen — Healthy Eats</h3><p>Fresh, vibrant design for healthy restaurants with nutritional info, meal subscriptions, and delivery tracking.</p><div class="p-tags"><span class="p-tag">Delivery</span><span class="p-tag">Subscriptions</span><span class="p-tag">Nutrition</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('rest3')"><img class="p-img" src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80" alt="Japanese sushi restaurant"><div class="p-body"><h3>Sakura — Japanese Fusion</h3><p>Sleek, modern sushi and fusion restaurant with QR table ordering, delivery integration, and loyalty rewards.</p><div class="p-tags"><span class="p-tag">QR Order</span><span class="p-tag">Delivery</span><span class="p-tag">Loyalty</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('rest1')"><img class="p-img" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="Fine dining restaurant"><div class="p-body"><h3>Rosso — Fine Dining</h3><p>Luxury Italian restaurant with online reservations, chef specials, private dining, and wine pairing pages.</p><div class="p-tags"><span class="p-tag">Reservations</span><span class="p-tag">Wine List</span><span class="p-tag">Private Events</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('rest1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('rest2')"><img class="p-img" src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80" alt="Healthy food restaurant"><div class="p-body"><h3>Verde Kitchen — Healthy Eats</h3><p>Fresh, vibrant design for healthy restaurants with nutritional info, meal subscriptions, and delivery tracking.</p><div class="p-tags"><span class="p-tag">Delivery</span><span class="p-tag">Subscriptions</span><span class="p-tag">Nutrition</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('rest2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('rest3')"><img class="p-img" src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80" alt="Japanese sushi restaurant"><div class="p-body"><h3>Sakura — Japanese Fusion</h3><p>Sleek, modern sushi and fusion restaurant with QR table ordering, delivery integration, and loyalty rewards.</p><div class="p-tags"><span class="p-tag">QR Order</span><span class="p-tag">Delivery</span><span class="p-tag">Loyalty</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('rest3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-salon">
-    <div class="p-card" onclick="openDemo('salon1')"><img class="p-img" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80" alt="Luxury hair salon"><div class="p-body"><h3>Luxe — Luxury Hair Salon</h3><p>High-end salon with online booking, stylist profiles, portfolio gallery, and subscription membership.</p><div class="p-tags"><span class="p-tag">Booking</span><span class="p-tag">Stylists</span><span class="p-tag">Membership</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('salon2')"><img class="p-img" src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80" alt="Beauty spa"><div class="p-body"><h3>Glow Spa — Beauty &amp; Wellness</h3><p>Full-service spa with gift cards, membership plans, before/after gallery, and online scheduling.</p><div class="p-tags"><span class="p-tag">Scheduling</span><span class="p-tag">Gift Cards</span><span class="p-tag">VIP Membership</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('salon3')"><img class="p-img" src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&q=80" alt="Modern barbershop"><div class="p-body"><h3>The Barbershop — Modern Cuts</h3><p>Bold barber shop design with instant booking, barber bios, portfolio of cuts, and loyalty stamps.</p><div class="p-tags"><span class="p-tag">Booking</span><span class="p-tag">Portfolio</span><span class="p-tag">Loyalty</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('salon1')"><img class="p-img" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80" alt="Luxury hair salon"><div class="p-body"><h3>Luxe — Luxury Hair Salon</h3><p>High-end salon with online booking, stylist profiles, portfolio gallery, and subscription membership.</p><div class="p-tags"><span class="p-tag">Booking</span><span class="p-tag">Stylists</span><span class="p-tag">Membership</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('salon1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('salon2')"><img class="p-img" src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80" alt="Beauty spa"><div class="p-body"><h3>Glow Spa — Beauty &amp; Wellness</h3><p>Full-service spa with gift cards, membership plans, before/after gallery, and online scheduling.</p><div class="p-tags"><span class="p-tag">Scheduling</span><span class="p-tag">Gift Cards</span><span class="p-tag">VIP Membership</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('salon2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('salon3')"><img class="p-img" src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&q=80" alt="Modern barbershop"><div class="p-body"><h3>The Barbershop — Modern Cuts</h3><p>Bold barber shop design with instant booking, barber bios, portfolio of cuts, and loyalty stamps.</p><div class="p-tags"><span class="p-tag">Booking</span><span class="p-tag">Portfolio</span><span class="p-tag">Loyalty</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('salon3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-realestate">
-    <div class="p-card" onclick="openDemo('re1')"><img class="p-img" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" alt="Modern property"><div class="p-body"><h3>Prime Property — Listings Portal</h3><p>Full property listing portal with search filters, virtual tours, agent profiles, mortgage calculator, and lead capture.</p><div class="p-tags"><span class="p-tag">Listings</span><span class="p-tag">Virtual Tours</span><span class="p-tag">Calculator</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('re2')"><img class="p-img" src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=600&q=80" alt="Luxury estate"><div class="p-body"><h3>Estate Luxury — Premium Homes</h3><p>Ultra-luxury real estate for high-end properties with cinematic hero sections, exclusive listings, and concierge contact.</p><div class="p-tags"><span class="p-tag">Video Tours</span><span class="p-tag">Exclusive</span><span class="p-tag">Concierge</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('re3')"><img class="p-img" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80" alt="Commercial office building"><div class="p-body"><h3>Urban Spaces — Commercial</h3><p>Commercial property rental and sales with floor plans, 360° views, comparison tools, and tenant portal.</p><div class="p-tags"><span class="p-tag">Floor Plans</span><span class="p-tag">360° Views</span><span class="p-tag">Tenant Portal</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('re1')"><img class="p-img" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" alt="Modern property"><div class="p-body"><h3>Prime Property — Listings Portal</h3><p>Full property listing portal with search filters, virtual tours, agent profiles, mortgage calculator, and lead capture.</p><div class="p-tags"><span class="p-tag">Listings</span><span class="p-tag">Virtual Tours</span><span class="p-tag">Calculator</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('re1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('re2')"><img class="p-img" src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=600&q=80" alt="Luxury estate"><div class="p-body"><h3>Estate Luxury — Premium Homes</h3><p>Ultra-luxury real estate for high-end properties with cinematic hero sections, exclusive listings, and concierge contact.</p><div class="p-tags"><span class="p-tag">Video Tours</span><span class="p-tag">Exclusive</span><span class="p-tag">Concierge</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('re2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('re3')"><img class="p-img" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80" alt="Commercial office building"><div class="p-body"><h3>Urban Spaces — Commercial</h3><p>Commercial property rental and sales with floor plans, 360° views, comparison tools, and tenant portal.</p><div class="p-tags"><span class="p-tag">Floor Plans</span><span class="p-tag">360° Views</span><span class="p-tag">Tenant Portal</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('re3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-fitness">
-    <div class="p-card" onclick="openDemo('fit1')"><img class="p-img" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" alt="Gym equipment"><div class="p-body"><h3>Ironclad Gym — Power &amp; Strength</h3><p>Bold gym website with class schedules, personal trainer booking, membership tiers, and progress tracking.</p><div class="p-tags"><span class="p-tag">Classes</span><span class="p-tag">Trainers</span><span class="p-tag">Membership</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('fit2')"><img class="p-img" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80" alt="Yoga studio"><div class="p-body"><h3>ZenFlow — Yoga &amp; Wellness</h3><p>Peaceful design for yoga studios with online streaming, instructor bios, retreat booking, and merchandise.</p><div class="p-tags"><span class="p-tag">Live Classes</span><span class="p-tag">Retreats</span><span class="p-tag">Shop</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('fit3')"><img class="p-img" src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&q=80" alt="Running community"><div class="p-body"><h3>Runify — Running Club</h3><p>Community running club with event registration, route maps, leaderboards, and social challenges.</p><div class="p-tags"><span class="p-tag">Events</span><span class="p-tag">Routes</span><span class="p-tag">Community</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('fit1')"><img class="p-img" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" alt="Gym equipment"><div class="p-body"><h3>Ironclad Gym — Power &amp; Strength</h3><p>Bold gym website with class schedules, personal trainer booking, membership tiers, and progress tracking.</p><div class="p-tags"><span class="p-tag">Classes</span><span class="p-tag">Trainers</span><span class="p-tag">Membership</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('fit1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('fit2')"><img class="p-img" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80" alt="Yoga studio"><div class="p-body"><h3>ZenFlow — Yoga &amp; Wellness</h3><p>Peaceful design for yoga studios with online streaming, instructor bios, retreat booking, and merchandise.</p><div class="p-tags"><span class="p-tag">Live Classes</span><span class="p-tag">Retreats</span><span class="p-tag">Shop</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('fit2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('fit3')"><img class="p-img" src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&q=80" alt="Running community"><div class="p-body"><h3>Runify — Running Club</h3><p>Community running club with event registration, route maps, leaderboards, and social challenges.</p><div class="p-tags"><span class="p-tag">Events</span><span class="p-tag">Routes</span><span class="p-tag">Community</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('fit3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-tech">
-    <div class="p-card" onclick="openDemo('tech1')"><img class="p-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="SaaS dashboard"><div class="p-body"><h3>Launchpad — SaaS Product</h3><p>Sleek SaaS landing page with pricing tiers, feature comparison, customer testimonials, and demo request flow.</p><div class="p-tags"><span class="p-tag">Pricing</span><span class="p-tag">Demo</span><span class="p-tag">Dashboard</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('tech2')"><img class="p-img" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80" alt="Developer working with code"><div class="p-body"><h3>DevStudio — Agency Portfolio</h3><p>Bold developer portfolio with case studies, tech stack showcase, GitHub integration, and client testimonials.</p><div class="p-tags"><span class="p-tag">Case Studies</span><span class="p-tag">Tech Stack</span><span class="p-tag">Contact</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('tech3')"><img class="p-img" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80" alt="Artificial intelligence"><div class="p-body"><h3>AI Startup — Tech Product</h3><p>Futuristic AI product site with animated demos, API documentation preview, investor section, and waitlist.</p><div class="p-tags"><span class="p-tag">Waitlist</span><span class="p-tag">API Docs</span><span class="p-tag">Investors</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('tech1')"><img class="p-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="SaaS dashboard"><div class="p-body"><h3>Launchpad — SaaS Product</h3><p>Sleek SaaS landing page with pricing tiers, feature comparison, customer testimonials, and demo request flow.</p><div class="p-tags"><span class="p-tag">Pricing</span><span class="p-tag">Demo</span><span class="p-tag">Dashboard</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('tech1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('tech2')"><img class="p-img" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80" alt="Developer working with code"><div class="p-body"><h3>DevStudio — Agency Portfolio</h3><p>Bold developer portfolio with case studies, tech stack showcase, GitHub integration, and client testimonials.</p><div class="p-tags"><span class="p-tag">Case Studies</span><span class="p-tag">Tech Stack</span><span class="p-tag">Contact</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('tech2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('tech3')"><img class="p-img" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80" alt="Artificial intelligence"><div class="p-body"><h3>AI Startup — Tech Product</h3><p>Futuristic AI product site with animated demos, API documentation preview, investor section, and waitlist.</p><div class="p-tags"><span class="p-tag">Waitlist</span><span class="p-tag">API Docs</span><span class="p-tag">Investors</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('tech3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-retail">
-    <div class="p-card" onclick="openDemo('ret1')"><img class="p-img" src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=600&q=80" alt="Fashion boutique"><div class="p-body"><h3>Ember Boutique — Fashion</h3><p>Elegant fashion boutique with lookbooks, size guides, wishlist, gift registry, and VIP membership.</p><div class="p-tags"><span class="p-tag">Shop</span><span class="p-tag">Wishlist</span><span class="p-tag">VIP Club</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('ret2')"><img class="p-img" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80" alt="Wholesale warehouse"><div class="p-body"><h3>Supply Co — Wholesale &amp; B2B</h3><p>B2B wholesale portal with bulk ordering, custom quotes, account management, and inventory tracking.</p><div class="p-tags"><span class="p-tag">Wholesale</span><span class="p-tag">Custom Orders</span><span class="p-tag">B2B</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('ret3')"><img class="p-img" src="https://images.unsplash.com/photo-1543168256-418811576931?w=600&q=80" alt="Organic natural products"><div class="p-body"><h3>Organic Roots — Natural Products</h3><p>Natural wellness store with subscription boxes, farm sourcing stories, and impact reports.</p><div class="p-tags"><span class="p-tag">Subscriptions</span><span class="p-tag">Blog</span><span class="p-tag">Impact</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('ret1')"><img class="p-img" src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=600&q=80" alt="Fashion boutique"><div class="p-body"><h3>Ember Boutique — Fashion</h3><p>Elegant fashion boutique with lookbooks, size guides, wishlist, gift registry, and VIP membership.</p><div class="p-tags"><span class="p-tag">Shop</span><span class="p-tag">Wishlist</span><span class="p-tag">VIP Club</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('ret1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('ret2')"><img class="p-img" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80" alt="Wholesale warehouse"><div class="p-body"><h3>Supply Co — Wholesale &amp; B2B</h3><p>B2B wholesale portal with bulk ordering, custom quotes, account management, and inventory tracking.</p><div class="p-tags"><span class="p-tag">Wholesale</span><span class="p-tag">Custom Orders</span><span class="p-tag">B2B</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('ret2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('ret3')"><img class="p-img" src="https://images.unsplash.com/photo-1543168256-418811576931?w=600&q=80" alt="Organic natural products"><div class="p-body"><h3>Organic Roots — Natural Products</h3><p>Natural wellness store with subscription boxes, farm sourcing stories, and impact reports.</p><div class="p-tags"><span class="p-tag">Subscriptions</span><span class="p-tag">Blog</span><span class="p-tag">Impact</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('ret3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="p-section" id="cat-healthcare">
-    <div class="p-card" onclick="openDemo('hc1')"><img class="p-img" src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&q=80" alt="Medical clinic"><div class="p-body"><h3>MedCare — Medical Clinic</h3><p>Professional medical clinic with appointment booking, doctor profiles, patient portal, and telehealth.</p><div class="p-tags"><span class="p-tag">Appointments</span><span class="p-tag">Telehealth</span><span class="p-tag">Patient Portal</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('hc2')"><img class="p-img" src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=80" alt="Dental clinic"><div class="p-body"><h3>Bright Dental — Dentistry</h3><p>Modern dental practice with online scheduling, treatment explainers, before/after gallery, and financing info.</p><div class="p-tags"><span class="p-tag">Scheduling</span><span class="p-tag">Treatments</span><span class="p-tag">Financing</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('hc3')"><img class="p-img" src="https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=600&q=80" alt="Therapy and counseling"><div class="p-body"><h3>Mindful — Therapy &amp; Counseling</h3><p>Calm, trust-building therapist website with confidential booking, service descriptions, and resource library.</p><div class="p-tags"><span class="p-tag">Private Booking</span><span class="p-tag">Resources</span><span class="p-tag">Blog</span></div></div><button class="p-prev-btn">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('hc1')"><img class="p-img" src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&q=80" alt="Medical clinic"><div class="p-body"><h3>MedCare — Medical Clinic</h3><p>Professional medical clinic with appointment booking, doctor profiles, patient portal, and telehealth.</p><div class="p-tags"><span class="p-tag">Appointments</span><span class="p-tag">Telehealth</span><span class="p-tag">Patient Portal</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hc1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('hc2')"><img class="p-img" src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=80" alt="Dental clinic"><div class="p-body"><h3>Bright Dental — Dentistry</h3><p>Modern dental practice with online scheduling, treatment explainers, before/after gallery, and financing info.</p><div class="p-tags"><span class="p-tag">Scheduling</span><span class="p-tag">Treatments</span><span class="p-tag">Financing</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hc2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('hc3')"><img class="p-img" src="https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=600&q=80" alt="Therapy and counseling"><div class="p-body"><h3>Mindful — Therapy &amp; Counseling</h3><p>Calm, trust-building therapist website with confidential booking, service descriptions, and resource library.</p><div class="p-tags"><span class="p-tag">Private Booking</span><span class="p-tag">Resources</span><span class="p-tag">Blog</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hc3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 </section>
 
@@ -1356,89 +1359,54 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- PRICING -->
 <section id="pricing">
 
-  <!-- Eyebrow + headline -->
-  <div style="text-align:center;margin-bottom:16px;">
+  <div style="text-align:center;margin-bottom:40px;">
     <div class="s-eye" style="justify-content:center;">Transparent Pricing</div>
-    <h2 style="margin-bottom:10px;">GET YOUR BUSINESS ONLINE<br>IN 7 DAYS</h2>
-    <p style="font-size:16px;color:var(--muted);margin-bottom:20px;">No technical knowledge needed. We handle everything from start to finish.</p>
-
-    <!-- Social proof badge (#5) -->
-    <div style="display:flex;justify-content:center;margin-bottom:24px;">
-      <span class="social-proof-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Trusted by 20+ UAE businesses &nbsp;·&nbsp; 12+ launched this year
-      </span>
-    </div>
-
-    <!-- Decision headline (#3) -->
-    <p class="pricing-decision-line">Do you want to <strong>own your website</strong> — or have us <strong>manage everything?</strong></p>
-    <div class="pricing-decision-labels">
-      <span class="pdl-item pdl-ot">💳 <strong>Own It</strong> → One-Time Payment</span>
-      <span class="pdl-sep">or</span>
-      <span class="pdl-item pdl-mo">📅 <strong>We Manage It</strong> → Monthly Plan</span>
-    </div>
-  </div>
-
-  <!-- WhatsApp general CTA -->
-  <div style="display:flex;justify-content:center;margin-bottom:28px;">
-    <a href="https://wa.me/971569016046?text=Hi!%20I%27m%20not%20sure%20which%20plan%20suits%20me%20%E2%80%94%20can%20you%20help%3F"
-       target="_blank" rel="noopener noreferrer" class="wa-pill-btn">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L0 24l6.335-1.507A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.373l-.36-.214-3.727.977.994-3.634-.234-.374A9.818 9.818 0 1112 21.818z"/></svg>
-      Not sure which plan? Chat with us on WhatsApp — we'll help you choose.
-    </a>
-  </div>
-
-  <!-- Plan toggle + Currency row -->
-  <div class="pricing-controls">
-    <div class="price-toggle">
-      <button class="ptog-btn" id="tog-ot" onclick="toggleView('ot')">💳 Pay Once — You Own It</button>
-      <button class="ptog-btn active" id="tog-mo" onclick="toggleView('mo')">📅 Pay Monthly — We Manage It</button>
-    </div>
-    <div class="cur-row">
-      <span class="cur-label">Currency</span>
+    <h2 style="margin-bottom:12px;">SIMPLE, HONEST PRICING</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:540px;margin:0 auto 28px;">
+      Each card flips individually — see monthly or one-time price for any package.
+    </p>
+    <div class="cur-row" style="justify-content:center;">
+      <span class="cur-label">Currency:</span>
       <button class="cur-btn active" id="cur-AED" onclick="setCur('AED',3.67)">AED</button>
       <button class="cur-btn" id="cur-USD" onclick="setCur('USD',1)">USD</button>
       <button class="cur-btn" id="cur-GBP" onclick="setCur('GBP',0.79)">GBP</button>
       <button class="cur-btn" id="cur-EUR" onclick="setCur('EUR',0.92)">EUR</button>
-      <button class="cur-btn" id="cur-SAR" onclick="setCur('SAR',3.75)">SAR</button>
+      <button class="cur-btn" id="cur-INR" onclick="setCur('INR',83.5)">INR</button>
     </div>
   </div>
 
-  <!-- Cards grid — pure normal flow, no position:absolute -->
   <div class="pkg-grid" id="pricing-grid">
 
-    <!-- ══════════════════ CARD 1: STARTER ══════════════════ -->
+    <!-- CARD 1: STARTER -->
     <div class="pkg-card" id="fw1">
 
-      <!-- ▸ MONTHLY SIDE (default visible) -->
+      <!-- MONTHLY SIDE (default) -->
       <div class="pkg-view pkg-mo active" id="fw1-mo">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Starter</div>
           <div class="pkg-mode-tab pkg-mode-tab--mo">📅 Monthly Plan</div>
         </div>
         <div class="pkg-price-block">
-          <span class="pkg-cur" id="s1-sym-b2">AED</span>
+          <span class="pkg-cur" id="s1-sym-b2">AED</span><span class="pkg-cur" id="s1-sym-b" style="display:none">AED</span>
           <span class="pkg-big" id="s1-mo">99</span>
           <span class="pkg-per">/mo</span>
         </div>
         <div class="pkg-sub">per month · cancel anytime</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
-          <li>Everything in one-time plan</li>
-          <li>We host &amp; maintain it</li>
+          <li>We build &amp; host your website</li>
           <li>Free domain included</li>
-          <li>SSL managed for you</li>
-          <li>2 minor edits/month</li>
-          <li>Cancel = hosting stops</li>
+          <li>SSL certificate managed</li>
+          <li>2 minor edits per month</li>
+          <li>Cancel anytime — files are yours</li>
         </ul>
-        <p class="pkg-cancel-note">Files yours on request after cancellation — no extra charge.</p>
         <a href="#contact" class="pkg-cta-btn">GET STARTED</a>
-        <button class="pkg-flip-link" onclick="flipCard('fw1','ot')">
+        <button class="pkg-flip-link" onclick="window.flipCard('fw1','ot')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE ONE-TIME PRICE
         </button>
       </div>
 
-      <!-- ▸ ONE-TIME SIDE -->
+      <!-- ONE-TIME SIDE -->
       <div class="pkg-view pkg-ot" id="fw1-ot">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Starter</div>
@@ -1448,8 +1416,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-cur" id="s1-sym">AED</span>
           <span class="pkg-big" id="s1-ot">1,464</span>
         </div>
-        <div class="pkg-sub">one-time · you own it</div>
-        <div class="pkg-save-tag">💰 Save <span id="s1-save">908</span> AED vs 2-yr monthly</div>
+        <div class="pkg-sub">one-time · you own it forever</div>
+        <div class="pkg-save-tag">💰 Save <span id="s1-save">908</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>5-page custom website</li>
@@ -1457,52 +1425,47 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <li>Contact form + WhatsApp button</li>
           <li>Google Maps integration</li>
           <li>Basic SEO setup</li>
-          <li>SSL certificate</li>
-          <li>2 revision rounds</li>
-          <li>30 days post-launch support</li>
+          <li>30 days support included</li>
         </ul>
         <a href="#contact" class="pkg-cta-btn">GET STARTED</a>
-        <button class="pkg-flip-link" onclick="flipCard('fw1','mo')">
+        <button class="pkg-flip-link" onclick="window.flipCard('fw1','mo')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE MONTHLY PLAN
         </button>
       </div>
-
     </div><!-- /fw1 -->
 
-    <!-- ══════════════════ CARD 2: BUSINESS ══════════════════ -->
+    <!-- CARD 2: BUSINESS (POPULAR) -->
     <div class="pkg-card pkg-card--popular" id="fw2">
       <div class="pkg-popular-ribbon">MOST POPULAR</div>
 
-      <!-- ▸ MONTHLY SIDE (default visible) -->
+      <!-- MONTHLY SIDE (default) -->
       <div class="pkg-view pkg-mo active" id="fw2-mo">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Business</div>
           <div class="pkg-mode-tab pkg-mode-tab--mo">📅 Monthly Plan</div>
         </div>
         <div class="pkg-price-block">
-          <span class="pkg-cur" id="s2-sym-b2">AED</span>
+          <span class="pkg-cur" id="s2-sym-b2">AED</span><span class="pkg-cur" id="s2-sym-b" style="display:none">AED</span>
           <span class="pkg-big" id="s2-mo">149</span>
           <span class="pkg-per">/mo</span>
         </div>
         <div class="pkg-sub">per month · cancel anytime</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
-          <li>Everything in one-time plan</li>
-          <li>We host &amp; maintain it</li>
+          <li>We build &amp; host your website</li>
           <li>Free domain included</li>
-          <li>SSL managed for you</li>
-          <li>5 minor edits/month</li>
+          <li>SSL certificate managed</li>
+          <li>5 minor edits per month</li>
           <li>Priority support</li>
-          <li>Cancel = hosting stops</li>
+          <li>Cancel anytime — files are yours</li>
         </ul>
-        <p class="pkg-cancel-note">Files yours on request after cancellation — no extra charge.</p>
         <a href="#contact" class="pkg-cta-btn pkg-cta-btn--pop">GET STARTED</a>
-        <button class="pkg-flip-link" onclick="flipCard('fw2','ot')">
+        <button class="pkg-flip-link" onclick="window.flipCard('fw2','ot')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE ONE-TIME PRICE
         </button>
       </div>
 
-      <!-- ▸ ONE-TIME SIDE -->
+      <!-- ONE-TIME SIDE -->
       <div class="pkg-view pkg-ot" id="fw2-ot">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Business</div>
@@ -1512,60 +1475,55 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-cur" id="s2-sym">AED</span>
           <span class="pkg-big" id="s2-ot">2,932</span>
         </div>
-        <div class="pkg-sub">one-time · you own it</div>
-        <div class="pkg-save-tag">💰 Save <span id="s2-save">1,540</span> AED vs 2-yr monthly</div>
+        <div class="pkg-sub">one-time · you own it forever</div>
+        <div class="pkg-save-tag">💰 Save <span id="s2-save">1,540</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>10-page custom website</li>
-          <li>Mobile-friendly design</li>
-          <li>Online booking / enquiry form</li>
+          <li>Booking / enquiry form</li>
           <li>AI chatbot included</li>
           <li>SEO + Google Analytics</li>
           <li>Gallery &amp; blog section</li>
-          <li>Unlimited revisions during build</li>
-          <li>90 days post-launch support</li>
+          <li>90 days support included</li>
         </ul>
         <a href="#contact" class="pkg-cta-btn pkg-cta-btn--pop">GET STARTED</a>
-        <button class="pkg-flip-link" onclick="flipCard('fw2','mo')">
+        <button class="pkg-flip-link" onclick="window.flipCard('fw2','mo')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE MONTHLY PLAN
         </button>
       </div>
-
     </div><!-- /fw2 -->
 
-    <!-- ══════════════════ CARD 3: PREMIUM ══════════════════ -->
+    <!-- CARD 3: PREMIUM -->
     <div class="pkg-card" id="fw3">
 
-      <!-- ▸ MONTHLY SIDE (default visible) -->
+      <!-- MONTHLY SIDE (default) -->
       <div class="pkg-view pkg-mo active" id="fw3-mo">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Premium</div>
           <div class="pkg-mode-tab pkg-mode-tab--mo">📅 Monthly Plan</div>
         </div>
         <div class="pkg-price-block">
-          <span class="pkg-cur" id="s3-sym-b2">AED</span>
+          <span class="pkg-cur" id="s3-sym-b2">AED</span><span class="pkg-cur" id="s3-sym-b" style="display:none">AED</span>
           <span class="pkg-big" id="s3-mo">349</span>
           <span class="pkg-per">/mo</span>
         </div>
         <div class="pkg-sub">per month · cancel anytime</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
-          <li>Everything in one-time plan</li>
-          <li>We host &amp; maintain it</li>
+          <li>We build &amp; host your website</li>
           <li>Free domain included</li>
-          <li>SSL managed for you</li>
-          <li>Unlimited minor edits/month</li>
+          <li>SSL certificate managed</li>
+          <li>Unlimited edits per month</li>
           <li>Priority support</li>
-          <li>Cancel = hosting stops</li>
+          <li>Cancel anytime — files are yours</li>
         </ul>
-        <p class="pkg-cancel-note">Files yours on request after cancellation — no extra charge.</p>
         <a href="#contact" class="pkg-cta-btn">GET STARTED</a>
-        <button class="pkg-flip-link" onclick="flipCard('fw3','ot')">
+        <button class="pkg-flip-link" onclick="window.flipCard('fw3','ot')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE ONE-TIME PRICE
         </button>
       </div>
 
-      <!-- ▸ ONE-TIME SIDE -->
+      <!-- ONE-TIME SIDE -->
       <div class="pkg-view pkg-ot" id="fw3-ot">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Premium</div>
@@ -1575,67 +1533,38 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-cur" id="s3-sym">AED</span>
           <span class="pkg-big" id="s3-ot">5,501</span>
         </div>
-        <div class="pkg-sub">one-time · you own it</div>
-        <div class="pkg-save-tag">💰 Save <span id="s3-save">2,877</span> AED vs 2-yr monthly</div>
+        <div class="pkg-sub">one-time · you own it forever</div>
+        <div class="pkg-save-tag">💰 Save <span id="s3-save">2,877</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>Unlimited pages</li>
           <li>Fully custom design</li>
           <li>Booking + scheduling system</li>
           <li>Advanced AI chatbot</li>
-          <li>Full SEO + analytics dashboard</li>
-          <li>CRM &amp; third-party integrations</li>
-          <li>Unlimited revisions during build</li>
-          <li>6 months post-launch support</li>
+          <li>Full SEO + analytics</li>
+          <li>6 months support included</li>
         </ul>
         <a href="#contact" class="pkg-cta-btn">GET STARTED</a>
-        <button class="pkg-flip-link" onclick="flipCard('fw3','mo')">
+        <button class="pkg-flip-link" onclick="window.flipCard('fw3','mo')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE MONTHLY PLAN
         </button>
       </div>
-
     </div><!-- /fw3 -->
 
   </div><!-- end pkg-grid -->
 
-  <!-- FAQ -->
-  <div class="faq-section">
-    <h3 class="faq-heading">Common Questions</h3>
-    <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Who owns the website?<span class="faq-icon">+</span></button>
-        <div class="faq-a">On the one-time plan, you own 100% of the code and files — they're yours the moment you pay. On the monthly plan, we host and maintain it for you. If you ever cancel, your files are handed over at no charge.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">What happens if I cancel the monthly plan?<span class="faq-icon">+</span></button>
-        <div class="faq-a">You keep your files. Hosting simply stops at the end of the billing period — no hidden fees, no strings attached. We'll send you everything you need.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Is hosting included in the monthly plan?<span class="faq-icon">+</span></button>
-        <div class="faq-a">Yes — hosting, SSL certificate, security monitoring, and ongoing maintenance are all bundled into the monthly fee. There's nothing extra to pay.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Can I upgrade my plan later?<span class="faq-icon">+</span></button>
-        <div class="faq-a">Absolutely. You can upgrade from Starter to Business or Premium at any time. We'll credit what you've already paid and adjust the price accordingly — no starting from scratch.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">How long does it take to build?<span class="faq-icon">+</span></button>
-        <div class="faq-a">Starter sites are typically ready in 5–7 days. Business and Premium sites take 10–14 days depending on complexity and how quickly you supply content. We keep you updated every step of the way.</div>
-      </div>
-    </div>
-  </div>
+  <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:32px;line-height:1.8;">
+    <strong style="color:var(--white)">Pay once</strong> — get the full code, host it yourself (we help with setup free).<br>
+    <strong style="color:var(--white)">Pay monthly</strong> — we build, host &amp; look after everything. Free domain included.<br>
+    <a href="#" onclick="openTC(event)" style="color:var(--cyan);text-decoration:none;">View full terms &amp; conditions →</a>
+  </p>
 
-  <!-- STEP 8: Trust signals -->
-  <div class="trust-row">
-    <div class="trust-card"><div class="trust-icon">⚡</div><div class="trust-text"><strong>Ready in 7 Days</strong><span>Fast delivery, no waiting around</span></div></div>
-    <div class="trust-card"><div class="trust-icon">📍</div><div class="trust-text"><strong>UAE-Based Team</strong><span>Local support, your timezone</span></div></div>
-    <div class="trust-card"><div class="trust-icon">✅</div><div class="trust-text"><strong>20+ Businesses Launched</strong><span>Real results across 8 industries</span></div></div>
-  </div>
-
-  <!-- Note -->
-  <div style="margin-top:32px;padding:16px 22px;background:var(--card);border:1px solid var(--border);border-radius:6px;display:flex;gap:14px;align-items:flex-start;max-width:820px;">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <p style="font-size:13px;color:var(--muted);line-height:1.75;"><strong style="color:var(--white)">Pay once</strong> — get the full code, host it yourself (we help with setup free). <strong style="color:var(--white)">Pay monthly</strong> — we build, host, and look after everything. Free domain included on monthly plans. <a href="#" onclick="openTC(event)" style="color:var(--cyan);text-decoration:none;">Full T&amp;C →</a></p>
+  <div style="display:flex;justify-content:center;margin-top:28px;">
+    <a href="https://wa.me/971569016046?text=Hi!%20I%27m%20not%20sure%20which%20plan%20suits%20me%20%E2%80%94%20can%20you%20help%3F"
+       target="_blank" rel="noopener noreferrer" class="wa-pill-btn">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L0 24l6.335-1.507A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.373l-.36-.214-3.727.977.994-3.634-.234-.374A9.818 9.818 0 1112 21.818z"/></svg>
+      Not sure which plan? Chat with us on WhatsApp — we'll help you choose.
+    </a>
   </div>
 
 </section>
@@ -1673,7 +1602,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="ci-col">
       <h3>LET'S BUILD SOMETHING GREAT</h3>
       <p>We respond to every enquiry within 24 hours and can have your new website live in as little as 14 days. Based in Dubai, serving clients worldwide.</p>
-      <div class="ci-row"><div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="ci-text"><strong>Email</strong><span><a href="/cdn-cgi/l/email-protection#29414c454546694a48474a485a5a5d5c4d4046074a4644" style="color:var(--cyan)"><span class="__cf_email__" data-cfemail="fa929f969695ba999b94999b89898e8f9e9395d4999597">[email&#160;protected]</span></a></span></div></div>
+      <a href="mailto:hello&#64;cancasstudio.com" class="ci-row" style="text-decoration:none;cursor:pointer;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
+        <div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div class="ci-text"><strong>Email</strong><span style="color:var(--cyan)" data-email="hello&#64;cancasstudio&#46;com">hello&#64;cancasstudio&#46;com</span></div>
+        <div class="ci-action-badge" style="margin-left:auto;font-size:11px;color:var(--cyan);border:1px solid rgba(0,212,255,.3);padding:4px 10px;border-radius:4px;">SEND EMAIL</div>
+      </a>
       <a href="https://wa.me/971569016046?text=Hi%2C%20I%27d%20like%20to%20discuss%20getting%20a%20website%20for%20my%20business." target="_blank" rel="noopener noreferrer" class="ci-row ci-row--wa" style="text-decoration:none;">
         <div class="ci-icon"><svg viewBox="0 0 24 24" fill="#25d366" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L0 24l6.335-1.507A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.373l-.36-.214-3.727.977.994-3.634-.234-.374A9.818 9.818 0 1112 21.818z"/></svg></div>
         <div class="ci-text">
@@ -1801,9 +1734,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // PORTFOLIO TABS
-function showCat(cat,btn){
+window.showCat = function showCat(cat,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.p-section').forEach(s=>s.classList.remove('active'));
@@ -2124,7 +2057,7 @@ window.addEventListener('scroll',()=>{
 
     <h2>2. Payment Plans</h2>
     <div class="tc-highlight"><p><strong>One-Time Purchase:</strong> You pay the full package price once. Upon receipt of final payment, you own the complete website source code and all associated assets created for your project. You are responsible for arranging and paying for your own domain and hosting. We provide guidance on setup at no extra charge.</p></div>
-    <div class="tc-highlight"><p><strong>Managed Monthly Plan:</strong> You pay a recurring monthly fee (the applicable rate confirmed at the time of engagement and varies by package tier). This covers website hosting, SSL certificate, security monitoring, basic maintenance, and a set allowance of minor monthly edits as specified in your package. Monthly fees vary — higher-tier packages carry higher monthly rates. This plan may be cancelled at any time with 30 days written notice sent to <a href="/cdn-cgi/l/email-protection#a6cec3cacac9e6c5c7c8c5c7d5d5d2d3c2cfc988c5c9cb" style="color:var(--cyan)"><span class="__cf_email__" data-cfemail="8de5e8e1e1e2cdeeece3eeecfefef9f8e9e4e2a3eee2e0">[email&#160;protected]</span></a>. Hosting and all managed services (including domain forwarding) will cease at the end of the final paid billing period following cancellation.</p></div>
+    <div class="tc-highlight"><p><strong>Managed Monthly Plan:</strong> You pay a recurring monthly fee (the applicable rate confirmed at the time of engagement and varies by package tier). This covers website hosting, SSL certificate, security monitoring, basic maintenance, and a set allowance of minor monthly edits as specified in your package. Monthly fees vary — higher-tier packages carry higher monthly rates. This plan may be cancelled at any time with 30 days written notice sent to <a href="mailto:hello&#64;cancasstudio.com" style="color:var(--cyan)">hello&#64;cancasstudio&#46;com</a>. Hosting and all managed services (including domain forwarding) will cease at the end of the final paid billing period following cancellation.</p></div>
     <p>A non-refundable deposit of 50% of the agreed project cost (or the equivalent of the first month's fee for managed plans) is required to begin work. The remaining balance is due upon project completion, before the website goes live. All payments are final once work has commenced.</p>
 
     <h2>3. Website File Transfer on Cancellation</h2>
@@ -2176,7 +2109,7 @@ window.addEventListener('scroll',()=>{
     <p>CANCAS.STUDIO reserves the right to update these Terms at any time. Updated terms will be posted on our website. Continued use of our services following an update constitutes acceptance of the revised terms.</p>
 
     <h2>16. Contact</h2>
-    <p>For questions regarding these Terms, contact us at <strong style="color:var(--cyan)"><a href="/cdn-cgi/l/email-protection#9bf3fef7f7f4dbf8faf5f8fae8e8efeefff2f4b5f8f4f6" style="color:var(--cyan)"><span class="__cf_email__" data-cfemail="87efe2ebebe8c7e4e6e9e4e6f4f4f3f2e3eee8a9e4e8ea">[email&#160;protected]</span></a></strong> or WhatsApp <strong style="color:var(--cyan)">+971 56 901 6046</strong>. We respond within 24 hours.</p>
+    <p>For questions regarding these Terms, contact us at <strong style="color:var(--cyan)"><a href="mailto:hello&#64;cancasstudio.com" style="color:var(--cyan)">hello&#64;cancasstudio&#46;com</a></strong> or WhatsApp <strong style="color:var(--cyan)">+971 56 901 6046</strong>. We respond within 24 hours.</p>
 
     <div style="margin-top:48px;padding-top:28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:gap">
       <p style="font-size:12px;color:var(--muted);">© 2026 CANCAS.STUDIO. All rights reserved.</p>
@@ -2185,7 +2118,7 @@ window.addEventListener('scroll',()=>{
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── PRICING ENGINE ──────────────────────────────────────────────────────
 // Base prices in USD (AED / 3.67)
 // ── Prices stored in AED, converted live ────────────────────────────────
@@ -2195,7 +2128,7 @@ const PRICES_AED = {
   mo:    [  99,   149,   349],  // monthly hosting fee AED
   save:  [ 908,  1540,  2877]   // savings vs 2-yr monthly AED
 };
-const SYMS = {AED:'AED',USD:'$',GBP:'£',EUR:'€',SAR:'SAR'};
+const SYMS = {AED:'AED',USD:'$',GBP:'£',EUR:'€',INR:'₹'};
 const BASE_RATE = 3.67; // AED per USD
 let CUR = 'AED', RATE = 1; // RATE = target/AED ratio
 
@@ -2203,7 +2136,7 @@ function toTarget(aed){ return Math.round(aed * RATE).toLocaleString(); }
 // alias for legacy calls
 function fmtP(usd){ return Math.round(usd * RATE * BASE_RATE).toLocaleString(); }
 
-function setCur(cur, ratePerUSD){
+window.setCur = function setCur(cur, ratePerUSD){
   CUR = cur;
   // Store as ratio vs AED: USD=1/3.67, GBP=0.79/3.67, etc.
   RATE = ratePerUSD / BASE_RATE;
@@ -2214,51 +2147,73 @@ function setCur(cur, ratePerUSD){
   updateBuilderLabels();
 }
 
-function renderAllPrices(){
-  ['s1','s2','s3'].forEach((id,i)=>{
-    const g = s => document.getElementById(id+s);
-    const sym = SYMS[CUR];
-    // One-time view
-    if(g('-sym'))   g('-sym').textContent  = sym;
-    if(g('-ot'))    g('-ot').textContent   = toTarget(PRICES_AED.ot[i]);
-    if(g('-save'))  g('-save').textContent = toTarget(PRICES_AED.save[i]);
-    // Monthly view — sym + prices (update even when hidden)
-    if(g('-sym-b2')) g('-sym-b2').textContent = sym;
-    if(g('-mo'))     g('-mo').textContent     = toTarget(PRICES_AED.mo[i]);
-  });
+// ── Error monitoring — sends errors to console with clear labels ──
+window.addEventListener('error', function(e) {
+  console.error('🚨 SITE ERROR:', e.message, '| File:', e.filename, '| Line:', e.lineno);
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('🚨 PROMISE ERROR:', e.reason);
+});
+
+// ── Per-card flip ──────────────────────────────────────────────────────
+window.flipCard = function(cardId, showSide){
+  var otEl = document.getElementById(cardId+'-ot');
+  var moEl = document.getElementById(cardId+'-mo');
+  if(!otEl || !moEl){ console.warn('flipCard: elements not found for', cardId); return; }
+  // Show/hide correct face
+  if(showSide === 'ot'){
+    moEl.style.display = 'none';
+    moEl.classList.remove('active');
+    otEl.style.display = 'flex';
+    otEl.classList.add('active');
+  } else {
+    otEl.style.display = 'none';
+    otEl.classList.remove('active');
+    moEl.style.display = 'flex';
+    moEl.classList.add('active');
+  }
+  // Pulse animation
+  var card = document.getElementById(cardId);
+  if(card){ card.classList.add('pkg-switching'); setTimeout(function(){ card.classList.remove('pkg-switching'); }, 500); }
+  // Update prices
+  if(window.renderAllPrices) window.renderAllPrices();
 }
 
-// Per-card flip: called by each card's "SEE ONE-TIME / SEE MONTHLY" link
-function flipCard(cardId, showSide){
-  const otEl = document.getElementById(cardId+'-ot');
-  const moEl = document.getElementById(cardId+'-mo');
-  if(!otEl || !moEl) return;
-  otEl.classList.toggle('active', showSide === 'ot');
-  moEl.classList.toggle('active', showSide === 'mo');
-  const card = document.getElementById(cardId);
-  if(card){ card.classList.add('pkg-switching'); setTimeout(()=>card.classList.remove('pkg-switching'),500); }
-  renderAllPrices();
+window.renderAllPrices = function renderAllPrices(){
+  var sym = SYMS[CUR];
+  ['s1','s2','s3'].forEach(function(id,i){
+    var g = function(s){ return document.getElementById(id+s); };
+    if(g('-sym'))    g('-sym').textContent    = sym;
+    if(g('-sym-b'))  g('-sym-b').textContent  = sym;
+    if(g('-sym-b2')) g('-sym-b2').textContent = sym;
+    if(g('-ot'))    g('-ot').textContent    = toTarget(PRICES_AED.ot[i]);
+    if(g('-mo'))    g('-mo').textContent    = toTarget(PRICES_AED.mo[i]);
+    if(g('-save'))  g('-save').textContent  = toTarget(PRICES_AED.save[i]);
+    if(g('-build')) g('-build').textContent = toTarget(PRICES_AED.build[i]);
+  });
+  document.querySelectorAll('.pkg-cur').forEach(function(el){ el.textContent = sym; });
+  document.querySelectorAll('.save-sym').forEach(function(el){ el.textContent = sym; });
 }
 
 // Global toggle (top buttons) — flips all 3 cards at once, staggered
-function toggleView(mode){
+window.toggleView = function(mode){
   const togOt = document.getElementById('tog-ot');
   const togMo = document.getElementById('tog-mo');
   if(togOt) togOt.classList.toggle('active', mode==='ot');
   if(togMo) togMo.classList.toggle('active', mode==='mo');
   ['fw1','fw2','fw3'].forEach((id, idx)=>{
-    setTimeout(()=>{ flipCard(id, mode); }, idx * 100);
+    setTimeout(()=>{ window.flipCard(id, mode); }, idx * 100);
   });
 }
 
 // doFlip kept for legacy
-function doFlip(cardId){
+window.doFlip = function(cardId){
   const mo = document.getElementById(cardId+'-mo');
-  flipCard(cardId, mo && mo.classList.contains('active') ? 'ot' : 'mo');
+  window.flipCard(cardId, mo && mo.classList.contains('active') ? 'ot' : 'mo');
 }
 
 // FAQ accordion
-function toggleFaq(btn){
+window.toggleFaq = function toggleFaq(btn){
   const item = btn.closest('.faq-item');
   const wasOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
@@ -2266,23 +2221,38 @@ function toggleFaq(btn){
 }
 
 // Industry strip navigation
-function goToCategory(cat){
-  var tabs = document.querySelectorAll('.tab-btn');
-  var targetBtn = null;
-  tabs.forEach(function(b){
-    if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf(cat) !== -1) targetBtn = b;
+window.goToCategory = function(cat){
+  // Activate the right tab
+  document.querySelectorAll('.tab-btn').forEach(function(b){
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf(cat) !== -1){
+      window.showCat(cat, b);
+    }
   });
-  if(targetBtn) showCat(cat, targetBtn);
-  setTimeout(function(){
-    document.getElementById('portfolio').scrollIntoView({behavior:'smooth',block:'start'});
-  }, 60);
+  // Scroll to portfolio
+  var portfolio = document.getElementById('portfolio');
+  if(portfolio){
+    portfolio.scrollIntoView({behavior:'smooth', block:'start'});
+    portfolio.style.transition = 'background 0.4s';
+    portfolio.style.background = 'rgba(0,212,255,0.05)';
+    setTimeout(function(){ portfolio.style.background = ''; }, 800);
+  }
 }
 
-// Init
-renderAllPrices();
+// Init — set display correctly on all pkg-view elements
+function initPkgViews(){
+  document.querySelectorAll('.pkg-view').forEach(function(el){
+    el.style.display = el.classList.contains('active') ? 'flex' : 'none';
+  });
+  renderAllPrices();
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initPkgViews);
+} else {
+  initPkgViews();
+}
 
 // ── CUSTOM BUILDER ───────────────────────────────────────────────────────
-function toggleAdd(row){
+window.toggleAdd = function toggleAdd(row){
   const cb = row.querySelector('input[type=checkbox]');
   cb.checked = !cb.checked;
   calcCustom();
@@ -2318,14 +2288,13 @@ function calcCustom(){
   else total.textContent='—';
 }
 // ── Contact form submission ──
-function submitContactForm(btn) {
+window.submitContactForm = function submitContactForm(btn) {
   const form = btn.closest('.contact-form');
   const name  = form.querySelector('input[type=text]').value.trim();
   const email = form.querySelector('input[type=email]').value.trim();
   const detail = form.querySelector('textarea').value.trim();
   if (!name) { alert('Please enter your full name.'); return; }
   if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
-  // Build WhatsApp message with form details
   const pkg  = form.querySelectorAll('select')[1].value || 'Not specified';
   const biz  = form.querySelectorAll('select')[0].value || 'Not specified';
   const msg  = encodeURIComponent(
@@ -2336,8 +2305,7 @@ function submitContactForm(btn) {
     'Package interest: ' + pkg + '\n' +
     (detail ? 'Details: ' + detail : '')
   );
-  // Show success state
-  btn.textContent = '✅ Sent! Redirecting to WhatsApp...';
+  btn.textContent = '\u2705 Sent! Redirecting to WhatsApp...';
   btn.style.background = '#00e87a';
   btn.style.color = '#000';
   btn.disabled = true;
@@ -2345,13 +2313,6 @@ function submitContactForm(btn) {
     window.open('https://wa.me/971569016046?text=' + msg, '_blank');
   }, 800);
 }
-
-// ── Mobile nav ──
-function toggleMobileNav(){
-  const ham = document.getElementById('nav-ham');
-  const links = document.getElementById('nav-links');
-  const open = ham.classList.toggle('open');
-  links.classList.toggle('mobile-open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
-}
-// Close mobile nav when
+</script>
+</body>
+</html>
