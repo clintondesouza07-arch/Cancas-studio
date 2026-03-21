@@ -2112,7 +2112,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;">How to get your free API key</div>
       <ol style="font-size:13px;color:var(--muted);line-height:2;padding-left:18px;margin:0;">
-        <li>Go to <a href="https://jsonbin.io" target="_blank" style="color:var(--cyan);">jsonbin.io</a> → click <strong style="color:var(--text)">Sign Up Free</strong></li>
+        <li>Go to <a href="https://jsonbin.io/app/sign-in" target="_blank" style="color:var(--cyan);">jsonbin.io → sign in</a> → click <strong style="color:var(--text)">Sign Up Free</strong></li>
         <li>Verify your email and log in</li>
         <li>Go to <strong style="color:var(--text)">API Keys</strong> in the top menu</li>
         <li>Copy your <strong style="color:var(--text)">X-Master-Key</strong> (starts with $2a$ or $2b$)</li>
@@ -2166,7 +2166,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div class="kpi-live" id="kpi-enq-sub">from website form</div>
       </div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('all')" title="All clients"><div class="kpi-val" id="kpi-total">0</div><div class="kpi-lbl">Total Clients</div><div class="kpi-live" id="kpi-total-sub"></div></div>
-      <div class="kpi" style="cursor:pointer;" onclick="kpiClick('active')" title="Active clients"><div class="kpi-val" id="kpi-active">0</div><div class="kpi-lbl">Active / In Progress</div><div class="kpi-live" id="kpi-rev">AED 0/mo</div></div>
+      <div class="kpi" style="cursor:pointer;" onclick="kpiClick('active_all')" title="Active & In Progress clients"><div class="kpi-val" id="kpi-active">0</div><div class="kpi-lbl">Active / In Progress</div><div class="kpi-live" id="kpi-rev">AED 0/mo</div></div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('lead')" title="Open leads"><div class="kpi-val" id="kpi-leads">0</div><div class="kpi-lbl">Open Leads</div><div class="kpi-live" id="kpi-leads-sub"></div></div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('completed')" title="Completed"><div class="kpi-val" id="kpi-done">0</div><div class="kpi-lbl">Completed</div><div class="kpi-live" id="kpi-done-sub"></div></div>
     </div>
@@ -2788,25 +2788,27 @@ function getFallback(l){
   }
 
   // Greetings
-  if(l.match(/^(hi|hello|hey|good morning|good evening|good afternoon|sup|yo|hiya|howdy)[\s!.,?]*$/))
+  if(l.match(/^(hi|hello|hey|good morning|good evening|good afternoon|sup|yo|hiya|howdy|salaam|salam|namaste|hola|bonjour|ciao|marhaba)[\s!.,?]*$/))
     return pick('greet',[
       'Hey! Welcome to CANCAS.STUDIO. I\'m Nex, your AI guide. Are you looking to build a new website, or do you have a question about our services?',
       'Hello! Great to have you here. I\'m Nex — I can help you with pricing, services, timelines, or anything else about CANCAS.STUDIO. What\'s on your mind?',
       'Hi there! I\'m Nex. Whether you\'re a new client exploring options or an existing client with a question, I\'m here to help. What can I do for you today?'
     ]);
 
-  // Who are you / what is this
-  if(l.match(/who are you|what are you|your name|are you (a )?bot|are you (an )?ai|are you human|are you real/))
+  // Who is this / who are you / what is this / what is nex
+  if(l.match(/who (is|are) (this|you|nex)|what (is|are) (this|you|nex)|your name|are you (a )?bot|are you (an )?ai|are you human|are you real|introduce yourself|what can you do|what do you know|^who\??$|^what\??$|^nex\??$|who made (you|this)|who built (this|you)|who created (you|this)|who owns (this|cancas)|who runs (this|cancas)|tell me about yourself/))
     return pick('whoami',[
-      'I\'m Nex — the AI assistant for CANCAS.STUDIO. I can answer questions about our web design services, pricing, timelines, and more. What would you like to know?',
-      'I\'m Nex, CANCAS.STUDIO\'s virtual assistant. I\'m powered by AI and know everything about our services, packages, and process. How can I help you today?'
+      'I\'m Nex — the AI assistant built for CANCAS.STUDIO, a premium web design agency based in Dubai. I can help you with pricing, timelines, package details, demos, and anything else about our services. What would you like to know?',
+      'Hey! I\'m Nex, the AI guide for CANCAS.STUDIO. Think of me as your 24/7 web design consultant — I know everything about our packages, demos, process, and pricing. Ask me anything!',
+      'I\'m Nex — an AI assistant created specifically for CANCAS.STUDIO. I\'m here to help you explore our web design services, pricing, and portfolio. I can answer questions instantly at any hour. What can I help you with today?'
     ]);
 
-  // About the company
-  if(l.match(/who is cancas|what is cancas|about you|about cancas|about the company|tell me about|what do you do|what does cancas/))
+  // About the company — catch more variations
+  if(l.match(/who is cancas|what is cancas|about (you|cancas|this|the company|this company|your company)|tell me (about|more)|what do you do|what does cancas|how does this work|this website|this page|what('s| is) this (site|website|page|place)|what do you (offer|provide|sell)|what service|describe yourself|explain (what|who|this)/))
     return pick('about',[
-      'CANCAS.STUDIO is a premium web design and development agency based in Dubai, UAE. We build fast, modern, AI-powered websites for businesses across all industries — from restaurants and salons to real estate and tech companies. We typically launch sites in 7–14 days.',
-      'We\'re a Dubai-based web agency that specialises in building high-converting custom websites. From a 5-page starter site to a full enterprise platform with AI chatbot, booking systems and CRM — we do it all. Want to see pricing or examples?'
+      'CANCAS.STUDIO is a premium web design agency based in Dubai, UAE. We build fast, modern, AI-powered websites for businesses across every industry — from restaurants and salons to real estate and tech companies. Most sites launch in 7–14 days. Want to see our pricing or portfolio?',
+      'We\'re a Dubai-based web design studio that builds high-converting custom websites. From a clean 5-page starter site to a full AI-powered platform — we do it all, fast. Starter plans from AED 1,464. Shall I show you what we can build for your industry?',
+      'This is CANCAS.STUDIO — a web design agency in Dubai. We build premium websites for businesses across all industries. You\'re currently on our portfolio site. Scroll up to see our work, or ask me about pricing and timelines!'
     ]);
 
   // Pricing / cost / packages
@@ -3022,13 +3024,24 @@ function getFallback(l){
       'Your satisfaction is guaranteed. We don\'t consider a project done until you love it. That\'s why Business and Premium packages have unlimited revisions, and even our Starter includes 2 rounds of changes. We\'re proud of our 98% client satisfaction rate.'
     ]);
 
-  // Catchall — genuinely varied, helpful, never repetitive
+  // Short / single word messages that weren't caught above
+  if(l.match(/^(ok|okay|k|cool|nice|wow|interesting|lol|haha|hmm|umm|uh|err|oh)[\s!.,?]*$/))
+    return pick('ack',[
+      'Ha! Not sure what to make of that one 😄 — but I\'m here to help. What would you like to know about CANCAS.STUDIO or our web design services?',
+      'I\'ll take that as curiosity! Ask me anything — pricing, timelines, demos, specific industries. I\'m happy to help.',
+    ]);
+
+  // Numbers / test inputs
+  if(l.match(/^[0-9\s.,?!]+$/))
+    return pick('num',['Hmm, just a number! Were you trying to ask about a specific price or package? Our packages start at AED 1,464. What can I help you with?']);
+
+  // Catchall — give real helpful info then invite follow-up
   var catchalls = [
-    'That\'s a great question — could you tell me a bit more about what you\'re looking for? I\'m happy to help with anything from pricing and timelines to specific features for your industry.',
-    'I want to make sure I give you the most relevant answer! Are you exploring website options for a new business, or looking to upgrade an existing site?',
-    'I\'d love to help with that. To point you in the right direction — are you thinking about a one-time website build, or a monthly managed plan where we handle everything?',
-    'Good question! The best way to get a precise answer is to describe your business briefly. What industry are you in, and roughly how many pages do you think you\'d need?',
-    'I can definitely help with that. Quick question first — is this for a brand new business website, or are you looking to replace or improve an existing one?'
+    "Hi! I'm Nex, the AI assistant for CANCAS.STUDIO — a web design agency in Dubai. We build custom websites for restaurants, salons, real estate, gyms, tech companies and more. Prices start from AED 1,464 one-time or AED 99/month managed. What can I help you with?",
+    "CANCAS.STUDIO builds premium websites for Dubai businesses — restaurants, salons, real estate, fitness studios and more. Websites launch in 7–14 days, starting from AED 1,464. Ask me about pricing, our portfolio, timelines, or anything else!",
+    "Great to have you here! CANCAS.STUDIO is a Dubai web design studio. Whether you need a simple 5-page site or a full AI-powered platform, we have packages to match. I'm Nex — ask me anything about our services, pricing, or how we work.",
+    "I'm Nex, your AI guide for CANCAS.STUDIO. We create custom websites for businesses across every industry in Dubai and worldwide. Starter from AED 1,464 · Business from AED 2,932 · Premium from AED 5,501. Monthly plans from AED 99/mo. What would you like to know?",
+    "Happy to help! CANCAS.STUDIO is a premium web design agency based in Dubai. We specialise in fast, custom, mobile-first websites with AI chatbots, booking systems, SEO and more — delivered in as little as 7 days. What kind of website are you looking for?"
   ];
   return pick('catchall', catchalls);
 }
@@ -3402,9 +3415,9 @@ function calcCustom(){
 
 // ── CLOUD SYNC ──────────────────────────────────────────────
 var SYNC = {
-  getKey:   function(){ return localStorage.getItem('sync_api_key')||''; },
+  getKey:   function(){ return (localStorage.getItem('sync_api_key')||'').trim(); },
   getBinId: function(){ return localStorage.getItem('sync_bin_id')||''; },
-  setKey:   function(k){ localStorage.setItem('sync_api_key', k); },
+  setKey:   function(k){ localStorage.setItem('sync_api_key', (k||'').trim()); },
   setBinId: function(id){ localStorage.setItem('sync_bin_id', id); },
 
   status: function(msg, ok){
@@ -3432,7 +3445,8 @@ var SYNC = {
     var method = binId ? 'PUT' : 'POST';
     var headers = {
       'Content-Type': 'application/json',
-      'X-Master-Key': key
+      'X-Master-Key': key,
+      'X-Access-Key': key
     };
     if(!binId) headers['X-Bin-Name'] = 'cancas-crm';
     if(!binId) headers['X-Bin-Private'] = 'true';
@@ -3444,6 +3458,7 @@ var SYNC = {
     fetch(url, { method: method, headers: headers, body: JSON.stringify(payload), signal: controller.signal })
       .then(function(r){
         clearTimeout(timer);
+        if(r.status===401||r.status===403) throw new Error('HTTP 401 — invalid API key');
         if(!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
@@ -3458,7 +3473,14 @@ var SYNC = {
       })
       .catch(function(err){
         clearTimeout(timer);
-        var msg = err && err.name==='AbortError' ? 'Timed out — check internet connection' : ('Sync failed: '+(err&&err.message||'unknown'));
+        var errMsg = err&&err.message||'unknown';
+        var msg = err && err.name==='AbortError'
+          ? 'Timed out — check internet connection'
+          : errMsg.indexOf('401') > -1
+            ? 'Auth failed (401) — re-enter your key in ☁ Sync. Make sure you copy it fresh from jsonbin.io → API Keys'
+            : errMsg.indexOf('403') > -1
+              ? 'Access denied (403) — the Bin ID may belong to a different account'
+              : 'Sync failed: '+errMsg;
         self.status(msg, false);
         if(!silent){
           var st = document.getElementById('sync-modal-status');
@@ -3478,7 +3500,7 @@ var SYNC = {
     this.status('Loading...', null);
     var self = this;
     fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', {
-      headers: { 'X-Master-Key': key }
+      headers: { 'X-Master-Key': key, 'X-Access-Key': key }
     })
       .then(function(r){ return r.json(); })
       .then(function(data){
@@ -3559,9 +3581,10 @@ function kpiClick(tab){
   document.querySelectorAll('.crm-tab').forEach(function(t){
     var fn=t.getAttribute('onclick')||'';
     if(tab==='all' && fn.indexOf('showClientsView')>-1) t.classList.add('active');
+    else if(tab==='active_all' && (fn.indexOf("'active'")>-1 || fn.indexOf("'inprogress'")>-1)) t.classList.add('active');
     else if(fn.indexOf("'"+tab+"'")>-1) t.classList.add('active');
   });
-  CRM.currentTab=tab;
+  CRM.currentTab = tab;
   renderCrmGrid();
   var nav=document.querySelector('.crm-nav');
   if(nav) setTimeout(function(){ nav.scrollIntoView({behavior:'smooth',block:'nearest'}); },100);
@@ -3715,7 +3738,7 @@ function saveSyncConfig(){
   var key = (document.getElementById('sync-api-key')||{}).value||'';
   var st = document.getElementById('sync-modal-status');
   if(!key || !key.startsWith('$')){ if(st) st.textContent = '⚠ Paste the full key from JSONBin — it should start with $2a$ or $2b$'; if(st) st.style.color='#ff5050'; return; }
-  SYNC.setKey(key.trim());
+  SYNC.setKey(key.trim().replace(/[\s\u200B\u00A0\uFEFF]/g,''));
   // Save manually entered Bin ID if present
   var binInp = document.getElementById('sync-bin-id');
   if(binInp && binInp.value && binInp.value.length > 5 && binInp.value !== 'Creating...'){
@@ -3766,7 +3789,9 @@ function renderCrmGrid(){
   var tab = CRM.currentTab;
 
   var clients = CRM.clients.filter(function(c){
-    if(tab!=='all' && c.status!==tab) return false;
+    if(tab==='active_all'){
+      if(c.status!=='active' && c.status!=='inprogress' && c.status!=='revision') return false;
+    } else if(tab!=='all' && c.status!==tab) return false;
     if(search){
       var hay = ((c.name||'')+(c.biz||'')+(c.email||'')+(c.industry||'')).toLowerCase();
       if(hay.indexOf(search)===-1) return false;
@@ -3835,7 +3860,10 @@ function updateKpis(){
   if(el('kpi-leads'))el('kpi-leads').textContent=leads;
   if(el('kpi-done'))el('kpi-done').textContent=done;
   if(el('kpi-rev'))el('kpi-rev').textContent='AED '+rev.toLocaleString()+'/mo';
-  if(el('kpi-total-sub'))el('kpi-total-sub').textContent=active+' active';
+  var leads = CRM.clients.filter(function(c){ return c.status==='lead'; }).length;
+  if(el('kpi-total-sub'))el('kpi-total-sub').textContent=active+' active · '+leads+' lead'+(leads!==1?'s':'');
+  if(el('kpi-leads-sub'))el('kpi-leads-sub').textContent=leads > 0 ? 'click to view' : '';
+  if(el('kpi-done-sub'))el('kpi-done-sub').textContent=done > 0 ? done+' project'+(done!==1?'s':'') : '';
 }
 
 function openNewClient(){
