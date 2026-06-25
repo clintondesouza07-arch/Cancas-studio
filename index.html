@@ -5,6 +5,8 @@
 <!-- Google Analytics 4 (GA4) -->
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWM62JTN1D" onload="gtag('js',new Date());gtag('config','G-RWM62JTN1D');"></script>
+<!-- Supabase JS SDK (admin auth + cloud enquiry database) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -2500,8 +2502,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><svg style="width:30px;height:30px;animation:navMarkSpin 28s linear infinite;filter:drop-shadow(0 0 6px rgba(74,173,173,0.5));flex-shrink:0;" viewBox="0 0 120 120" fill="none"><defs><radialGradient id="mmamBg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0d2828"/><stop offset="100%" stop-color="#040e0e"/></radialGradient></defs><circle cx="60" cy="60" r="57" fill="url(#mmamBg)"/><circle cx="60" cy="60" r="56" stroke="#4aadad" stroke-width="1.8" fill="none"/><g fill="#4aadad" fill-opacity="0.9"><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(120,60,60)"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(240,60,60)"/></g><circle cx="60" cy="33" r="5" fill="#040e0e"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(120,60,60)"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(240,60,60)"/><circle cx="60" cy="60" r="9" fill="#040e0e"/><circle cx="60" cy="60" r="9" stroke="#4aadad" stroke-width="1.4" fill="none"/><circle cx="60" cy="60" r="3.5" fill="#7dd4d4"/></svg><div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:13px;letter-spacing:3px;color:#f0ece5;">CANCAS</span><span style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#4aadad;text-transform:uppercase;margin-top:2px;">Studio</span></div></a>
     <h3>Admin Access</h3>
     <p>Enter your credentials to access the admin panel</p>
-    <div class="fg" style="margin-bottom:14px"><label>Username</label><input type="text" id="admin-u" placeholder="Username"></div>
-    <div class="fg" style="margin-bottom:28px"><label>Password</label><input type="password" id="admin-p" placeholder="Password" onkeypress="if(event.key==='Enter')doAdminLogin()"></div>
+    <div class="fg" style="margin-bottom:14px"><label>Email</label><input type="email" id="admin-u" placeholder="hello@cancasstudio.com" autocomplete="username"></div>
+    <div class="fg" style="margin-bottom:28px"><label>Password</label><input type="password" id="admin-p" placeholder="Password" autocomplete="current-password" onkeypress="if(event.key==='Enter')doAdminLogin()"></div>
     <button class="btn-primary" style="width:100%;justify-content:center;" onclick="doAdminLogin()">Sign In</button>
     <button class="admin-cancel" onclick="document.getElementById('admin-modal').classList.remove('open')" aria-label="Close admin login">← Back to website</button>
   </div>
@@ -2510,38 +2512,23 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- SYNC SETUP MODAL -->
 <div id="sync-modal" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,.92);align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:36px 40px;width:min(520px,92vw);max-height:90vh;overflow-y:auto;">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--white);letter-spacing:1px;margin-bottom:6px;">☁ CLOUD SYNC SETUP</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;">Sync your CRM data across all devices (PC, phone, tablet). Uses <strong style="color:var(--cyan)">JSONBin.io</strong> — free, no credit card needed. Setup takes 2 minutes.</p>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--white);letter-spacing:1px;margin-bottom:6px;">☁ CLOUD SYNC</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;">Your CRM is now stored securely in your private <strong style="color:var(--cyan)">Supabase</strong> database and syncs automatically across every device the moment you log in. No setup needed.</p>
 
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;">How to get your free API key</div>
-      <ol style="font-size:13px;color:var(--muted);line-height:2;padding-left:18px;margin:0;">
-        <li>Go to <a href="https://jsonbin.io/app/sign-in" target="_blank" style="color:var(--cyan);">jsonbin.io → sign in</a> → click <strong style="color:var(--text)">Sign Up Free</strong></li>
-        <li>Verify your email and log in</li>
-        <li>Go to <strong style="color:var(--text)">API Keys</strong> in the top menu</li>
-        <li>Copy your <strong style="color:var(--text)">X-Master-Key</strong> (starts with $2a$ or $2b$)</li>
-        <li>Paste it below and click Save &amp; Sync</li>
-      </ol>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
-      <div><label style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">JSONBin API Key (X-Master-Key)</label>
-        <input id="sync-api-key" class="crm-input" type="password" placeholder="$2b$10$..." style="font-family:'JetBrains Mono',monospace;font-size:12px;">
-      </div>
-      <div><label style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Bin ID <span style="color:#555;">(auto-filled after first save)</span></label>
-        <input id="sync-bin-id" class="crm-input" type="text" placeholder="Auto-generated — or paste manually from jsonbin.io" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
-      </div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;">How it works</div>
+      <ul style="font-size:13px;color:var(--muted);line-height:2;padding-left:18px;margin:0;">
+        <li>Every change you make saves to the cloud instantly.</li>
+        <li>Logging in on any device pulls your latest data.</li>
+        <li>Only your admin account can read or edit it.</li>
+      </ul>
     </div>
     <div id="sync-modal-status" style="font-size:12px;color:var(--muted);min-height:18px;margin-bottom:16px;"></div>
-    <div style="display:flex;gap:10px;flex-direction:column;">
-      <button class="crm-btn" onclick="saveSyncConfig()" style="width:100%;font-size:13px;padding:14px;">① Save &amp; Sync Now — do this FIRST on every new device</button>
-      <div style="display:flex;gap:10px;">
-        <button class="crm-btn sec" onclick="manualPull()" style="flex:1;">② Pull from Cloud — after Step 1 is done</button>
-        <button class="crm-btn sec" onclick="closeSyncSetup()">Close</button>
-      </div>
-    </div>
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:#555;line-height:1.6;">
-      Your data is stored privately in your own JSONBin account. The API key is saved in your browser and never sent anywhere except jsonbin.io.
+    <!-- Hidden legacy fields kept so older code references don't error -->
+    <input id="sync-api-key" type="hidden"><input id="sync-bin-id" type="hidden">
+    <div style="display:flex;gap:10px;">
+      <button class="crm-btn sec" onclick="manualPull()" style="flex:1;">Refresh from cloud</button>
+      <button class="crm-btn sec" onclick="closeSyncSetup()">Close</button>
     </div>
   </div>
 </div>
@@ -3003,13 +2990,13 @@ document.getElementById('demo-modal').addEventListener('click',function(e){if(e.
 
 // ADMIN
 function openAdmin(e){if(e)e.preventDefault();document.getElementById('admin-modal').classList.add('open');}
-function doAdminLogin(){
-  if(document.getElementById('admin-u').value==='cancas_admin'&&document.getElementById('admin-p').value==='Cancas@2026!'){
-    document.getElementById('admin-modal').classList.remove('open');
-    document.getElementById('admin-panel').classList.add('open');
-  }else{alert('Incorrect credentials. Check the hint shown below the form.');}
+// Real authentication is wired in _patchAdminForCrm() below (Supabase Auth).
+// This stub is replaced on load; it holds no credentials.
+function doAdminLogin(){ alert('Login service is still loading — please try again in a moment.'); }
+function closeAdmin(){
+  document.getElementById('admin-panel').classList.remove('open');
+  try { var sb = getSB(); if(sb) sb.auth.signOut(); } catch(e){}
 }
-function closeAdmin(){document.getElementById('admin-panel').classList.remove('open');}
 document.getElementById('admin-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
 // CHAT
@@ -3153,22 +3140,19 @@ async function sendChat(){
   chatHistory.push({role:'user', content: msg});
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    // Calls Claude securely through our Supabase Edge Function — the API key
+    // lives server-side and is never exposed in this page.
+    const r = await fetch(SUPABASE_URL + '/functions/v1/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'apikey': SUPABASE_KEY
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        system: CHAT_SYSTEM,
-        messages: chatHistory.slice(-10)
-      })
+      body: JSON.stringify({ messages: chatHistory.slice(-10) })
     });
     const data = await r.json();
-    const reply = data.content?.[0]?.text;
+    const reply = data && data.reply;
     if(reply){
       chatHistory.push({role:'assistant', content: reply});
       removeTyping();
@@ -3625,6 +3609,68 @@ window.addEventListener('scroll',()=>{
 </div>
 
 <script>
+// ════════════════════════════════════════════════════════════════════════
+// CONTACT FORM — Web3Forms access key
+// Get a FREE key at https://web3forms.com (enter hello@cancasstudio.com,
+// verify that inbox, copy the key). Paste it between the quotes below.
+// Until a real key is here, the form falls back to WhatsApp/email.
+// ════════════════════════════════════════════════════════════════════════
+const WEB3FORMS_KEY = "d477442f-d95c-49e5-8d92-d2265ef3d7e8";
+
+// ════════════════════════════════════════════════════════════════════════
+// SUPABASE — admin login + cloud enquiry database
+// The URL and publishable key below are SAFE to expose: all real security is
+// enforced server-side by Row Level Security. The public can only submit the
+// contact form; only the logged-in admin can read leads.
+// ════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL  = "https://dfckurqjlqhprdsrorvw.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_wYiqkV5i85UqwoszcpnBxA_8nPxWX-v";
+const ADMIN_EMAIL   = "hello@cancasstudio.com";
+var _sb = null;
+function getSB(){
+  if(_sb) return _sb;
+  if(typeof supabase === 'undefined' || !supabase.createClient) return null;
+  _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return _sb;
+}
+
+// Pull all enquiries from the cloud DB into the local CRM view (every device).
+async function SB_loadEnquiries(){
+  var sb = getSB();
+  if(!sb) return;
+  try {
+    var res = await sb.from('enquiries').select('*').order('created_at', {ascending:false});
+    if(res.error){ console.warn('Enquiry load failed:', res.error.message); return; }
+    var mapped = (res.data||[]).map(function(r){
+      return {
+        id: r.id,
+        name: r.name, email: r.email, phone: r.phone||'',
+        biz: r.business||'Not specified', pkg: r.package||'Not specified',
+        detail: r.detail||'',
+        date: new Date(r.created_at).toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+        status: r.status||'new', read: !!r.is_read
+      };
+    });
+    try { localStorage.setItem('crm_enquiries', JSON.stringify(mapped)); } catch(e){}
+    try { if(typeof renderEnquiries==='function') renderEnquiries(); } catch(e){}
+    try { updateEnquiryBadge(); } catch(e){}
+  } catch(e){ console.warn('Enquiry load error:', e); }
+}
+
+// Best-effort cloud updates for admin actions (read / status / delete).
+function SB_updateEnquiry(id, patch){
+  var sb = getSB(); if(!sb) return;
+  sb.from('enquiries').update(patch).eq('id', id).then(function(r){
+    if(r.error) console.warn('Enquiry update failed:', r.error.message);
+  });
+}
+function SB_deleteReadEnquiries(){
+  var sb = getSB(); if(!sb) return;
+  sb.from('enquiries').delete().eq('is_read', true).then(function(r){
+    if(r.error) console.warn('Enquiry cleanup failed:', r.error.message);
+  });
+}
+
 // ── PRICING ENGINE ──────────────────────────────────────────────────────
 // Base prices in USD (AED / 3.67)
 // ── Prices stored in AED, converted live ────────────────────────────────
@@ -3905,12 +3951,18 @@ function calcCustom(){
 // Data stored in localStorage under key 'crm_clients'
 // ══════════════════════════════════════════════════════════════
 
-// ── CLOUD SYNC ──────────────────────────────────────────────
+// ── CLOUD SYNC (Supabase) ───────────────────────────────────
+// Clients are stored in the Supabase `clients` table (one row each, full
+// object in a jsonb `data` column), protected by admin-only RLS. localStorage
+// is kept as an offline mirror so all the CRM UI code works unchanged.
 var SYNC = {
-  getKey:   function(){ return (localStorage.getItem('sync_api_key')||'').trim(); },
-  getBinId: function(){ return localStorage.getItem('sync_bin_id')||''; },
-  setKey:   function(k){ localStorage.setItem('sync_api_key', (k||'').trim()); },
-  setBinId: function(id){ localStorage.setItem('sync_bin_id', id); },
+  _hydrated: false,   // true once we've pulled from cloud — guards against wiping cloud with an empty local set
+
+  // Legacy no-ops (the old JSONBin key/bin UI is retired; Supabase auth is the gate)
+  getKey:   function(){ return 'supabase'; },
+  getBinId: function(){ return 'supabase'; },
+  setKey:   function(){},
+  setBinId: function(){},
 
   status: function(msg, ok){
     var dot = document.getElementById('sync-dot');
@@ -3919,90 +3971,62 @@ var SYNC = {
     if(txt) txt.textContent = msg||'';
   },
 
-  // Push all data to JSONBin
+  // Push all local clients to Supabase (upsert + delete-missing)
   push: function(silent){
-    var key = this.getKey();
-    if(!key) return;
-    var binId = this.getBinId();
-    var payload = {
-      crm_clients: localStorage.getItem('crm_clients')||'[]',
-      crm_enquiries: localStorage.getItem('crm_enquiries')||'[]',
-      ts: Date.now()
-    };
+    var sb = getSB();
+    if(!sb) return;
+    var clients = [];
+    try { clients = JSON.parse(localStorage.getItem('crm_clients')||'[]'); } catch(e){ return; }
     if(!silent) this.status('Syncing...', null);
     var self = this;
-    var url = binId
-      ? 'https://api.jsonbin.io/v3/b/' + binId
-      : 'https://api.jsonbin.io/v3/b';
-    var method = binId ? 'PUT' : 'POST';
-    var headers = {
-      'Content-Type': 'application/json',
-      'X-Master-Key': key,
-      'X-Access-Key': key
-    };
-    if(!binId) headers['X-Bin-Name'] = 'cancas-crm';
-    if(!binId) headers['X-Bin-Private'] = 'true';
+    var nowIso = new Date().toISOString();
+    var rows = clients.map(function(c){
+      return {
+        id: String(c.id),
+        name: c.name || '',
+        email: c.email || '',
+        status: c.status || 'lead',
+        data: c,
+        updated_at: nowIso
+      };
+    });
+    var ids = rows.map(function(r){ return r.id; });
 
-    // 15 second timeout
-    var controller = new AbortController();
-    var timer = setTimeout(function(){ controller.abort(); }, 15000);
+    var upsertP = rows.length
+      ? sb.from('clients').upsert(rows, { onConflict: 'id' })
+      : Promise.resolve({ error: null });
 
-    fetch(url, { method: method, headers: headers, body: JSON.stringify(payload), signal: controller.signal })
-      .then(function(r){
-        clearTimeout(timer);
-        if(r.status===401||r.status===403) throw new Error('HTTP 401 — invalid API key');
-        if(!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function(data){
-        if(data.metadata && data.metadata.id){
-          self.setBinId(data.metadata.id);
-          var binInp = document.getElementById('sync-bin-id');
-          if(binInp) binInp.value = data.metadata.id;
-        }
-        if(!silent) self.status('Synced ✓', true);
-        else self.status('Cloud sync ✓', true);
-      })
-      .catch(function(err){
-        clearTimeout(timer);
-        var errMsg = err&&err.message||'unknown';
-        var msg = err && err.name==='AbortError'
-          ? 'Timed out — check internet connection'
-          : errMsg.indexOf('401') > -1
-            ? 'Auth failed (401) — re-enter your key in ☁ Sync. Make sure you copy it fresh from jsonbin.io → API Keys'
-            : errMsg.indexOf('403') > -1
-              ? 'Access denied (403) — the Bin ID may belong to a different account'
-              : 'Sync failed: '+errMsg;
-        self.status(msg, false);
-        if(!silent){
-          var st = document.getElementById('sync-modal-status');
-          if(st){ st.textContent = '⚠ '+msg+'. Go to jsonbin.io → Bins — if "cancas-crm" exists there, copy its ID and paste it in the Bin ID field below, then click Pull from Cloud.'; st.style.color='#ff5050'; }
-          var binInp = document.getElementById('sync-bin-id');
-          if(binInp && binInp.value==='Creating...') binInp.value = '';
-          if(binInp) binInp.removeAttribute('readonly');
-        }
-      });
+    Promise.resolve(upsertP).then(function(res){
+      if(res && res.error) throw res.error;
+      // Remove clients deleted locally — but ONLY after a successful pull,
+      // so an un-hydrated empty browser can never wipe the cloud.
+      if(!self._hydrated) return { error: null };
+      if(ids.length){
+        return sb.from('clients').delete().not('id', 'in', '(' + ids.join(',') + ')');
+      }
+      return sb.from('clients').delete().neq('id', '__none__');
+    }).then(function(res){
+      if(res && res.error) throw res.error;
+      self.status('Cloud sync ✓', true);
+    }).catch(function(err){
+      self.status('Sync failed: ' + (err && err.message || 'unknown'), false);
+    });
   },
 
-  // Pull latest data from JSONBin into localStorage then refresh UI
+  // Pull all clients from Supabase into localStorage, then refresh UI
   pull: function(cb){
-    var key = this.getKey();
-    var binId = this.getBinId();
-    if(!key || !binId){ if(cb) cb(false); return; }
+    var sb = getSB();
+    if(!sb){ if(cb) cb(false); return; }
     this.status('Loading...', null);
     var self = this;
-    fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', {
-      headers: { 'X-Master-Key': key, 'X-Access-Key': key }
-    })
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        var rec = data.record || data;
-        if(rec.crm_clients) localStorage.setItem('crm_clients', rec.crm_clients);
-        if(rec.crm_enquiries) localStorage.setItem('crm_enquiries', rec.crm_enquiries);
-        self.status('Cloud sync ✓', true);
-        if(cb) cb(true);
-      })
-      .catch(function(){ self.status('Offline — local data', false); if(cb) cb(false); });
+    sb.from('clients').select('data').order('updated_at', { ascending: false }).then(function(res){
+      if(res.error){ self.status('Offline — local data', false); if(cb) cb(false); return; }
+      var clients = (res.data||[]).map(function(r){ return r.data; });
+      try { localStorage.setItem('crm_clients', JSON.stringify(clients)); } catch(e){}
+      self._hydrated = true;
+      self.status('Cloud sync ✓', true);
+      if(cb) cb(true);
+    }, function(){ self.status('Offline — local data', false); if(cb) cb(false); });
   }
 };
 
@@ -4134,6 +4158,7 @@ function markEnquiryRead(id){
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries')||'[]'); } catch(e){}
   enquiries = enquiries.map(function(e){ if(e.id===id){ e.read=true; } return e; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_updateEnquiry(id, { is_read: true });
   renderEnquiries();
   updateEnquiryBadge();
 }
@@ -4143,6 +4168,7 @@ function markEnquiryReplied(id){
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries')||'[]'); } catch(e){}
   enquiries = enquiries.map(function(e){ if(e.id===id){ e.status='replied'; e.read=true; } return e; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_updateEnquiry(id, { status: 'replied', is_read: true });
   updateEnquiryBadge();
 }
 
@@ -4154,6 +4180,7 @@ function convertEnquiryToLead(id){
   // Mark as converted
   enquiries = enquiries.map(function(e){ if(e.id===id){ e.status='converted'; e.read=true; } return e; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_updateEnquiry(id, { status: 'converted', is_read: true });
   // Open new client profile pre-filled
   CRM.currentId = null;
   clearProfileForm();
@@ -4185,35 +4212,45 @@ function clearReadEnquiries(){
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries')||'[]'); } catch(e){}
   enquiries = enquiries.filter(function(e){ return !e.read; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_deleteReadEnquiries();
   renderEnquiries();
   updateEnquiryBadge();
 }
 
 function crmInit(){
-  // Load local data immediately so UI shows fast
+  // Load local mirror immediately so UI shows fast
   CRM.load();
   renderCrmGrid();
   updateKpis();
   updateEnquiryBadge();
-  // Then pull latest from cloud and refresh
-  var syncKey = SYNC.getKey();
-  if(syncKey && SYNC.getBinId()){
-    SYNC.pull(function(ok){
-      if(ok){
-        CRM.load();
-        renderCrmGrid();
-        updateKpis();
-        updateEnquiryBadge();
-      }
-    });
-  } else if(!syncKey) {
-    SYNC.status('Local only — set up ☁ Sync', null);
-  }
-  // Restore sync UI config
-  var keyInp = document.getElementById('sync-api-key');
-  var binInp = document.getElementById('sync-bin-id');
-  if(keyInp && SYNC.getKey()) keyInp.value = SYNC.getKey();
-  if(binInp && SYNC.getBinId()) binInp.value = SYNC.getBinId();
+  // Then sync with Supabase (migrate existing local clients up on first run, then pull)
+  crmCloudSync();
+}
+
+// Reconcile local clients with the Supabase cloud database.
+async function crmCloudSync(){
+  var sb = getSB();
+  if(!sb){ SYNC.status('Offline — local data', false); return; }
+  var local = [];
+  try { local = JSON.parse(localStorage.getItem('crm_clients')||'[]'); } catch(e){}
+  try {
+    var res = await sb.from('clients').select('id');
+    if(res.error){ SYNC.status('Offline — local data', false); return; }
+    var cloudCount = (res.data||[]).length;
+    if(cloudCount === 0 && local.length > 0){
+      // First run on a device that already has clients → migrate them to the cloud.
+      SYNC.status('Migrating your clients to the cloud...', null);
+      SYNC._hydrated = true;            // trust this device's local data as the source
+      SYNC.push(true);
+      setTimeout(function(){
+        SYNC.pull(function(){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); });
+      }, 1400);
+    } else {
+      SYNC.pull(function(ok){
+        if(ok){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); }
+      });
+    }
+  } catch(e){ SYNC.status('Offline — local data', false); }
 }
 
 function openSyncSetup(){
@@ -4849,15 +4886,32 @@ var _crmAdminPatched = false;
 function _patchAdminForCrm(){
   if(_crmAdminPatched) return;
   _crmAdminPatched = true;
-  var origLogin = window.doAdminLogin;
-  window.doAdminLogin = function(){
-    if(document.getElementById('admin-u').value==='cancas_admin'
-      && document.getElementById('admin-p').value==='Cancas@2026!'){
+  window.doAdminLogin = async function(){
+    var email = (document.getElementById('admin-u').value||'').trim();
+    var pass  = document.getElementById('admin-p').value||'';
+    var btn   = document.querySelector('#admin-modal .btn-primary');
+    if(!email || !pass){ alert('Please enter your email and password.'); return; }
+
+    var sb = getSB();
+    if(!sb){ alert('Login service is still loading — please try again in a moment.'); return; }
+
+    if(btn){ btn.disabled = true; btn.dataset._t = btn.textContent; btn.textContent = 'Signing in...'; }
+    try {
+      var res = await sb.auth.signInWithPassword({ email: email, password: pass });
+      if(res.error){
+        alert('Incorrect email or password.');
+        return;
+      }
+      // Signed in — open the panel and load cloud data.
       document.getElementById('admin-modal').classList.remove('open');
       document.getElementById('admin-panel').classList.add('open');
+      document.getElementById('admin-p').value = '';
       setTimeout(crmInit, 80);
-    } else {
-      alert('Incorrect credentials.');
+      SB_loadEnquiries();
+    } catch(e){
+      alert('Could not reach the login service. Check your connection and try again.');
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = btn.dataset._t || 'Sign In'; }
     }
   };
 }
@@ -4882,7 +4936,7 @@ window.submitContactForm = function submitContactForm(btn) {
   btn.disabled = true;
   btn.innerHTML = '<span style="opacity:.7">Sending...</span>';
 
-  // Save enquiry directly to admin inbox (localStorage)
+  // ── 1. Save to the in-page CRM (works on the admin's own device) ──
   var enquiries = [];
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries') || '[]'); } catch(e){}
   var enquiry = {
@@ -4898,12 +4952,69 @@ window.submitContactForm = function submitContactForm(btn) {
     read: false
   };
   enquiries.unshift(enquiry);
-  localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
-  setTimeout(function(){ SYNC.push(true); }, 200);
+  try { localStorage.setItem('crm_enquiries', JSON.stringify(enquiries)); } catch(e){}
+  setTimeout(function(){ try { SYNC.push(true); } catch(e){} }, 200);
+  try { updateEnquiryBadge(); } catch(e){}
 
-  // Update admin badge if panel is open
-  updateEnquiryBadge();
-  showFormSuccess(form, btn);
+  // ── 1b. Save to the cloud CRM database (Supabase) — shows in admin on ANY device ──
+  try {
+    var sbc = getSB();
+    if (sbc) {
+      sbc.from('enquiries').insert({
+        name: name, email: email, phone: phone,
+        business: biz, package: pkg, detail: detail
+      }).then(function(r){ if(r.error) console.warn('Cloud enquiry save failed:', r.error.message); });
+    }
+  } catch(e){}
+
+  // ── 2. Send to hello@cancasstudio.com via Web3Forms (works on ANY device) ──
+  var keyMissing = !WEB3FORMS_KEY || WEB3FORMS_KEY.indexOf('PASTE_YOUR') === 0;
+
+  function fallbackToWhatsApp(reason){
+    // Email delivery unavailable — hand the lead to WhatsApp so it is never lost.
+    var waText = 'New website enquiry%0A%0AName: ' + encodeURIComponent(name)
+      + '%0AEmail: ' + encodeURIComponent(email)
+      + '%0APhone: ' + encodeURIComponent(phone || '-')
+      + '%0ABusiness: ' + encodeURIComponent(biz)
+      + '%0APackage: ' + encodeURIComponent(pkg)
+      + '%0ADetails: ' + encodeURIComponent(detail || '-');
+    showFormFallback(form, btn, waText);
+  }
+
+  if (keyMissing) { fallbackToWhatsApp('no-key'); return; }
+
+  var payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: 'New website enquiry — ' + name + ' (' + biz + ')',
+    from_name: 'CANCAS STUDIO Website',
+    name: name,
+    email: email,
+    phone: phone || 'Not provided',
+    business_type: biz,
+    package_interest: pkg,
+    message: detail || 'No details provided',
+    botcheck: ''
+  };
+
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, 15000);
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload),
+    signal: controller.signal
+  })
+  .then(function(r){ clearTimeout(timer); return r.json(); })
+  .then(function(data){
+    if (data && data.success) {
+      if (typeof gtag === 'function') { try { gtag('event', 'generate_lead', { method: 'contact_form' }); } catch(e){} }
+      showFormSuccess(form, btn);
+    } else {
+      fallbackToWhatsApp('api-error');
+    }
+  })
+  .catch(function(){ clearTimeout(timer); fallbackToWhatsApp('network'); });
 }
 
 function showFormSuccess(form, btn){
@@ -4921,6 +5032,27 @@ function showFormSuccess(form, btn){
       + '</div>';
     form.appendChild(msg);
   }
+}
+
+function showFormFallback(form, btn, waText){
+  // Email delivery isn't available right now — give the visitor a one-tap
+  // WhatsApp button pre-filled with their enquiry so the lead still reaches us.
+  form.querySelectorAll('.form-row, .fg').forEach(function(el){ el.style.display='none'; });
+  btn.style.display = 'none';
+  var existing = form.querySelector('.form-success-msg, .form-fallback-msg');
+  if (existing) existing.remove();
+  var msg = document.createElement('div');
+  msg.className = 'form-fallback-msg';
+  msg.innerHTML = '<div style="text-align:center;padding:36px 20px;">'
+    + '<div style="font-size:44px;margin-bottom:14px;">📲</div>'
+    + '<div style="font-family:Barlow Condensed,sans-serif;font-size:26px;font-weight:900;color:#25d366;letter-spacing:1px;margin-bottom:10px;">ONE LAST STEP</div>'
+    + '<div style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px;">Tap below to send your enquiry to us on WhatsApp — it\'s pre-filled and takes one tap.</div>'
+    + '<a href="https://wa.me/971569016046?text=' + waText + '" target="_blank" rel="noopener noreferrer" '
+    + 'style="display:inline-flex;align-items:center;gap:10px;background:#25d366;color:#000;font-family:DM Sans,sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;padding:14px 32px;text-decoration:none;border-radius:4px;">'
+    + 'Send on WhatsApp →</a>'
+    + '<div style="font-size:12px;color:var(--muted);margin-top:18px;">Or email <strong style="color:var(--cyan)">hello@cancasstudio.com</strong> directly.</div>'
+    + '</div>';
+  form.appendChild(msg);
 }
 
 function showFormError(form, message){
