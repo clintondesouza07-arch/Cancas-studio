@@ -2624,14 +2624,18 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
         </div>
         <div class="crm-profile-actions">
-          <button class="crm-btn sec" onclick="CancasPanel.invoice()">🧾 Invoice</button>
-          <button class="crm-btn sec" onclick="CancasPanel.agreement()">📄 Agreement</button>
-          <button class="crm-btn sec" onclick="CancasPanel.signlink()">🔗 Sign Link</button>
-          <button class="crm-btn sec" onclick="CancasPanel.depositReminder()">⏰ Deposit</button>
-          <button class="crm-btn sec" onclick="CancasPanel.balanceReminder()">💰 Balance</button>
           <button class="crm-btn sec" onclick="saveClient()">Save</button>
           <button class="crm-btn sec" onclick="closeCrmProfile()">✕ Close</button>
         </div>
+      </div>
+
+      <!-- Cancas document / action toolbar (full width, below the header) -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);">
+        <button class="crm-btn" onclick="CancasPanel.invoice()">🧾 Invoice</button>
+        <button class="crm-btn" onclick="CancasPanel.agreement()">📄 Agreement</button>
+        <button class="crm-btn" onclick="CancasPanel.signlink()">🔗 Sign Link</button>
+        <button class="crm-btn" onclick="CancasPanel.depositReminder()">⏰ Deposit Reminder</button>
+        <button class="crm-btn" onclick="CancasPanel.balanceReminder()">💰 Balance Reminder</button>
       </div>
 
       <!-- Profile tabs nav -->
@@ -5284,10 +5288,66 @@ function autoBackupOnSave() {
   function fname(s){return String(s||"doc").replace(/[^\w.\-]+/g,"-");}
   function need(d){ if(!d.clientName){ alert("Open a client and enter the Business Name first."); return false;} return true; }
 
+  // ---- preview modal: read the full document, then download / send ----
+  function ensurePreview(){
+    if(document.getElementById("cancas-pv")) return;
+    var m=document.createElement("div"); m.id="cancas-pv";
+    m.style.cssText="position:fixed;inset:0;z-index:100000;background:rgba(6,10,14,.94);display:none;flex-direction:column;padding:16px;font-family:Arial,Helvetica,sans-serif;";
+    m.innerHTML=''
+     +'<div style="max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
+     +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
+     +'    <div id="pv-title" style="font-weight:800;font-size:16px;">Preview</div>'
+     +'    <button onclick="document.getElementById(\'cancas-pv\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;">✕ Close</button>'
+     +'  </div>'
+     +'  <div id="pv-link" style="display:none;padding:10px 16px;border-bottom:1px solid #1f2c38;"></div>'
+     +'  <iframe id="pv-frame" title="preview" style="flex:1;width:100%;border:0;background:#fff;min-height:0;"></iframe>'
+     +'  <div id="pv-foot" style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid #1f2c38;"></div>'
+     +'</div>';
+    document.body.appendChild(m);
+  }
+  function pvBtn(label,fn,primary){var b=document.createElement("button");b.textContent=label;b.style.cssText="background:"+(primary?"#0E7C92":"#1f2c38")+";color:#fff;border:none;border-radius:8px;padding:11px 16px;font-weight:800;cursor:pointer;";b.onclick=fn;return b;}
+  function dg(s){return String(s||"").replace(/[^0-9]/g,"");}
+  function makeLink(d){ return SIGN_BASE+"#d="+btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
+
+  function showDoc(kind){
+    var d=collect(); if(!need(d))return;
+    ensurePdfmake(function(){
+      ensurePreview();
+      var isInv=kind==="invoice";
+      var pdf=pdfMake.createPdf(isInv?buildInvoiceDoc(d):buildAgreementDoc(d,null));
+      document.getElementById("pv-title").textContent=(isInv?"Invoice — ":"Agreement — ")+(d.clientName||"");
+      document.getElementById("pv-link").style.display="none";
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      foot.appendChild(pvBtn("⬇ Download PDF",function(){ pdf.download(fname("Cancas-"+(isInv?"Invoice-"+(d.invoiceNo||"CS"):"Agreement-"+d.clientName))+".pdf"); },true));
+      if(!isInv) foot.appendChild(pvBtn("🔗 Get Signing Link",function(){ showSign(); }));
+      document.getElementById("cancas-pv").style.display="flex";
+    });
+  }
+  function showSign(){
+    var d=collect(); if(!need(d))return;
+    ensurePdfmake(function(){
+      ensurePreview();
+      var link=makeLink(d);
+      var pdf=pdfMake.createPdf(buildAgreementDoc(d,null));
+      document.getElementById("pv-title").textContent="Sign Link — "+(d.clientName||"");
+      var lk=document.getElementById("pv-link"); lk.style.display="block";
+      lk.innerHTML='<div style="color:#8aa0b2;font-size:12px;margin-bottom:6px;">This is exactly what the client will review &amp; sign. Send them this link:</div>'
+        +'<textarea readonly onclick="this.select()" style="width:100%;height:50px;background:#0b1219;color:#cfe0ea;border:1px solid #24333f;border-radius:8px;padding:8px;font-size:11px;box-sizing:border-box;">'+link+'</textarea>';
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      foot.appendChild(pvBtn("📋 Copy Link",function(){ (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert("Signing link copied.");},function(){window.prompt("Copy link:",link);}); },true));
+      var mob=dg(document.getElementById("cf-mobile1")&&document.getElementById("cf-mobile1").value)||dg(document.getElementById("cf-phone")&&document.getElementById("cf-phone").value);
+      foot.appendChild(pvBtn("📲 Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent("Hello, please review and sign your agreement here:\n"+link),"_blank"); }));
+      foot.appendChild(pvBtn("👁 Open client view",function(){ window.open(link,"_blank"); }));
+      document.getElementById("cancas-pv").style.display="flex";
+    });
+  }
+
   window.CancasPanel = {
-    invoice: function(){ var d=collect(); if(!need(d))return; ensurePdfmake(function(){ pdfMake.createPdf(buildInvoiceDoc(d)).download(fname("Cancas-Invoice-"+(d.invoiceNo||"CS"))+".pdf"); }); },
-    agreement: function(){ var d=collect(); if(!need(d))return; ensurePdfmake(function(){ pdfMake.createPdf(buildAgreementDoc(d,null)).download(fname("Cancas-Agreement-"+d.clientName)+".pdf"); }); },
-    signlink: function(){ var d=collect(); if(!need(d))return; var link=SIGN_BASE+"#d="+btoa(unescape(encodeURIComponent(JSON.stringify(d)))); (navigator.clipboard&&navigator.clipboard.writeText? navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert("Signing link copied — paste it to the client.");},function(){ window.prompt("Copy the client signing link:",link); }); }
+    invoice:   function(){ showDoc("invoice"); },
+    agreement: function(){ showDoc("agreement"); },
+    signlink:  function(){ showSign(); }
   };
 })();
 </script>
