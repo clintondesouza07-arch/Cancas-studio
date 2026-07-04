@@ -5307,7 +5307,7 @@ function autoBackupOnSave() {
   }
   function pvBtn(label,fn,primary){var b=document.createElement("button");b.textContent=label;b.style.cssText="background:"+(primary?"#0E7C92":"#1f2c38")+";color:#fff;border:none;border-radius:8px;padding:11px 16px;font-weight:800;cursor:pointer;";b.onclick=fn;return b;}
   function dg(s){return String(s||"").replace(/[^0-9]/g,"");}
-  function makeLink(d){ return SIGN_BASE+"#d="+btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
+  function makeLink(d){ var slim={clientName:d.clientName,clientLocation:d.clientLocation,packageName:d.packageName,total:d.total,monthly:d.monthly,deposit:d.deposit,balance:d.balance,agreementDate:d.agreementDate}; return SIGN_BASE+"#d="+btoa(unescape(encodeURIComponent(JSON.stringify(slim)))); }
 
   function showDoc(kind){
     var d=collect(); if(!need(d))return;
@@ -5324,23 +5324,58 @@ function autoBackupOnSave() {
       document.getElementById("cancas-pv").style.display="flex";
     });
   }
+  function slimData(d){ return {clientName:d.clientName,clientLocation:d.clientLocation,packageName:d.packageName,total:d.total,monthly:d.monthly,deposit:d.deposit,balance:d.balance,agreementDate:d.agreementDate}; }
+  function shortId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
+  function copyText(t){ (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(function(){alert("Copied.");},function(){window.prompt("Copy:",t);}); }
+  // Store agreement in Supabase and return a SHORT link (sign.html?id=xxx). Falls back to the long hash link if offline.
+  function createSignLink(d){
+    return new Promise(function(resolve){
+      var sb=(typeof getSB==="function")?getSB():null;
+      if(!sb){ resolve(makeLink(d)); return; }
+      var id=shortId();
+      try{
+        sb.from('agreements').insert({id:id,data:slimData(d)}).then(function(res){
+          if(res&&res.error){ resolve(makeLink(d)); } else { resolve(SIGN_BASE+"?id="+id); }
+        },function(){ resolve(makeLink(d)); });
+      }catch(e){ resolve(makeLink(d)); }
+    });
+  }
+  // Fetch the client's signed agreement from Supabase and download the signed PDF.
+  function getSignedCopy(d){
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb){ alert("Supabase not available."); return; }
+    sb.from('agreements').select('*').eq('status','signed').eq('data->>clientName',d.clientName).order('created_at',{ascending:false}).limit(1).then(function(res){
+      if(res&&res.error){ alert("Lookup failed: "+res.error.message); return; }
+      var row=(res.data||[])[0];
+      if(!row){ alert("No signed agreement found yet for this client."); return; }
+      ensurePdfmake(function(){
+        var sig={dataUrl:row.signature,name:row.signed_name,title:row.signed_title,date:row.signed_at?new Date(row.signed_at).toLocaleDateString("en-GB"):""};
+        pdfMake.createPdf(buildAgreementDoc(row.data,sig)).download(fname("Cancas-Agreement-SIGNED-"+(d.clientName||"Client"))+".pdf");
+      });
+    },function(){ alert("Lookup failed."); });
+  }
   function showSign(){
     var d=collect(); if(!need(d))return;
     ensurePdfmake(function(){
       ensurePreview();
-      var link=makeLink(d);
       var pdf=pdfMake.createPdf(buildAgreementDoc(d,null));
       document.getElementById("pv-title").textContent="Sign Link — "+(d.clientName||"");
       var lk=document.getElementById("pv-link"); lk.style.display="block";
-      lk.innerHTML='<div style="color:#8aa0b2;font-size:12px;margin-bottom:6px;">This is exactly what the client will review &amp; sign. Send them this link:</div>'
-        +'<textarea readonly onclick="this.select()" style="width:100%;height:50px;background:#0b1219;color:#cfe0ea;border:1px solid #24333f;border-radius:8px;padding:8px;font-size:11px;box-sizing:border-box;">'+link+'</textarea>';
+      lk.innerHTML='<div id="pv-lmsg" style="color:#8aa0b2;font-size:12px;margin-bottom:6px;">Creating short signing link…</div>'
+        +'<textarea id="pv-lbox" readonly onclick="this.select()" style="width:100%;height:50px;background:#0b1219;color:#cfe0ea;border:1px solid #24333f;border-radius:8px;padding:8px;font-size:11px;box-sizing:border-box;">…</textarea>';
       pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
       var foot=document.getElementById("pv-foot"); foot.innerHTML="";
-      foot.appendChild(pvBtn("📋 Copy Link",function(){ (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert("Signing link copied.");},function(){window.prompt("Copy link:",link);}); },true));
-      var mob=dg(document.getElementById("cf-mobile1")&&document.getElementById("cf-mobile1").value)||dg(document.getElementById("cf-phone")&&document.getElementById("cf-phone").value);
-      foot.appendChild(pvBtn("📲 Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent("Hello, please review and sign your agreement here:\n"+link),"_blank"); }));
-      foot.appendChild(pvBtn("👁 Open client view",function(){ window.open(link,"_blank"); }));
       document.getElementById("cancas-pv").style.display="flex";
+      createSignLink(d).then(function(link){
+        var box=document.getElementById("pv-lbox"); if(box) box.value=link;
+        var msg=document.getElementById("pv-lmsg"); if(msg) msg.innerHTML="This is exactly what the client will review &amp; sign. Send them this link:";
+        foot.innerHTML="";
+        foot.appendChild(pvBtn("📋 Copy Link",function(){ copyText(link); },true));
+        var mob=dg(document.getElementById("cf-mobile1")&&document.getElementById("cf-mobile1").value)||dg(document.getElementById("cf-phone")&&document.getElementById("cf-phone").value);
+        foot.appendChild(pvBtn("📲 Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent("Hello, please review and sign your agreement here:\n"+link),"_blank"); }));
+        foot.appendChild(pvBtn("👁 Open client view",function(){ window.open(link,"_blank"); }));
+        foot.appendChild(pvBtn("⤓ Get signed copy",function(){ getSignedCopy(d); }));
+      });
     });
   }
 
