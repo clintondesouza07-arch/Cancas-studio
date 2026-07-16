@@ -2642,6 +2642,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <button class="crm-btn" onclick="CancasPanel.balanceReminder()">💰 Balance Reminder</button>
       </div>
 
+      <!-- Agreement signing status (auto-checked from Supabase on profile open) -->
+      <div id="agr-status-bar" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:13px;flex-wrap:wrap;">
+        <span id="agr-status-text" style="font-weight:700;"></span>
+        <button id="agr-status-btn" class="crm-btn sec" style="display:none;" onclick="CancasPanel.getSignedCopy()">⤓ Download Signed PDF</button>
+      </div>
+
       <!-- Profile tabs nav -->
       <div style="background:var(--bg3);border-bottom:1px solid var(--border);padding:0;display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;" class="crm-prof-tabs-bar">
         <button class="crm-prof-tab active" onclick="switchProfTab('info',this)">Contact &amp; Project</button>
@@ -4401,6 +4407,8 @@ function openNewClient(){
   // Init main category tabs
   var firstCat = document.querySelector('.crm-main-cat');
   if(firstCat) selectMainCat(firstCat);
+  var agrBar = document.getElementById('agr-status-bar');
+  if(agrBar) agrBar.style.display = 'none';
 }
 
 function openClientProfile(id){
@@ -4443,6 +4451,41 @@ function openClientProfile(id){
   // Switch to info tab by default
   var infoBtn = document.querySelector('.crm-prof-tab');
   if(infoBtn) switchProfTab('info', infoBtn);
+  refreshAgreementStatus();
+}
+
+// Checks Supabase for the latest agreement tied to this client (matched the same way
+// the sign-link is created: business name, falling back to contact name) and shows
+// a live status badge — no more asking clients to email back a signed copy.
+function refreshAgreementStatus(){
+  var bar = document.getElementById('agr-status-bar');
+  var txt = document.getElementById('agr-status-text');
+  var btn = document.getElementById('agr-status-btn');
+  if(!bar || !txt) return;
+  var name = ((document.getElementById('cf-biz')||{}).value || (document.getElementById('cf-name')||{}).value || '').trim();
+  if(!name){ bar.style.display='none'; return; }
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  if(!sb){ bar.style.display='none'; return; }
+  sb.from('agreements').select('*').eq('data->>clientName', name).order('created_at',{ascending:false}).limit(1).then(function(res){
+    var row = (res && res.data || [])[0];
+    bar.style.display = 'flex';
+    if(!row){
+      txt.textContent = '📄 No agreement sent yet';
+      txt.style.color = 'var(--muted)';
+      if(btn) btn.style.display = 'none';
+      return;
+    }
+    if(row.status === 'signed'){
+      var d = row.signed_at ? new Date(row.signed_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '';
+      txt.textContent = '✅ Signed by ' + (row.signed_name||'—') + (row.signed_title ? ' ('+row.signed_title+')' : '') + (d ? ' on '+d : '');
+      txt.style.color = '#00e87a';
+      if(btn) btn.style.display = 'inline-flex';
+    } else {
+      txt.textContent = '⏳ Agreement sent — awaiting signature';
+      txt.style.color = '#e8b84b';
+      if(btn) btn.style.display = 'none';
+    }
+  }, function(){ bar.style.display='none'; });
 }
 
 function updateProfileHeader(){
@@ -5288,7 +5331,7 @@ function autoBackupOnSave() {
   function buildInvoiceDoc(d){var s=splitDefaults(d);return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.15},footer:footer(),content:[brandHeader("INVOICE"),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,6]},{canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.4,lineColor:TEAL}],margin:[0,0,0,10]},{columns:[[{text:"BILL TO",color:TEAL,bold:true,fontSize:8,margin:[0,0,0,2]},{text:d.billingEntity||d.clientName||"[Client]",bold:true},{text:d.clientLocation||"United Arab Emirates",color:GREY}],[{text:[{text:"Invoice No:  ",bold:true},(d.invoiceNo||"CS-____")],alignment:"right"},{text:[{text:"Date:  ",bold:true},(d.invoiceDate||"__")],alignment:"right"},{text:[{text:"Due:  ",bold:true},"On signing (advance)"],alignment:"right"}]]},{text:"",margin:[0,6,0,0]},{table:{widths:["*",110],body:[[{text:"DESCRIPTION",fillColor:TEAL,color:"#fff",bold:true},{text:"AMOUNT (AED)",fillColor:TEAL,color:"#fff",bold:true,alignment:"right"}],[{stack:[{text:(d.packageName||"Website — Design & Development")+" (one-time)",bold:true},{text:d.scope||"Custom website build as agreed",color:GREY,fontSize:8.5,margin:[0,2,0,0]}]},{text:money(s.total),alignment:"right"}],[{text:"Subtotal",alignment:"right",bold:true},{text:money(s.total),alignment:"right"}],[{text:"VAT (not applicable)",alignment:"right",color:GREY},{text:"0.00",alignment:"right",color:GREY}],[{text:"TOTAL PROJECT COST",alignment:"right",bold:true,fillColor:LIGHT},{text:money(s.total),alignment:"right",bold:true,fillColor:LIGHT}]]},layout:grid()},{text:"",margin:[0,8,0,0]},{table:{widths:["*",110],body:[[{text:"PAYMENT SCHEDULE",fillColor:TEAL,color:"#fff",bold:true},{text:"AED",fillColor:TEAL,color:"#fff",bold:true,alignment:"right"}],[{stack:[{text:"50% Advance — DUE NOW (before work starts)",bold:true},{text:"Payable on signing the agreement",color:GREY,fontSize:8.5}],fillColor:CREAM},{text:money(s.deposit),alignment:"right",bold:true,fillColor:CREAM}],[{stack:[{text:"50% Balance"},{text:"After final approval, before launch",color:GREY,fontSize:8.5}]},{text:money(s.balance),alignment:"right"}]]},layout:grid()},{text:"",margin:[0,8,0,0]},{table:{widths:["*",130],body:[[{text:"AMOUNT DUE NOW",fillColor:TEAL,color:"#fff",bold:true,fontSize:12},{text:"AED "+money(s.deposit),fillColor:TEAL,color:"#fff",bold:true,fontSize:12,alignment:"right"}]]},layout:{defaultBorder:false,paddingLeft:function(){return 9;},paddingRight:function(){return 9;},paddingTop:function(){return 7;},paddingBottom:function(){return 7;}}},{text:"Recurring — Managed Monthly Plan",color:TEAL,bold:true,fontSize:11,margin:[0,14,0,2]},{text:"AED "+money(s.monthly)+" / month (hosting, SSL, monitoring, 6 updates/month). Billed separately, starting one month after the advance payment date. Not included above."},{text:"Payment Details",color:TEAL,bold:true,fontSize:11,margin:[0,10,0,2]},{text:["Bank transfer (preferred) — reference Invoice No. "+(d.invoiceNo||"CS-____")+".\n","Bank / Account Name: "+(d.bankName||"____________________________")+"\n","IBAN: "+(d.iban||"______________________________________")]},{text:"Other methods: Cash, Card, Apple Pay, Google Pay — contact us to arrange.",color:GREY,fontSize:8.5,margin:[0,3,0,0]}]};}
   function kv(k,v){return[{text:k,bold:true,fillColor:LIGHT},{text:v}];}
   function h2p(t){return{text:t,color:TEAL,bold:true,fontSize:12,margin:[0,12,0,4]};}
-  function buildAgreementDoc(d,sig){var s=splitDefaults(d);var sb=[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,10]},{text:"Signature: ______________________________________",margin:[0,0,0,10]},{text:"Name: __________________________________________",margin:[0,0,0,10]},{text:"Title / Position: _________________________________",margin:[0,0,0,10]},{text:"Company Stamp & Date: __________________________"}];return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[brandHeader(""),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,8]},{text:"WEBSITE DESIGN & DEVELOPMENT SERVICE AGREEMENT",bold:true,fontSize:13,alignment:"center"},{text:"This Agreement is made on "+(d.agreementDate||"____ / ____ / ____"),alignment:"center",color:GREY,italics:true,margin:[0,2,0,10]},{text:"This Service Agreement is entered into between:"},{text:[{text:"The Studio: ",bold:true},"CANCAS STUDIO, Dubai, UAE."],margin:[0,3,0,0]},{text:[{text:"The Client: ",bold:true},(d.clientName||"[Client Company]")+(d.clientLocation?", "+d.clientLocation:"")+"."]},h2p("1.  Key Terms at a Glance"),{table:{widths:[150,"*"],body:[kv("Package",d.packageName||"[Package]"),kv("One-Time Build Fee","AED "+money(s.total)),kv("Managed Monthly Plan","AED "+money(s.monthly)+" / month"),kv("Advance Deposit (50%)","AED "+money(s.deposit)+" — payable on signing"),kv("Balance (50%)","AED "+money(s.balance)+" — after final approval, before launch"),kv("Monthly Billing Starts","One month from the advance payment date"),kv("Domain & Hosting","Domain provided by the Client; hosting by Cancas Studio"),kv("Estimated Delivery","Approx. 14 days from deposit + all required content")]},layout:grid()},h2p("2.  Payment Schedule"),{ul:["50% advance — AED "+money(s.deposit)+" — due on signing. Work begins once received.","50% balance — AED "+money(s.balance)+" — due after final approval, before launch.","Managed monthly plan — AED "+money(s.monthly)+"/month — first payment one month after the advance date."]},{text:"The 50% deposit is non-refundable once work has commenced.",color:GREY,fontSize:9,margin:[0,3,0,0]},h2p("3.  Key Terms You Should Know"),{ul:["Deposit & balance: 50% deposit non-refundable once work starts; balance due before launch.","Monthly plan: hosting, SSL, monitoring, 6 updates/month, support. Cancel any time with 30 days' written notice.","Domain: provided and owned by the Client; Client gives DNS access and keeps it registered/renewed.","Revisions: unlimited during build (within agreed scope); new pages/features quoted separately.","Your part: provide content & approvals promptly (approve mockups within 7 business days).","Ownership: full custom code/design transfers on full & final payment; Studio may show work in portfolio unless asked not to.","Non-payment/cancellation: services stop and the site may go offline within 7 days; files transfer free within 7 business days.","Liability limited to fees paid in the prior 3 months. Governed by UAE law; Dubai courts."]},{table:{widths:["*"],body:[[{text:"Please review the full Terms & Conditions at cancasstudio.com before signing. This summary highlights the main points only; the full T&C govern this Agreement.",bold:true,fillColor:LIGHT}]]},layout:{hLineColor:function(){return TEAL;},vLineColor:function(){return TEAL;},hLineWidth:function(){return 1;},vLineWidth:function(){return 1;},paddingLeft:function(){return 8;},paddingRight:function(){return 8;},paddingTop:function(){return 6;},paddingBottom:function(){return 6;}},margin:[0,10,0,0]},h2p("4.  Acceptance & Signature"),{text:"By signing below, the Client agrees to this Agreement and the full Terms & Conditions of CANCAS STUDIO, and authorises work to begin on receipt of the 50% advance."},{stack:sb,margin:[0,4,0,0]}]};}
+  function buildAgreementDoc(d,sig){var s=splitDefaults(d);var sb=(sig&&sig.dataUrl)?[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,6]},{text:"✅ Digitally signed via Cancas Studio",color:"#0a8f3c",bold:true,fontSize:9,margin:[0,0,0,8]},{image:sig.dataUrl,width:170,margin:[0,0,0,6]},{canvas:[{type:"line",x1:0,y1:0,x2:220,y2:0,lineWidth:.75,lineColor:"#999999"}],margin:[0,0,0,4]},{text:"Name: "+(sig.name||"—"),margin:[0,0,0,3]},{text:"Title / Position: "+(sig.title||"—"),margin:[0,0,0,3]},{text:"Signed on: "+(sig.date||"—"),margin:[0,0,0,0]}]:[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,10]},{text:"Signature: ______________________________________",margin:[0,0,0,10]},{text:"Name: __________________________________________",margin:[0,0,0,10]},{text:"Title / Position: _________________________________",margin:[0,0,0,10]},{text:"Company Stamp & Date: __________________________"}];return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[brandHeader(""),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,8]},{text:"WEBSITE DESIGN & DEVELOPMENT SERVICE AGREEMENT",bold:true,fontSize:13,alignment:"center"},{text:"This Agreement is made on "+(d.agreementDate||"____ / ____ / ____"),alignment:"center",color:GREY,italics:true,margin:[0,2,0,10]},{text:"This Service Agreement is entered into between:"},{text:[{text:"The Studio: ",bold:true},"CANCAS STUDIO, Dubai, UAE."],margin:[0,3,0,0]},{text:[{text:"The Client: ",bold:true},(d.clientName||"[Client Company]")+(d.clientLocation?", "+d.clientLocation:"")+"."]},h2p("1.  Key Terms at a Glance"),{table:{widths:[150,"*"],body:[kv("Package",d.packageName||"[Package]"),kv("One-Time Build Fee","AED "+money(s.total)),kv("Managed Monthly Plan","AED "+money(s.monthly)+" / month"),kv("Advance Deposit (50%)","AED "+money(s.deposit)+" — payable on signing"),kv("Balance (50%)","AED "+money(s.balance)+" — after final approval, before launch"),kv("Monthly Billing Starts","One month from the advance payment date"),kv("Domain & Hosting","Domain provided by the Client; hosting by Cancas Studio"),kv("Estimated Delivery","Approx. 14 days from deposit + all required content")]},layout:grid()},h2p("2.  Payment Schedule"),{ul:["50% advance — AED "+money(s.deposit)+" — due on signing. Work begins once received.","50% balance — AED "+money(s.balance)+" — due after final approval, before launch.","Managed monthly plan — AED "+money(s.monthly)+"/month — first payment one month after the advance date."]},{text:"The 50% deposit is non-refundable once work has commenced.",color:GREY,fontSize:9,margin:[0,3,0,0]},h2p("3.  Key Terms You Should Know"),{ul:["Deposit & balance: 50% deposit non-refundable once work starts; balance due before launch.","Monthly plan: hosting, SSL, monitoring, 6 updates/month, support. Cancel any time with 30 days' written notice.","Domain: provided and owned by the Client; Client gives DNS access and keeps it registered/renewed.","Revisions: unlimited during build (within agreed scope); new pages/features quoted separately.","Your part: provide content & approvals promptly (approve mockups within 7 business days).","Ownership: full custom code/design transfers on full & final payment; Studio may show work in portfolio unless asked not to.","Non-payment/cancellation: services stop and the site may go offline within 7 days; files transfer free within 7 business days.","Liability limited to fees paid in the prior 3 months. Governed by UAE law; Dubai courts."]},{table:{widths:["*"],body:[[{text:"Please review the full Terms & Conditions at cancasstudio.com before signing. This summary highlights the main points only; the full T&C govern this Agreement.",bold:true,fillColor:LIGHT}]]},layout:{hLineColor:function(){return TEAL;},vLineColor:function(){return TEAL;},hLineWidth:function(){return 1;},vLineWidth:function(){return 1;},paddingLeft:function(){return 8;},paddingRight:function(){return 8;},paddingTop:function(){return 6;},paddingBottom:function(){return 6;}},margin:[0,10,0,0]},h2p("4.  Acceptance & Signature"),{text:"By signing below, the Client agrees to this Agreement and the full Terms & Conditions of CANCAS STUDIO, and authorises work to begin on receipt of the 50% advance."},{stack:sb,margin:[0,4,0,0]}]};}
 
   function fname(s){return String(s||"doc").replace(/[^\w.\-]+/g,"-");}
   function need(d){ if(!d.clientName){ alert("Open a client and enter the Business Name first."); return false;} return true; }
@@ -5380,6 +5423,7 @@ function autoBackupOnSave() {
         foot.appendChild(pvBtn("📲 Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(link),"_blank"); }));
         foot.appendChild(pvBtn("👁 Open client view",function(){ window.open(link,"_blank"); }));
         foot.appendChild(pvBtn("⤓ Get signed copy",function(){ getSignedCopy(d); }));
+        try{ if(typeof refreshAgreementStatus==="function") refreshAgreementStatus(); }catch(e){}
       });
     });
   }
@@ -5387,7 +5431,8 @@ function autoBackupOnSave() {
   window.CancasPanel = {
     invoice:   function(){ showDoc("invoice"); },
     agreement: function(){ showDoc("agreement"); },
-    signlink:  function(){ showSign(); }
+    signlink:  function(){ showSign(); },
+    getSignedCopy: function(){ var d=collect(); if(!need(d))return; getSignedCopy(d); }
   };
 })();
 </script>
