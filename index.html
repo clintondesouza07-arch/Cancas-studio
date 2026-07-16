@@ -2518,20 +2518,23 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <div id="admin-panel">
   <div class="admin-topbar">
     <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><svg style="width:30px;height:30px;animation:navMarkSpin 28s linear infinite;filter:drop-shadow(0 0 6px rgba(74,173,173,0.5));flex-shrink:0;" viewBox="0 0 120 120" fill="none"><defs><radialGradient id="mmapBg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0d2828"/><stop offset="100%" stop-color="#040e0e"/></radialGradient></defs><circle cx="60" cy="60" r="57" fill="url(#mmapBg)"/><circle cx="60" cy="60" r="56" stroke="#4aadad" stroke-width="1.8" fill="none"/><g fill="#4aadad" fill-opacity="0.9"><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(120,60,60)"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(240,60,60)"/></g><circle cx="60" cy="33" r="5" fill="#040e0e"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(120,60,60)"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(240,60,60)"/><circle cx="60" cy="60" r="9" fill="#040e0e"/><circle cx="60" cy="60" r="9" stroke="#4aadad" stroke-width="1.4" fill="none"/><circle cx="60" cy="60" r="3.5" fill="#7dd4d4"/></svg><div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:13px;letter-spacing:3px;color:#f0ece5;">CANCAS</span><span style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#4aadad;text-transform:uppercase;margin-top:2px;">Studio</span></div></a>
-    <div id="notif-bell" style="position:relative;display:flex;align-items:center;cursor:pointer;" onclick="toggleNotifPanel(event)" title="Agreement activity">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8aa0b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span id="notif-count" style="display:none;position:absolute;top:-6px;right:-6px;background:#ff5050;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:14px;text-align:center;line-height:1.4;"></span>
-      <div id="notif-panel" style="display:none;position:absolute;top:28px;left:0;width:320px;max-height:360px;overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:9999;padding:8px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:6px 8px;">Agreement Activity</div>
-        <div id="notif-list"></div>
-      </div>
-    </div>
     <div class="admin-badge">ADMIN PANEL</div>
     <div id="sync-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;">
       <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#555;display:inline-block;"></span>
       <span id="sync-txt">Local only</span>
     </div>
-    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+    <div style="margin-left:auto;display:flex;gap:14px;align-items:center;">
+      <div id="notif-bell" style="position:relative;display:flex;align-items:center;cursor:pointer;" onclick="toggleNotifPanel(event)" title="Agreement activity">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8aa0b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="notif-count" style="display:none;position:absolute;top:-6px;right:-6px;background:#ff5050;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:14px;text-align:center;line-height:1.4;"></span>
+        <div id="notif-panel" style="display:none;position:absolute;top:28px;right:0;width:320px;max-height:400px;overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:9999;padding:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 8px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Agreement Activity</div>
+            <div id="notif-clear" style="font-size:11px;color:var(--cyan);cursor:pointer;" onclick="event.stopPropagation();NOTIF.markSeen();">Clear all</div>
+          </div>
+          <div id="notif-list"></div>
+        </div>
+      </div>
       <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" onclick="openSyncSetup()" title="Cloud Sync Settings">Sync</button>
       <button class="btn-secondary" style="padding:9px 20px;font-size:11px" onclick="closeAdmin()">Exit Admin</button>
     </div>
@@ -4230,9 +4233,17 @@ function clearReadEnquiries(){
   updateEnquiryBadge();
 }
 
-// Agreement activity notification — shows "sent" / "signed" events that happened
-// since the admin's last visit. Last-seen marker lives server-side in app_config
-// so it stays consistent whether the admin logs in from a laptop or a phone.
+// Agreement activity notification — shows "sent" / "signed" events. Stays in the
+// bell (badge + list) until the admin explicitly clears it or clicks through to a
+// client — it does NOT silently clear itself just because the panel was opened.
+function openClientByName(name){
+  CRM.load();
+  var c = CRM.clients.find(function(x){ return (x.biz||x.name)===name; });
+  if(!c){ alert('Could not find "'+name+'" — they may have been renamed or removed.'); return; }
+  var panel=document.getElementById('notif-panel'); if(panel) panel.style.display='none';
+  showClientsView();
+  openClientProfile(c.id);
+}
 var NOTIF = {
   lastSeen: null,
   items: [],
@@ -4260,35 +4271,55 @@ var NOTIF = {
       this.render();
     }catch(e){}
   },
+  // Called by the realtime subscription the instant a signature lands, so the
+  // bell updates immediately without waiting for the next login/check().
+  pushLive: function(item){
+    this.items.unshift(item);
+    if(this.items.length>30) this.items.length=30;
+    this.render();
+  },
   render: function(){
     var count = document.getElementById('notif-count');
     if(count){
       if(this.items.length){ count.textContent = this.items.length; count.style.display = 'inline-block'; }
       else count.style.display = 'none';
     }
+    var clearBtn = document.getElementById('notif-clear');
+    if(clearBtn) clearBtn.style.display = this.items.length ? '' : 'none';
     var list = document.getElementById('notif-list');
     if(!list) return;
     if(!this.items.length){
-      list.innerHTML = '<div style="padding:14px 8px;color:var(--muted);font-size:12px;">No new activity since your last visit.</div>';
+      list.innerHTML = '<div style="padding:14px 8px;color:var(--muted);font-size:12px;">No new activity.</div>';
       return;
     }
-    list.innerHTML = this.items.map(function(n){
+    list.innerHTML = this.items.map(function(n,i){
       var when = new Date(n.at).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
       var label = n.type==='signed' ? 'Agreement signed' : 'Agreement sent';
       var color = n.type==='signed' ? '#00e87a' : '#e8b84b';
-      return '<div style="padding:8px;border-bottom:1px solid var(--border);font-size:12px;">'
+      return '<div data-notif-idx="'+i+'" style="padding:8px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;" onmouseover="this.style.background=\'rgba(255,255,255,.04)\'" onmouseout="this.style.background=\'\'">'
         +'<div style="font-weight:700;color:'+color+';">'+label+'</div>'
         +'<div style="color:var(--white);">'+n.client+'</div>'
         +'<div style="color:var(--muted);font-size:11px;">'+when+'</div>'
         +'</div>';
     }).join('');
+    Array.prototype.forEach.call(list.querySelectorAll('[data-notif-idx]'), function(row){
+      row.onclick = function(){
+        var idx = Number(row.getAttribute('data-notif-idx'));
+        var n = NOTIF.items[idx];
+        if(!n) return;
+        NOTIF.items.splice(idx,1);
+        NOTIF.render();
+        openClientByName(n.client);
+      };
+    });
   },
   markSeen: async function(){
     var sb = (typeof getSB==='function') ? getSB() : null;
-    if(!sb) return;
-    var now = new Date().toISOString();
-    try{ await sb.from('app_config').upsert({key:'notif_last_seen', value:now}); }catch(e){}
-    this.lastSeen = now;
+    if(sb){
+      var now = new Date().toISOString();
+      try{ await sb.from('app_config').upsert({key:'notif_last_seen', value:now}); }catch(e){}
+      this.lastSeen = now;
+    }
     this.items = [];
     this.render();
   }
@@ -4298,10 +4329,8 @@ function toggleNotifPanel(e){
   var panel = document.getElementById('notif-panel');
   if(!panel) return;
   var isOpen = panel.style.display === 'block';
-  if(isOpen){ panel.style.display = 'none'; return; }
-  panel.style.display = 'block';
-  NOTIF.render();
-  setTimeout(function(){ NOTIF.markSeen(); }, 1200);
+  panel.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) NOTIF.render();
 }
 document.addEventListener('click', function(e){
   var bell = document.getElementById('notif-bell');
@@ -4310,6 +4339,45 @@ document.addEventListener('click', function(e){
     panel.style.display = 'none';
   }
 });
+
+// Small top-right toast — fires the instant a signature lands (see the realtime
+// subscription below), independent of whether the bell panel is open.
+function showToast(title, subtitle, onClick){
+  var host = document.getElementById('toast-host');
+  if(!host){
+    host = document.createElement('div');
+    host.id = 'toast-host';
+    host.style.cssText = 'position:fixed;top:16px;right:16px;z-index:100010;display:flex;flex-direction:column;gap:10px;max-width:320px;';
+    document.body.appendChild(host);
+  }
+  var t = document.createElement('div');
+  t.style.cssText = 'background:#0f1720;border:1px solid #1f2c38;border-left:4px solid #00e87a;border-radius:8px;padding:12px 14px;color:#e7eef4;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;font-family:Arial,Helvetica,sans-serif;';
+  t.innerHTML = '<div style="font-weight:800;font-size:13px;color:#00e87a;margin-bottom:2px;">'+title+'</div><div style="font-size:12px;color:#cfe0ea;">'+subtitle+'</div>';
+  t.onclick = function(){ if(onClick) onClick(); if(t.parentNode) t.parentNode.removeChild(t); };
+  host.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 8000);
+}
+
+// Live "agreement signed" alerts — subscribes to the agreements table so the
+// admin is notified the instant a signature is saved, not just at next login.
+var _agreementRealtimeChannel = null;
+function subscribeAgreementRealtime(){
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  if(!sb || _agreementRealtimeChannel) return;
+  _agreementRealtimeChannel = sb.channel('agreements-signed-watch')
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'agreements'}, function(payload){
+      try{
+        var oldRow = payload.old||{}, newRow = payload.new||{};
+        if(newRow.status==='signed' && oldRow.status!=='signed'){
+          var client = (newRow.data && newRow.data.clientName) || 'Client';
+          var at = newRow.signed_at || new Date().toISOString();
+          NOTIF.pushLive({type:'signed', client:client, at:at});
+          showToast('Agreement Signed', client+' just signed — click to open their profile.', function(){ openClientByName(client); });
+        }
+      }catch(e){}
+    })
+    .subscribe();
+}
 
 function crmInit(){
   // Load local mirror immediately so UI shows fast
@@ -5088,6 +5156,7 @@ function _patchAdminForCrm(){
       setTimeout(crmInit, 80);
       SB_loadEnquiries();
       NOTIF.check();
+      subscribeAgreementRealtime();
     } catch(e){
       alert('Could not reach the login service. Check your connection and try again.');
     } finally {
