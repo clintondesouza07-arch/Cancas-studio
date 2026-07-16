@@ -2657,7 +2657,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <!-- Agreement signing status (auto-checked from Supabase on profile open) -->
       <div id="agr-status-bar" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:13px;flex-wrap:wrap;">
         <span id="agr-status-text" style="font-weight:700;"></span>
-        <button id="agr-status-btn" class="crm-btn sec" style="display:none;" onclick="CancasPanel.getSignedCopy()">⤓ Download Signed PDF</button>
+        <button id="agr-status-btn" class="crm-btn sec" style="display:none;" onclick="CancasPanel.getSignedCopy()">View Signed PDF</button>
       </div>
 
       <!-- Profile tabs nav -->
@@ -5482,7 +5482,7 @@ function autoBackupOnSave() {
   function splitDefaults(d){var total=Number(d.total||0);var deposit=(d.deposit!=null&&d.deposit!=="")?Number(d.deposit):Math.round(total*50)/100;var balance=(d.balance!=null&&d.balance!=="")?Number(d.balance):(total-deposit);return{total:total,deposit:deposit,balance:balance,monthly:Number(d.monthly||0)};}
   function grid(){return{hLineWidth:function(){return .5;},vLineWidth:function(){return .5;},hLineColor:function(){return"#cccccc";},vLineColor:function(){return"#cccccc";},paddingLeft:function(){return 7;},paddingRight:function(){return 7;},paddingTop:function(){return 5;},paddingBottom:function(){return 5;}};}
   function brandHeader(r){return{columns:[{text:[{text:"CANCAS ",bold:true,color:DARK},{text:"STUDIO",bold:true,color:TEAL}],fontSize:20},{text:r||"",alignment:"right",bold:true,color:TEAL,fontSize:20,margin:[0,2,0,0]}]};}
-  function footer(){return function(){return{text:"CANCAS STUDIO · hello@cancasstudio.com · +971 56 901 6046",alignment:"center",color:GREY,fontSize:7.5,margin:[0,8,0,0]};};}
+  function footer(){return function(){return{text:"",margin:[0,0,0,0]};};}
   // Project invoice — deliberately minimal: who it's for, what package, and the amount
   // payable as the clear highlight. No feature bullets, no repeated subtotal/VAT rows.
   function buildInvoiceDoc(d){var s=splitDefaults(d);var hasSplit=(s.deposit>0 && s.balance>0);var dueNow=hasSplit?s.deposit:s.total;return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.15},footer:footer(),content:[brandHeader("INVOICE"),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,10]},{canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.4,lineColor:TEAL}],margin:[0,0,0,14]},{columns:[[{text:"BILL TO",color:TEAL,bold:true,fontSize:8,margin:[0,0,0,2]},{text:d.billingEntity||d.clientName||"[Client]",bold:true},{text:d.clientLocation||"United Arab Emirates",color:GREY}],[{text:[{text:"Invoice No:  ",bold:true},(d.invoiceNo||"CS-____")],alignment:"right"},{text:[{text:"Date:  ",bold:true},(d.invoiceDate||"__")],alignment:"right"}]]},{text:"",margin:[0,16,0,0]},{table:{widths:["*",110],body:[[{text:"PACKAGE",fillColor:TEAL,color:"#fff",bold:true},{text:"AMOUNT (AED)",fillColor:TEAL,color:"#fff",bold:true,alignment:"right"}],[{text:d.packageName||"Website — Design & Development",bold:true},{text:money(s.total),alignment:"right"}]]},layout:grid()},{text:"",margin:[0,12,0,0]},{table:{widths:["*",130],body:[[{text:"AMOUNT DUE NOW",fillColor:TEAL,color:"#fff",bold:true,fontSize:13},{text:"AED "+money(dueNow),fillColor:TEAL,color:"#fff",bold:true,fontSize:13,alignment:"right"}]]},layout:{defaultBorder:false,paddingLeft:function(){return 10;},paddingRight:function(){return 10;},paddingTop:function(){return 9;},paddingBottom:function(){return 9;}}},hasSplit?{text:"50% advance due now, before work starts. Remaining balance of AED "+money(s.balance)+" due after final approval, before launch.",color:GREY,fontSize:8.5,margin:[0,6,0,0]}:{text:"",margin:[0,0,0,0]},{text:"Payment",color:TEAL,bold:true,fontSize:11,margin:[0,14,0,2]},{text:"Please reference Invoice No. "+(d.invoiceNo||"CS-____")+" with your payment. Contact us on WhatsApp or email to arrange payment.",color:GREY,fontSize:9}]};}
@@ -5511,6 +5511,7 @@ function autoBackupOnSave() {
     document.body.appendChild(m);
   }
   function pvBtn(label,fn,primary){var b=document.createElement("button");b.textContent=label;b.style.cssText="background:"+(primary?"#0E7C92":"#1f2c38")+";color:#fff;border:none;border-radius:8px;padding:11px 16px;font-weight:800;cursor:pointer;";b.onclick=fn;return b;}
+  function dangerBtn(label,fn){var b=document.createElement("button");b.textContent=label;b.style.cssText="background:#3a1414;color:#ff8080;border:1px solid #5a2020;border-radius:8px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:12px;";b.onclick=fn;return b;}
   function dg(s){return String(s||"").replace(/[^0-9]/g,"");}
   function makeLink(d){ var slim={clientName:d.clientName,clientLocation:d.clientLocation,packageName:d.packageName,total:d.total,monthly:d.monthly,deposit:d.deposit,balance:d.balance,agreementDate:d.agreementDate}; return SIGN_BASE+"#d="+btoa(unescape(encodeURIComponent(JSON.stringify(slim)))); }
 
@@ -5598,7 +5599,8 @@ function autoBackupOnSave() {
       }catch(e){ resolve(makeLink(d)); }
     });
   }
-  // Fetch the client's signed agreement from Supabase and download the signed PDF.
+  // Fetch the client's signed agreement from Supabase and show it in the preview modal —
+  // downloading is a separate, deliberate step from inside that preview, never automatic.
   function getSignedCopy(d){
     var sb=(typeof getSB==="function")?getSB():null;
     if(!sb){ alert("Supabase not available."); return; }
@@ -5607,8 +5609,15 @@ function autoBackupOnSave() {
       var row=(res.data||[])[0];
       if(!row){ alert("No signed agreement found yet for this client."); return; }
       ensurePdfmake(function(){
+        ensurePreview();
         var sig={dataUrl:row.signature,name:row.signed_name,title:row.signed_title,date:row.signed_at?new Date(row.signed_at).toLocaleDateString("en-GB"):""};
-        pdfMake.createPdf(buildAgreementDoc(row.data,sig)).download(fname("Cancas-Agreement-SIGNED-"+(d.clientName||"Client"))+".pdf");
+        var pdf=pdfMake.createPdf(buildAgreementDoc(row.data,sig));
+        document.getElementById("pv-title").textContent="Signed Agreement — "+(d.clientName||"");
+        document.getElementById("pv-link").style.display="none";
+        pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+        var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+        foot.appendChild(pvBtn("Download Signed PDF",function(){ pdf.download(fname("Cancas-Agreement-SIGNED-"+(d.clientName||"Client"))+".pdf"); },true));
+        var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001; pvEl.style.display="flex";
       });
     },function(){ alert("Lookup failed."); });
   }
@@ -5655,9 +5664,37 @@ function autoBackupOnSave() {
         var mob=dg(document.getElementById("cf-mobile1")&&document.getElementById("cf-mobile1").value)||dg(document.getElementById("cf-phone")&&document.getElementById("cf-phone").value);
         foot.appendChild(pvBtn("Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(link),"_blank"); }));
         foot.appendChild(pvBtn("Open client view",function(){ window.open(link,"_blank"); }));
-        foot.appendChild(pvBtn("⤓ Get signed copy",function(){ getSignedCopy(d); }));
+        foot.appendChild(pvBtn("View Signed Copy",function(){ getSignedCopy(d); }));
         try{ if(typeof refreshAgreementStatus==="function") refreshAgreementStatus(); }catch(e){}
       });
+      // Independently check whether this client already has a SIGNED agreement on file
+      // (a different row than whatever fresh link we just created above) and, if so, offer
+      // to wipe that signature in place so the client can resign using the exact link they
+      // already have — just by refreshing it.
+      var sbCheck=(typeof getSB==="function")?getSB():null;
+      if(sbCheck){
+        sbCheck.from('agreements').select('*').eq('data->>clientName',d.clientName).eq('status','signed').order('signed_at',{ascending:false}).limit(1).then(function(res){
+          var row=(res&&res.data||[])[0];
+          if(!row) return;
+          var box=document.getElementById("pv-link"); if(!box) return;
+          var existingLink=SIGN_BASE+"?id="+row.id;
+          var when=row.signed_at?new Date(row.signed_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):"";
+          var wrap=document.createElement("div");
+          wrap.style.cssText="margin-top:10px;padding:10px;border:1px solid #3a2a1a;background:rgba(232,184,75,.08);border-radius:8px;";
+          wrap.innerHTML='<div style="color:#e8b84b;font-size:12px;margin-bottom:8px;">Already signed by '+(row.signed_name||"—")+(row.signed_title?(" ("+row.signed_title+")"):"")+(when?(" on "+when):"")+'. Their original link:<br><span style="color:#cfe0ea;word-break:break-all;">'+existingLink+'</span></div>';
+          wrap.appendChild(dangerBtn("Reset Signature",function(){
+            if(!confirm("This permanently erases the current signature and lets the client sign again using their original link. This cannot be undone. Continue?")) return;
+            sbCheck.rpc("reset_agreement",{p_id:row.id}).then(function(r){
+              if(r&&r.error){ alert("Reset failed: "+r.error.message); return; }
+              if(r&&r.data==="not-found"){ alert("Could not find that agreement anymore — it may already have been reset."); }
+              else{ alert("Signature wiped. The client can refresh their original link to sign again:\n"+existingLink); }
+              wrap.remove();
+              try{ if(typeof refreshAgreementStatus==="function") refreshAgreementStatus(); }catch(e){}
+            },function(){ alert("Reset failed."); });
+          }));
+          box.appendChild(wrap);
+        });
+      }
     });
   }
 
@@ -5707,8 +5744,15 @@ function autoBackupOnSave() {
   }
   function downloadHistoryInvoice(row){
     ensurePdfmake(function(){
+      ensurePreview();
       var doc = (row.kind==="monthly"||row.kind==="final") ? buildMonthlyInvoiceDoc(row.data) : buildInvoiceDoc(row.data);
-      pdfMake.createPdf(doc).download(fname("Cancas-Invoice-"+row.invoice_no)+".pdf");
+      var pdf = pdfMake.createPdf(doc);
+      document.getElementById("pv-title").textContent="Invoice — "+(row.invoice_no||"");
+      document.getElementById("pv-link").style.display="none";
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      foot.appendChild(pvBtn("Download PDF",function(){ pdf.download(fname("Cancas-Invoice-"+row.invoice_no)+".pdf"); },true));
+      var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001; pvEl.style.display="flex";
     });
   }
   function applyInvoiceHistoryFilter(){
@@ -5783,7 +5827,7 @@ function autoBackupOnSave() {
     var line = kind==="deposit"
       ? "This is a friendly reminder for the 50% advance of AED "+money(s.d)+" to begin your website project"
       : "Your website is ready. This is a reminder for the remaining balance of AED "+money(s.b)+" before we launch it live";
-    var msg = "Hello "+(name||"")+",\n\n"+line+".\n"+(inv?("Invoice: "+inv+"\n"):"")+"\nBank transfer details are on your invoice. Thank you!\n— Cancas Studio";
+    var msg = "Hello "+(name||"")+",\n\n"+line+".\n"+(inv?("Invoice: "+inv+"\n"):"")+"\nFeel free to reach out for any questions. Thank you!\n— Cancas Studio";
     var mob = digits(V("cf-mobile1"))||digits(V("cf-phone"));
     if(mob){ window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(msg),"_blank"); return; }
     var email=V("cf-email"); if(email){ location.href="mailto:"+email+"?subject="+encodeURIComponent("Cancas Studio — "+(kind==="deposit"?"Advance":"Balance")+" Reminder")+"&body="+encodeURIComponent(msg); return; }
