@@ -1311,10 +1311,10 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:72px 72px
 @media (pointer:fine) and (hover:hover) {
   html,body,a,button,input,select,textarea,[onclick]{cursor:none!important;}
 }
-/* Cancas document/report pop-ups: show the real cursor (override the custom-cursor hide) */
-#cancas-pv, #cancas-pv *, #cancas-reports, #cancas-reports *{cursor:auto!important;}
-#cancas-pv button, #cancas-reports button, #cancas-pv [onclick], #cancas-reports [onclick]{cursor:pointer!important;}
-#cancas-pv textarea, #cancas-pv input, #cancas-reports input{cursor:text!important;}
+/* Cancas document/report/invoice-history pop-ups: show the real cursor (override the custom-cursor hide) */
+#cancas-pv, #cancas-pv *, #cancas-reports, #cancas-reports *, #cancas-ih, #cancas-ih *{cursor:auto!important;}
+#cancas-pv button, #cancas-reports button, #cancas-ih button, #cancas-pv [onclick], #cancas-reports [onclick], #cancas-ih [onclick]{cursor:pointer!important;}
+#cancas-pv textarea, #cancas-pv input, #cancas-reports input, #cancas-ih select{cursor:pointer!important;}
 /* Touch/mobile — hide the custom cursor elements, keep default tap behaviour */
 @media (pointer:coarse) {
   #cursor-outer,#cursor-inner,.trail-dot{display:none!important;}
