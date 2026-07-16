@@ -53,8 +53,9 @@
     <div class="padwrap"><canvas id="pad"></canvas></div>
     <div class="btns">
       <button class="ghost" onclick="clearPad()">Clear</button>
-      <button class="primary" onclick="signDownload()">Submit Signature</button>
+      <button class="primary" id="submitBtn" onclick="signDownload()">Submit Signature</button>
     </div>
+    <div class="hint err" id="signError" style="display:none;"></div>
     <div class="done" id="done">
       <b>✅ Signed PDF downloaded.</b>
       <div class="hint">Final step: email the downloaded file back to us so we can begin work.</div>
@@ -135,24 +136,61 @@ canvas.addEventListener("mousedown",start);canvas.addEventListener("mousemove",m
 canvas.addEventListener("touchstart",start,{passive:false});canvas.addEventListener("touchmove",move,{passive:false});canvas.addEventListener("touchend",end);
 function clearPad(){ctx.clearRect(0,0,canvas.width,canvas.height);dirty=false;}
 
+function showSignError(msg){
+  var el=document.getElementById("signError");
+  if(el){ el.textContent=msg; el.style.display="block"; }
+}
+function hideSignError(){
+  var el=document.getElementById("signError");
+  if(el){ el.style.display="none"; el.textContent=""; }
+}
+// Actually save the signature to Cancas Studio's database and wait for real
+// confirmation before we ever tell the client "you're done" — a previous version
+// of this page downloaded the PDF and showed success immediately, without waiting
+// to see if the save even worked, so a flaky connection could silently lose a
+// signature while the client walked away thinking everything was fine.
+function saveSignatureToServer(name,title,sig){
+  var sb=sbClient();
+  if(!sb) return Promise.reject(new Error("no-connection"));
+  var call = AGR_ID
+    ? sb.rpc("sign_agreement",{p_id:AGR_ID,p_name:name,p_title:title,p_sig:sig.dataUrl})
+    : sb.rpc("submit_signed_agreement",{p_data:DATA,p_name:name,p_title:title,p_sig:sig.dataUrl});
+  return call.then(function(res){
+    if(res && res.error) throw res.error;
+    var result = res && res.data;
+    if(result === "already-signed") throw new Object({_alreadySigned:true});
+    if(result === "not-found") throw new Error("not-found");
+    return true;
+  });
+}
 function signDownload(){
   if(!DATA){alert("Link problem — please ask for a new link.");return;}
   var name=document.getElementById("sigName").value.trim();
   var title=document.getElementById("sigTitle").value.trim();
   if(!name){alert("Please type your full name.");return;}
   if(!dirty){alert("Please draw your signature.");return;}
+  hideSignError();
   var sig={dataUrl:canvas.toDataURL("image/png"),name:name,title:title,date:new Date().toLocaleDateString("en-GB")};
   var fname=("Cancas-Agreement-SIGNED-"+(DATA.clientName||"Client")).replace(/[^\w.\-]+/g,"-")+".pdf";
-  pdfMake.createPdf(buildAgreementDoc(DATA,sig)).download(fname);
-  // Always save the signed agreement to Cancas Studio's database.
-  var sb=sbClient();
-  if(sb){
-    try{
-      if(AGR_ID){ sb.rpc("sign_agreement",{p_id:AGR_ID,p_name:name,p_title:title,p_sig:sig.dataUrl}).then(function(){},function(){}); }
-      else { sb.rpc("submit_signed_agreement",{p_data:DATA,p_name:name,p_title:title,p_sig:sig.dataUrl}).then(function(){},function(){}); }
-    }catch(e){}
-  }
-  showThankYou();
+  var btn=document.getElementById("submitBtn");
+  if(btn){ btn.disabled=true; btn.textContent="Saving…"; }
+
+  saveSignatureToServer(name,title,sig).catch(function(err){
+    if(err && err._alreadySigned) throw err; // don't retry — nothing a retry would fix
+    // One retry after a short pause, in case of a transient mobile network blip.
+    return new Promise(function(resolve){ setTimeout(resolve,1500); })
+      .then(function(){ return saveSignatureToServer(name,title,sig); });
+  }).then(function(){
+    pdfMake.createPdf(buildAgreementDoc(DATA,sig)).download(fname);
+    showThankYou();
+  }).catch(function(err){
+    if(btn){ btn.disabled=false; btn.textContent="Submit Signature"; }
+    if(err && err._alreadySigned){
+      showSignError("This agreement has already been signed. Please refresh the page — if it still shows the sign form, contact Cancas Studio for a new link.");
+    } else {
+      showSignError("We couldn't save your signature — please check your internet connection and try again. Nothing has been lost; your name and signature are still filled in above.");
+    }
+  });
 }
 </script>
 </body>
