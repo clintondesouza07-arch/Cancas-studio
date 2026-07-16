@@ -2493,7 +2493,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- SYNC SETUP MODAL -->
 <div id="sync-modal" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,.92);align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:36px 40px;width:min(520px,92vw);max-height:90vh;overflow-y:auto;">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--white);letter-spacing:1px;margin-bottom:6px;">☁ CLOUD SYNC</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--white);letter-spacing:1px;margin-bottom:6px;">CLOUD SYNC</div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;">Your CRM is now stored securely in your private <strong style="color:var(--cyan)">Supabase</strong> database and syncs automatically across every device the moment you log in. No setup needed.</p>
 
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;">
@@ -2518,13 +2518,21 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <div id="admin-panel">
   <div class="admin-topbar">
     <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><svg style="width:30px;height:30px;animation:navMarkSpin 28s linear infinite;filter:drop-shadow(0 0 6px rgba(74,173,173,0.5));flex-shrink:0;" viewBox="0 0 120 120" fill="none"><defs><radialGradient id="mmapBg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0d2828"/><stop offset="100%" stop-color="#040e0e"/></radialGradient></defs><circle cx="60" cy="60" r="57" fill="url(#mmapBg)"/><circle cx="60" cy="60" r="56" stroke="#4aadad" stroke-width="1.8" fill="none"/><g fill="#4aadad" fill-opacity="0.9"><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(120,60,60)"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(240,60,60)"/></g><circle cx="60" cy="33" r="5" fill="#040e0e"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(120,60,60)"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(240,60,60)"/><circle cx="60" cy="60" r="9" fill="#040e0e"/><circle cx="60" cy="60" r="9" stroke="#4aadad" stroke-width="1.4" fill="none"/><circle cx="60" cy="60" r="3.5" fill="#7dd4d4"/></svg><div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:13px;letter-spacing:3px;color:#f0ece5;">CANCAS</span><span style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#4aadad;text-transform:uppercase;margin-top:2px;">Studio</span></div></a>
+    <div id="notif-bell" style="position:relative;display:flex;align-items:center;cursor:pointer;" onclick="toggleNotifPanel(event)" title="Agreement activity">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8aa0b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="notif-count" style="display:none;position:absolute;top:-6px;right:-6px;background:#ff5050;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:14px;text-align:center;line-height:1.4;"></span>
+      <div id="notif-panel" style="display:none;position:absolute;top:28px;left:0;width:320px;max-height:360px;overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:9999;padding:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:6px 8px;">Agreement Activity</div>
+        <div id="notif-list"></div>
+      </div>
+    </div>
     <div class="admin-badge">ADMIN PANEL</div>
     <div id="sync-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;">
       <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#555;display:inline-block;"></span>
       <span id="sync-txt">Local only</span>
     </div>
     <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-      <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" onclick="openSyncSetup()" title="Cloud Sync Settings">☁ Sync</button>
+      <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" onclick="openSyncSetup()" title="Cloud Sync Settings">Sync</button>
       <button class="btn-secondary" style="padding:9px 20px;font-size:11px" onclick="closeAdmin()">Exit Admin</button>
     </div>
   </div>
@@ -2546,7 +2554,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <!-- CRM Tabs -->
     <div class="crm-nav">
       <button class="crm-tab" id="tab-enquiries" onclick="showEnquiriesView()" style="color:#b464ff;border-bottom-color:transparent;">
-        📥 Enquiries <span id="enq-badge" style="display:none;background:#b464ff;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px;"></span>
+        Enquiries <span id="enq-badge" style="display:none;background:#b464ff;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px;"></span>
       </button>
       <button class="crm-tab active" id="tab-clients" onclick="showClientsView(this)">All Clients</button>
       <button class="crm-tab" onclick="crmTab('active',this)">Active</button>
@@ -2580,8 +2588,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <option value="revenue">Revenue ↓</option>
       </select>
       <button class="crm-btn" onclick="openNewClient()">+ New Client</button>
-      <button class="crm-btn sec" onclick="exportClientsCSV()" title="Download all client data as CSV">⬇ Export CSV</button>
-      <button class="crm-btn sec" onclick="exportClientsJSON()" title="Download full backup as JSON" style="color:var(--gold);border-color:var(--gold);">⬇ Backup JSON</button>
+      <button class="crm-btn sec" onclick="exportClientsCSV()" title="Download all client data as CSV">Export CSV</button>
+      <button class="crm-btn sec" onclick="exportClientsJSON()" title="Download full backup as JSON" style="color:var(--gold);border-color:var(--gold);">Backup JSON</button>
     </div>
 
     <!-- Client Grid -->
@@ -2616,7 +2624,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <div style="display:flex;flex-direction:column;gap:2px;">
               <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pending</span>
               <span id="prof-pending-val" style="font-family:Barlow Condensed,sans-serif;font-size:26px;font-weight:900;color:#ff5050;line-height:1;">AED 0</span>
-              <span id="prof-cancel-note" style="display:none;font-size:9px;color:#ff9632;letter-spacing:.5px;">⏹ Billing stopped</span>
+              <span id="prof-cancel-note" style="display:none;font-size:9px;color:#ff9632;letter-spacing:.5px;">Billing stopped</span>
             </div>
             <div style="width:1px;height:32px;background:var(--border);flex-shrink:0;"></div>
             <div style="display:flex;flex-direction:column;gap:2px;">
@@ -2632,18 +2640,18 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <div class="crm-profile-actions">
           <button class="crm-btn sec" onclick="saveClient()">Save</button>
-          <button class="crm-btn sec" onclick="closeCrmProfile()">✕ Close</button>
+          <button class="crm-btn sec" onclick="closeCrmProfile()">× Close</button>
         </div>
       </div>
 
       <!-- Cancas document / action toolbar (full width, below the header) -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);">
-        <button class="crm-btn" onclick="CancasPanel.invoice()">🧾 Invoice</button>
-        <button class="crm-btn" onclick="CancasPanel.agreement()">📄 Agreement</button>
-        <button class="crm-btn" onclick="CancasPanel.signlink()">🔗 Sign Link</button>
-        <button class="crm-btn" onclick="CancasPanel.depositReminder()">⏰ Deposit Reminder</button>
-        <button class="crm-btn" onclick="CancasPanel.balanceReminder()">💰 Balance Reminder</button>
-        <button class="crm-btn" onclick="CancasPanel.invoiceHistory()">📜 Invoice History</button>
+        <button class="crm-btn" onclick="CancasPanel.invoice()">Invoice</button>
+        <button class="crm-btn" onclick="CancasPanel.agreement()">Agreement</button>
+        <button class="crm-btn" onclick="CancasPanel.signlink()">Sign Link</button>
+        <button class="crm-btn" onclick="CancasPanel.depositReminder()">Deposit Reminder</button>
+        <button class="crm-btn" onclick="CancasPanel.balanceReminder()">Balance Reminder</button>
+        <button class="crm-btn" onclick="CancasPanel.invoiceHistory()">Invoice History</button>
       </div>
 
       <!-- Agreement signing status (auto-checked from Supabase on profile open) -->
@@ -2655,9 +2663,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <!-- Profile tabs nav -->
       <div style="background:var(--bg3);border-bottom:1px solid var(--border);padding:0;display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;" class="crm-prof-tabs-bar">
         <button class="crm-prof-tab active" onclick="switchProfTab('info',this)">Contact &amp; Project</button>
-        <button class="crm-prof-tab" onclick="switchProfTab('billing',this)">💳 Billing</button>
-        <button class="crm-prof-tab" onclick="switchProfTab('technical',this)">⚙️ Technical</button>
-        <button class="crm-prof-tab" onclick="switchProfTab('notes',this)">📋 Notes</button>
+        <button class="crm-prof-tab" onclick="switchProfTab('billing',this)">Billing</button>
+        <button class="crm-prof-tab" onclick="switchProfTab('technical',this)">Technical</button>
+        <button class="crm-prof-tab" onclick="switchProfTab('notes',this)">Notes</button>
       </div>
 
       <div class="crm-profile-body">
@@ -2795,7 +2803,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 <div id="bill-pending" style="font-family:Barlow Condensed,sans-serif;font-size:28px;font-weight:900;color:#ff5050;">AED 0</div>
               </div>
             </div>
-            <div id="bill-cancel-note" style="display:none;margin-top:8px;font-size:11px;color:#ff9632;background:rgba(255,150,50,.08);border:1px solid rgba(255,150,50,.25);border-radius:6px;padding:8px 10px;">⏹ Billing stopped — contract end date is set, no further monthly invoices will be generated. A final invoice has been issued for any remaining balance.</div>
+            <div id="bill-cancel-note" style="display:none;margin-top:8px;font-size:11px;color:#ff9632;background:rgba(255,150,50,.08);border:1px solid rgba(255,150,50,.25);border-radius:6px;padding:8px 10px;">Billing stopped — contract end date is set, no further monthly invoices will be generated. A final invoice has been issued for any remaining balance.</div>
             <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save Billing</button></div>
           </div><!-- /pp-billing -->
 
@@ -2838,12 +2846,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <!-- Main categories -->
             <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Category</div>
             <div class="crm-tag-row" id="note-main-cats">
-              <span class="crm-main-cat sel" data-cat="Communication" onclick="selectMainCat(this)">📞 Communication</span>
-              <span class="crm-main-cat" data-cat="Project" onclick="selectMainCat(this)">🏗 Project</span>
-              <span class="crm-main-cat" data-cat="Billing" onclick="selectMainCat(this)">💰 Billing</span>
-              <span class="crm-main-cat" data-cat="Support" onclick="selectMainCat(this)">🛠 Support</span>
-              <span class="crm-main-cat" data-cat="Content" onclick="selectMainCat(this)">📁 Content</span>
-              <span class="crm-main-cat" data-cat="Internal" onclick="selectMainCat(this)">🔒 Internal</span>
+              <span class="crm-main-cat sel" data-cat="Communication" onclick="selectMainCat(this)">Communication</span>
+              <span class="crm-main-cat" data-cat="Project" onclick="selectMainCat(this)">Project</span>
+              <span class="crm-main-cat" data-cat="Billing" onclick="selectMainCat(this)">Billing</span>
+              <span class="crm-main-cat" data-cat="Support" onclick="selectMainCat(this)">Support</span>
+              <span class="crm-main-cat" data-cat="Content" onclick="selectMainCat(this)">Content</span>
+              <span class="crm-main-cat" data-cat="Internal" onclick="selectMainCat(this)">Internal</span>
             </div>
 
             <!-- Sub-tags (change based on main cat) -->
@@ -2861,7 +2869,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
           <!-- Thread -->
           <div class="crm-thread" id="note-thread">
-            <div class="crm-empty" id="note-empty"><div class="crm-empty-icon">💬</div><div>No activity yet — add your first note above</div></div>
+            <div class="crm-empty" id="note-empty"><div>No activity yet — add your first note above</div></div>
           </div>
 
           <!-- Timeline -->
@@ -4012,7 +4020,7 @@ var SYNC = {
       return sb.from('clients').delete().neq('id', '__none__');
     }).then(function(res){
       if(res && res.error) throw res.error;
-      self.status('Cloud sync ✓', true);
+      self.status('Cloud sync — up to date', true);
     }).catch(function(err){
       self.status('Sync failed: ' + (err && err.message || 'unknown'), false);
     });
@@ -4029,7 +4037,7 @@ var SYNC = {
       var clients = (res.data||[]).map(function(r){ return r.data; });
       try { localStorage.setItem('crm_clients', JSON.stringify(clients)); } catch(e){}
       self._hydrated = true;
-      self.status('Cloud sync ✓', true);
+      self.status('Cloud sync — up to date', true);
       if(cb) cb(true);
     }, function(){ self.status('Offline — local data', false); if(cb) cb(false); });
   }
@@ -4126,7 +4134,7 @@ function renderEnquiries(){
   if(!list) return;
 
   if(enquiries.length===0){
-    list.innerHTML = '<div class="crm-empty"><div class="crm-empty-icon">📭</div><div>No enquiries yet — they will appear here when clients submit the contact form</div></div>';
+    list.innerHTML = '<div class="crm-empty"><div>No enquiries yet — they will appear here when clients submit the contact form</div></div>';
     return;
   }
 
@@ -4206,7 +4214,7 @@ function convertEnquiryToLead(id){
   var infoBtn = document.querySelector('.crm-prof-tab');
   if(infoBtn) switchProfTab('info', infoBtn);
   document.getElementById('crm-profile-modal').classList.add('open');
-  document.getElementById('note-thread').innerHTML='<div class="crm-empty"><div class="crm-empty-icon">💬</div><div>No activity yet</div></div>';
+  document.getElementById('note-thread').innerHTML='<div class="crm-empty"><div>No activity yet</div></div>';
   document.getElementById('crm-timeline-list').innerHTML='';
   renderEnquiries();
   updateEnquiryBadge();
@@ -4221,6 +4229,87 @@ function clearReadEnquiries(){
   renderEnquiries();
   updateEnquiryBadge();
 }
+
+// Agreement activity notification — shows "sent" / "signed" events that happened
+// since the admin's last visit. Last-seen marker lives server-side in app_config
+// so it stays consistent whether the admin logs in from a laptop or a phone.
+var NOTIF = {
+  lastSeen: null,
+  items: [],
+  check: async function(){
+    var sb = (typeof getSB==='function') ? getSB() : null;
+    if(!sb) return;
+    try{
+      var cfgRes = await sb.from('app_config').select('value').eq('key','notif_last_seen').maybeSingle();
+      var lastSeen = cfgRes && cfgRes.data ? cfgRes.data.value : null;
+      if(!lastSeen){
+        // First run on this account — establish a baseline instead of flooding
+        // the panel with the entire agreement history as "new".
+        await sb.from('app_config').upsert({key:'notif_last_seen', value:new Date().toISOString()});
+        this.lastSeen = new Date().toISOString();
+        this.items = [];
+        this.render();
+        return;
+      }
+      this.lastSeen = lastSeen;
+      var sentRes = await sb.from('agreements').select('data,created_at').gt('created_at', lastSeen).order('created_at',{ascending:false}).limit(20);
+      var signedRes = await sb.from('agreements').select('data,signed_name,signed_at').eq('status','signed').gt('signed_at', lastSeen).order('signed_at',{ascending:false}).limit(20);
+      var sent = ((sentRes && sentRes.data) || []).map(function(r){ return {type:'sent', client:(r.data && r.data.clientName) || 'Client', at:r.created_at}; });
+      var signed = ((signedRes && signedRes.data) || []).map(function(r){ return {type:'signed', client:(r.data && r.data.clientName) || 'Client', at:r.signed_at}; });
+      this.items = sent.concat(signed).sort(function(a,b){ return new Date(b.at) - new Date(a.at); }).slice(0,30);
+      this.render();
+    }catch(e){}
+  },
+  render: function(){
+    var count = document.getElementById('notif-count');
+    if(count){
+      if(this.items.length){ count.textContent = this.items.length; count.style.display = 'inline-block'; }
+      else count.style.display = 'none';
+    }
+    var list = document.getElementById('notif-list');
+    if(!list) return;
+    if(!this.items.length){
+      list.innerHTML = '<div style="padding:14px 8px;color:var(--muted);font-size:12px;">No new activity since your last visit.</div>';
+      return;
+    }
+    list.innerHTML = this.items.map(function(n){
+      var when = new Date(n.at).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      var label = n.type==='signed' ? 'Agreement signed' : 'Agreement sent';
+      var color = n.type==='signed' ? '#00e87a' : '#e8b84b';
+      return '<div style="padding:8px;border-bottom:1px solid var(--border);font-size:12px;">'
+        +'<div style="font-weight:700;color:'+color+';">'+label+'</div>'
+        +'<div style="color:var(--white);">'+n.client+'</div>'
+        +'<div style="color:var(--muted);font-size:11px;">'+when+'</div>'
+        +'</div>';
+    }).join('');
+  },
+  markSeen: async function(){
+    var sb = (typeof getSB==='function') ? getSB() : null;
+    if(!sb) return;
+    var now = new Date().toISOString();
+    try{ await sb.from('app_config').upsert({key:'notif_last_seen', value:now}); }catch(e){}
+    this.lastSeen = now;
+    this.items = [];
+    this.render();
+  }
+};
+function toggleNotifPanel(e){
+  if(e) e.stopPropagation();
+  var panel = document.getElementById('notif-panel');
+  if(!panel) return;
+  var isOpen = panel.style.display === 'block';
+  if(isOpen){ panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  NOTIF.render();
+  setTimeout(function(){ NOTIF.markSeen(); }, 1200);
+}
+document.addEventListener('click', function(e){
+  var bell = document.getElementById('notif-bell');
+  var panel = document.getElementById('notif-panel');
+  if(panel && panel.style.display==='block' && bell && !bell.contains(e.target)){
+    panel.style.display = 'none';
+  }
+});
 
 function crmInit(){
   // Load local mirror immediately so UI shows fast
@@ -4271,7 +4360,7 @@ function closeSyncSetup(){
 function saveSyncConfig(){
   var key = (document.getElementById('sync-api-key')||{}).value||'';
   var st = document.getElementById('sync-modal-status');
-  if(!key || !key.startsWith('$')){ if(st) st.textContent = '⚠ Paste the full key from JSONBin — it should start with $2a$ or $2b$'; if(st) st.style.color='#ff5050'; return; }
+  if(!key || !key.startsWith('$')){ if(st) st.textContent = 'Paste the full key from JSONBin — it should start with $2a$ or $2b$'; if(st) st.style.color='#ff5050'; return; }
   SYNC.setKey(key.trim().replace(/[\s\u200B\u00A0\uFEFF]/g,''));
   // Save manually entered Bin ID if present
   var binInp = document.getElementById('sync-bin-id');
@@ -4283,9 +4372,9 @@ function saveSyncConfig(){
   setTimeout(function(){
     var binId = SYNC.getBinId();
     if(binId){
-      if(st){ st.textContent = '✅ Synced! Bin ID saved. Now go to your other devices, enter the same key and click Save & Sync Now.'; st.style.color='#00e87a'; }
+      if(st){ st.textContent = 'Synced! Bin ID saved. Now go to your other devices, enter the same key and click Save & Sync Now.'; st.style.color='#00e87a'; }
     } else {
-      if(st){ st.textContent = '✅ Key saved — syncing data now...'; st.style.color='#00e87a'; }
+      if(st){ st.textContent = 'Key saved — syncing data now...'; st.style.color='#00e87a'; }
     }
     var binInp = document.getElementById('sync-bin-id');
     if(binInp) binInp.value = SYNC.getBinId() || 'Creating...';
@@ -4295,15 +4384,15 @@ function manualPull(){
   var st = document.getElementById('sync-modal-status');
   var key = SYNC.getKey();
   var binId = SYNC.getBinId();
-  if(!key){ if(st){ st.textContent = '⚠ Enter your API key first, then click Save & Sync Now'; st.style.color='#ff5050'; } return; }
-  if(!binId){ if(st){ st.textContent = '⚠ No cloud bin yet — click Save & Sync Now first to create it, then Pull will work'; st.style.color='#e8b84b'; } return; }
+  if(!key){ if(st){ st.textContent = 'Enter your API key first, then click Save & Sync Now'; st.style.color='#ff5050'; } return; }
+  if(!binId){ if(st){ st.textContent = 'No cloud bin yet — click Save & Sync Now first to create it, then Pull will work'; st.style.color='#e8b84b'; } return; }
   if(st){ st.textContent = 'Pulling from cloud...'; st.style.color='var(--muted)'; }
   SYNC.pull(function(ok){
     if(ok){
       CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge();
-      if(st){ st.textContent = '✅ Data updated from cloud!'; st.style.color='#00e87a'; }
+      if(st){ st.textContent = 'Data updated from cloud!'; st.style.color='#00e87a'; }
     } else {
-      if(st){ st.textContent = '⚠ Could not reach cloud — check your API key is correct'; st.style.color='#ff5050'; }
+      if(st){ st.textContent = 'Could not reach cloud — check your API key is correct'; st.style.color='#ff5050'; }
     }
   });
 }
@@ -4345,7 +4434,7 @@ function renderCrmGrid(){
   if(!grid) return;
 
   if(clients.length===0){
-    grid.innerHTML = '<div class="crm-empty" style="grid-column:1/-1"><div class="crm-empty-icon">👥</div><div>'+(CRM.clients.length===0?'No clients yet — click <strong>+ New Client</strong> to add your first':'No clients match this filter')+'</div></div>';
+    grid.innerHTML = '<div class="crm-empty" style="grid-column:1/-1"><div>'+(CRM.clients.length===0?'No clients yet — click <strong>+ New Client</strong> to add your first':'No clients match this filter')+'</div></div>';
     return;
   }
 
@@ -4373,7 +4462,7 @@ function renderCrmGrid(){
       +'<span class="crm-pill '+sc+'">'+sl+'</span>'
       +(c.package?'<span class="crm-pill" style="background:rgba(255,255,255,.05);color:var(--muted);margin-left:6px;font-size:9px;">'+c.package+'</span>':'')
       +'</div>'
-      +'<div class="crm-card-meta">'      +'<div class="crm-meta-item"><div class="crm-meta-label">Revenue</div><div class="crm-meta-val">'+monthly+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Industry</div><div class="crm-meta-val">'+(c.industry==='Other'&&c.industryother?c.industryother:c.industry||'—')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Pending</div><div class="crm-meta-val" style="color:'+(pending>0?'#ff5050':'#00e87a')+';font-weight:700;">'+(pending>0?'AED '+pending.toLocaleString():'✓ Paid')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Service No.</div><div class="crm-meta-val" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--cyan);">'+(c.svcnum||'—')+'</div></div>'      +'</div>'      +(activeCatsHtml?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'+activeCatsHtml+'</div>':'')      +'</div>';
+      +'<div class="crm-card-meta">'      +'<div class="crm-meta-item"><div class="crm-meta-label">Revenue</div><div class="crm-meta-val">'+monthly+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Industry</div><div class="crm-meta-val">'+(c.industry==='Other'&&c.industryother?c.industryother:c.industry||'—')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Pending</div><div class="crm-meta-val" style="color:'+(pending>0?'#ff5050':'#00e87a')+';font-weight:700;">'+(pending>0?'AED '+pending.toLocaleString():'Paid')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Service No.</div><div class="crm-meta-val" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--cyan);">'+(c.svcnum||'—')+'</div></div>'      +'</div>'      +(activeCatsHtml?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'+activeCatsHtml+'</div>':'')      +'</div>';
     return cardHtml;
   }).join('');
 
@@ -4406,7 +4495,7 @@ function openNewClient(){
   document.getElementById('prof-name').textContent='New Client';
   document.getElementById('prof-sub').textContent='Fill in the details below';
   document.getElementById('prof-avatar').textContent='?';
-  document.getElementById('note-thread').innerHTML='<div class="crm-empty" id="note-empty"><div class="crm-empty-icon">💬</div><div>No activity yet</div></div>';
+  document.getElementById('note-thread').innerHTML='<div class="crm-empty" id="note-empty"><div>No activity yet</div></div>';
   document.getElementById('crm-timeline-list').innerHTML='';
   document.getElementById('crm-profile-modal').classList.add('open');
   // Init main category tabs
@@ -4474,18 +4563,18 @@ function refreshAgreementStatus(){
   function renderRow(row){
     bar.style.display = 'flex';
     if(!row){
-      txt.textContent = '📄 No agreement sent yet';
+      txt.textContent = 'No agreement sent yet';
       txt.style.color = 'var(--muted)';
       if(btn) btn.style.display = 'none';
       return;
     }
     if(row.status === 'signed'){
       var d = row.signed_at ? new Date(row.signed_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '';
-      txt.textContent = '✅ Signed by ' + (row.signed_name||'—') + (row.signed_title ? ' ('+row.signed_title+')' : '') + (d ? ' on '+d : '');
+      txt.textContent = 'Signed by ' + (row.signed_name||'—') + (row.signed_title ? ' ('+row.signed_title+')' : '') + (d ? ' on '+d : '');
       txt.style.color = '#00e87a';
       if(btn) btn.style.display = 'inline-flex';
     } else {
-      txt.textContent = '⏳ Agreement sent — awaiting signature';
+      txt.textContent = 'Agreement sent — awaiting signature';
       txt.style.color = '#e8b84b';
       if(btn) btn.style.display = 'none';
     }
@@ -4525,14 +4614,14 @@ function renderPendingUI(total, paid, pending, monthly, cancelled){
   var set = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
   set('prof-total-val','AED '+total.toLocaleString());
   set('prof-paid-val','AED '+paid.toLocaleString());
-  set('prof-pending-val', pending>0 ? 'AED '+pending.toLocaleString() : '✓ PAID');
+  set('prof-pending-val', pending>0 ? 'AED '+pending.toLocaleString() : 'PAID');
   var pendEl = document.getElementById('prof-pending-val');
   if(pendEl) pendEl.style.color = pending>0 ? '#ff5050' : '#00e87a';
   set('prof-monthly-val','AED '+monthly.toLocaleString()+'/mo');
   set('bill-total','AED '+total.toLocaleString());
   set('bill-paid','AED '+paid.toLocaleString());
   var billPend = document.getElementById('bill-pending');
-  if(billPend){ billPend.textContent = pending>0 ? 'AED '+pending.toLocaleString() : '✓ PAID'; billPend.style.color = pending>0 ? '#ff5050' : '#00e87a'; }
+  if(billPend){ billPend.textContent = pending>0 ? 'AED '+pending.toLocaleString() : 'PAID'; billPend.style.color = pending>0 ? '#ff5050' : '#00e87a'; }
   var profNote = document.getElementById('prof-cancel-note');
   if(profNote) profNote.style.display = cancelled ? '' : 'none';
   var billNote = document.getElementById('bill-cancel-note');
@@ -4653,21 +4742,16 @@ function renderPaymentsList(){
     list.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;margin-bottom:8px;">No payments recorded yet.</div>';
     return;
   }
-  var methodIcons = {'Bank Transfer':'🏦','Cash':'💵','Credit Card (Visa)':'💳','Credit Card (Mastercard)':'💳',
-    'Debit Card':'💳','Apple Pay':'🍎','Google Pay':'G','PayPal':'🅿','Wise / Transferwise':'💱',
-    'Crypto (USDT)':'₿','Cheque':'📄','Other':'💰'};
   list.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;">'
     +payments.slice().reverse().map(function(p){
-      var icon = methodIcons[p.method]||'💰';
       return '<div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid rgba(0,232,122,.15);border-radius:6px;padding:10px 14px;">'
-        +'<span style="font-size:16px;">'+icon+'</span>'
         +'<div style="flex:1;">'
         +'<div style="font-size:13px;font-weight:600;color:#00e87a;">AED '+parseFloat(p.amount).toLocaleString()+'</div>'
         +'<div style="font-size:11px;color:var(--muted);">'+(p.method||'—')+(p.ref?' · Ref: '+p.ref:'')+'</div>'
         +(p.note?'<div style="font-size:11px;color:var(--muted);font-style:italic;">'+p.note+'</div>':'')        +'</div>'
         +'<div style="text-align:right;">'
         +'<div style="font-size:11px;color:var(--muted);">'+p.date+'</div>'
-        +'<button onclick="deletePayment('+p.id+')" style="background:none;border:none;color:rgba(255,80,80,.4);font-size:12px;cursor:pointer;padding:2px 4px;" title="Delete">✕</button>'
+        +'<button onclick="deletePayment('+p.id+')" style="background:none;border:none;color:rgba(255,80,80,.4);font-size:12px;cursor:pointer;padding:2px 4px;" title="Delete">×</button>'
         +'</div>'
         +'</div>';
     }).join('')+'</div>';
@@ -4766,7 +4850,7 @@ function saveClient(){
 
   // Flash save button
   var btn = document.querySelector('.crm-profile-actions .crm-btn.sec');
-  if(btn){ var orig=btn.textContent; btn.textContent='✅ Saved!'; btn.style.color='#00e87a'; setTimeout(function(){ btn.textContent=orig; btn.style.color=''; },1500); }
+  if(btn){ var orig=btn.textContent; btn.textContent='Saved!'; btn.style.color='#00e87a'; setTimeout(function(){ btn.textContent=orig; btn.style.color=''; },1500); }
 }
 
 function deleteClient(){
@@ -4905,7 +4989,7 @@ function renderNoteThread(c){
   if(!thread) return;
   var notes = c.notes||[];
   if(notes.length===0){
-    thread.innerHTML='<div class="crm-empty"><div class="crm-empty-icon">💬</div><div>No activity yet — add your first note above</div></div>';
+    thread.innerHTML='<div class="crm-empty"><div>No activity yet — add your first note above</div></div>';
     return;
   }
   var tagColors = {Update:'var(--cyan)','Invoice Sent':'#e8b84b','Payment Received':'#00e87a',
@@ -4932,7 +5016,7 @@ function renderNoteThread(c){
       +(mainCat?'<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 8px;border-radius:3px;background:'+catColor+'22;color:'+catColor+';border:1px solid '+catColor+'44;font-weight:700;text-transform:uppercase;">'+mainCat+'</span>':'')
       +'<span style="display:flex;gap:4px;flex-wrap:wrap;">'+tagsHtml+'</span>'
       +'<span class="crm-note-date" style="margin-left:auto;">'+n.date+'</span>'
-      +'<button class="crm-note-del" onclick="deleteNote('+n.id+')" title="Delete">✕</button>'
+      +'<button class="crm-note-del" onclick="deleteNote('+n.id+')" title="Delete">×</button>'
       +'</div>'
       +'<div class="crm-note-text" style="margin-top:8px;">'+n.text.split('\n').join('<br>')+'</div>'
       +'</div>';
@@ -5003,6 +5087,7 @@ function _patchAdminForCrm(){
       document.getElementById('admin-p').value = '';
       setTimeout(crmInit, 80);
       SB_loadEnquiries();
+      NOTIF.check();
     } catch(e){
       alert('Could not reach the login service. Check your connection and try again.');
     } finally {
@@ -5253,7 +5338,7 @@ window.exportClientsCSV = function() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast('✅ CSV exported — ' + clients.length + ' clients saved!');
+  showToast('CSV exported — ' + clients.length + ' clients saved!');
 };
 
 window.exportClientsJSON = function() {
@@ -5272,7 +5357,7 @@ window.exportClientsJSON = function() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast('✅ Full backup downloaded — keep this file safe!');
+  showToast('Full backup downloaded — keep this file safe!');
 };
 
 window.importFromJSON = function(file) {
@@ -5282,7 +5367,7 @@ window.importFromJSON = function(file) {
       var data = JSON.parse(e.target.result);
       if (data.crm_clients) localStorage.setItem('crm_clients', JSON.stringify(data.crm_clients));
       if (data.crm_enquiries) localStorage.setItem('crm_enquiries', JSON.stringify(data.crm_enquiries));
-      showToast('✅ ' + (data.crm_clients||[]).length + ' clients restored! Refreshing...');
+      showToast((data.crm_clients||[]).length + ' clients restored! Refreshing...');
       setTimeout(function(){ location.reload(); }, 1500);
     } catch(err) { alert('Invalid backup file.'); }
   };
@@ -5332,13 +5417,13 @@ function autoBackupOnSave() {
       a.click();
       document.body.removeChild(a);
       localStorage.setItem('crm_auto_backup_last_dl', today);
-      showToast('✅ Saved + Daily backup file downloaded 💾');
+      showToast('Saved + Daily backup file downloaded');
     } else {
-      showToast('✅ Saved + Auto-backed up 💾');
+      showToast('Saved + Auto-backed up');
     }
   } catch(e) {
     // Backup failure must never break the save
-    showToast('✅ Saved!');
+    showToast('Saved!');
   }
 }
 </script>
@@ -5403,7 +5488,7 @@ function autoBackupOnSave() {
   function buildInvoiceDoc(d){var s=splitDefaults(d);var hasSplit=(s.deposit>0 && s.balance>0);var dueNow=hasSplit?s.deposit:s.total;return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.15},footer:footer(),content:[brandHeader("INVOICE"),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,10]},{canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.4,lineColor:TEAL}],margin:[0,0,0,14]},{columns:[[{text:"BILL TO",color:TEAL,bold:true,fontSize:8,margin:[0,0,0,2]},{text:d.billingEntity||d.clientName||"[Client]",bold:true},{text:d.clientLocation||"United Arab Emirates",color:GREY}],[{text:[{text:"Invoice No:  ",bold:true},(d.invoiceNo||"CS-____")],alignment:"right"},{text:[{text:"Date:  ",bold:true},(d.invoiceDate||"__")],alignment:"right"}]]},{text:"",margin:[0,16,0,0]},{table:{widths:["*",110],body:[[{text:"PACKAGE",fillColor:TEAL,color:"#fff",bold:true},{text:"AMOUNT (AED)",fillColor:TEAL,color:"#fff",bold:true,alignment:"right"}],[{text:d.packageName||"Website — Design & Development",bold:true},{text:money(s.total),alignment:"right"}]]},layout:grid()},{text:"",margin:[0,12,0,0]},{table:{widths:["*",130],body:[[{text:"AMOUNT DUE NOW",fillColor:TEAL,color:"#fff",bold:true,fontSize:13},{text:"AED "+money(dueNow),fillColor:TEAL,color:"#fff",bold:true,fontSize:13,alignment:"right"}]]},layout:{defaultBorder:false,paddingLeft:function(){return 10;},paddingRight:function(){return 10;},paddingTop:function(){return 9;},paddingBottom:function(){return 9;}}},hasSplit?{text:"50% advance due now, before work starts. Remaining balance of AED "+money(s.balance)+" due after final approval, before launch.",color:GREY,fontSize:8.5,margin:[0,6,0,0]}:{text:"",margin:[0,0,0,0]},{text:"Payment",color:TEAL,bold:true,fontSize:11,margin:[0,14,0,2]},{text:"Please reference Invoice No. "+(d.invoiceNo||"CS-____")+" with your payment. Contact us on WhatsApp or email to arrange payment.",color:GREY,fontSize:9}]};}
   function kv(k,v){return[{text:k,bold:true,fillColor:LIGHT},{text:v}];}
   function h2p(t){return{text:t,color:TEAL,bold:true,fontSize:12,margin:[0,12,0,4]};}
-  function buildAgreementDoc(d,sig){var s=splitDefaults(d);var sb=(sig&&sig.dataUrl)?[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,6]},{text:"✅ Digitally signed via Cancas Studio",color:"#0a8f3c",bold:true,fontSize:9,margin:[0,0,0,8]},{image:sig.dataUrl,width:170,margin:[0,0,0,6]},{canvas:[{type:"line",x1:0,y1:0,x2:220,y2:0,lineWidth:.75,lineColor:"#999999"}],margin:[0,0,0,4]},{text:"Name: "+(sig.name||"—"),margin:[0,0,0,3]},{text:"Title / Position: "+(sig.title||"—"),margin:[0,0,0,3]},{text:"Signed on: "+(sig.date||"—"),margin:[0,0,0,0]}]:[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,10]},{text:"Signature: ______________________________________",margin:[0,0,0,10]},{text:"Name: __________________________________________",margin:[0,0,0,10]},{text:"Title / Position: _________________________________",margin:[0,0,0,10]},{text:"Company Stamp & Date: __________________________"}];return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[brandHeader(""),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,8]},{text:"WEBSITE DESIGN & DEVELOPMENT SERVICE AGREEMENT",bold:true,fontSize:13,alignment:"center"},{text:"This Agreement is made on "+(d.agreementDate||"____ / ____ / ____"),alignment:"center",color:GREY,italics:true,margin:[0,2,0,10]},{text:"This Service Agreement is entered into between:"},{text:[{text:"The Studio: ",bold:true},"CANCAS STUDIO, Dubai, UAE."],margin:[0,3,0,0]},{text:[{text:"The Client: ",bold:true},(d.clientName||"[Client Company]")+(d.clientLocation?", "+d.clientLocation:"")+"."]},h2p("1.  Key Terms at a Glance"),{table:{widths:[150,"*"],body:[kv("Package",d.packageName||"[Package]"),kv("One-Time Build Fee","AED "+money(s.total)),kv("Managed Monthly Plan","AED "+money(s.monthly)+" / month"),kv("Advance Deposit (50%)","AED "+money(s.deposit)+" — payable on signing"),kv("Balance (50%)","AED "+money(s.balance)+" — after final approval, before launch"),kv("Monthly Billing Starts","One month from the advance payment date"),kv("Domain & Hosting","Domain provided by the Client; hosting by Cancas Studio"),kv("Estimated Delivery","Approx. 14 days from deposit + all required content")]},layout:grid()},h2p("2.  Payment Schedule"),{ul:["50% advance — AED "+money(s.deposit)+" — due on signing. Work begins once received.","50% balance — AED "+money(s.balance)+" — due after final approval, before launch.","Managed monthly plan — AED "+money(s.monthly)+"/month — first payment one month after the advance date."]},{text:"The 50% deposit is non-refundable once work has commenced.",color:GREY,fontSize:9,margin:[0,3,0,0]},h2p("3.  Key Terms You Should Know"),{ul:["Deposit & balance: 50% deposit non-refundable once work starts; balance due before launch.","Monthly plan: hosting, SSL, monitoring, 6 updates/month, support. Cancel any time with 30 days' written notice.","Domain: provided and owned by the Client; Client gives DNS access and keeps it registered/renewed.","Revisions: unlimited during build (within agreed scope); new pages/features quoted separately.","Your part: provide content & approvals promptly (approve mockups within 7 business days).","Ownership: full custom code/design transfers on full & final payment; Studio may show work in portfolio unless asked not to.","Non-payment/cancellation: services stop and the site may go offline within 7 days; files transfer free within 7 business days.","Liability limited to fees paid in the prior 3 months. Governed by UAE law; Dubai courts."]},{table:{widths:["*"],body:[[{text:"Please review the full Terms & Conditions at cancasstudio.com before signing. This summary highlights the main points only; the full T&C govern this Agreement.",bold:true,fillColor:LIGHT}]]},layout:{hLineColor:function(){return TEAL;},vLineColor:function(){return TEAL;},hLineWidth:function(){return 1;},vLineWidth:function(){return 1;},paddingLeft:function(){return 8;},paddingRight:function(){return 8;},paddingTop:function(){return 6;},paddingBottom:function(){return 6;}},margin:[0,10,0,0]},h2p("4.  Acceptance & Signature"),{text:"By signing below, the Client agrees to this Agreement and the full Terms & Conditions of CANCAS STUDIO, and authorises work to begin on receipt of the 50% advance."},{stack:sb,margin:[0,4,0,0]}]};}
+  function buildAgreementDoc(d,sig){var s=splitDefaults(d);var sb=(sig&&sig.dataUrl)?[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,6]},{text:"Digitally signed via Cancas Studio",color:"#0a8f3c",bold:true,fontSize:9,margin:[0,0,0,8]},{image:sig.dataUrl,width:170,margin:[0,0,0,6]},{canvas:[{type:"line",x1:0,y1:0,x2:220,y2:0,lineWidth:.75,lineColor:"#999999"}],margin:[0,0,0,4]},{text:"Name: "+(sig.name||"—"),margin:[0,0,0,3]},{text:"Title / Position: "+(sig.title||"—"),margin:[0,0,0,3]},{text:"Signed on: "+(sig.date||"—"),margin:[0,0,0,0]}]:[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,10]},{text:"Signature: ______________________________________",margin:[0,0,0,10]},{text:"Name: __________________________________________",margin:[0,0,0,10]},{text:"Title / Position: _________________________________",margin:[0,0,0,10]},{text:"Company Stamp & Date: __________________________"}];return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[brandHeader(""),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,8]},{text:"WEBSITE DESIGN & DEVELOPMENT SERVICE AGREEMENT",bold:true,fontSize:13,alignment:"center"},{text:"This Agreement is made on "+(d.agreementDate||"____ / ____ / ____"),alignment:"center",color:GREY,italics:true,margin:[0,2,0,10]},{text:"This Service Agreement is entered into between:"},{text:[{text:"The Studio: ",bold:true},"CANCAS STUDIO, Dubai, UAE."],margin:[0,3,0,0]},{text:[{text:"The Client: ",bold:true},(d.clientName||"[Client Company]")+(d.clientLocation?", "+d.clientLocation:"")+"."]},h2p("1.  Key Terms at a Glance"),{table:{widths:[150,"*"],body:[kv("Package",d.packageName||"[Package]"),kv("One-Time Build Fee","AED "+money(s.total)),kv("Managed Monthly Plan","AED "+money(s.monthly)+" / month"),kv("Advance Deposit (50%)","AED "+money(s.deposit)+" — payable on signing"),kv("Balance (50%)","AED "+money(s.balance)+" — after final approval, before launch"),kv("Monthly Billing Starts","One month from the advance payment date"),kv("Domain & Hosting","Domain provided by the Client; hosting by Cancas Studio"),kv("Estimated Delivery","Approx. 14 days from deposit + all required content")]},layout:grid()},h2p("2.  Payment Schedule"),{ul:["50% advance — AED "+money(s.deposit)+" — due on signing. Work begins once received.","50% balance — AED "+money(s.balance)+" — due after final approval, before launch.","Managed monthly plan — AED "+money(s.monthly)+"/month — first payment one month after the advance date."]},{text:"The 50% deposit is non-refundable once work has commenced.",color:GREY,fontSize:9,margin:[0,3,0,0]},h2p("3.  Key Terms You Should Know"),{ul:["Deposit & balance: 50% deposit non-refundable once work starts; balance due before launch.","Monthly plan: hosting, SSL, monitoring, 6 updates/month, support. Cancel any time with 30 days' written notice.","Domain: provided and owned by the Client; Client gives DNS access and keeps it registered/renewed.","Revisions: unlimited during build (within agreed scope); new pages/features quoted separately.","Your part: provide content & approvals promptly (approve mockups within 7 business days).","Ownership: full custom code/design transfers on full & final payment; Studio may show work in portfolio unless asked not to.","Non-payment/cancellation: services stop and the site may go offline within 7 days; files transfer free within 7 business days.","Liability limited to fees paid in the prior 3 months. Governed by UAE law; Dubai courts."]},{table:{widths:["*"],body:[[{text:"Please review the full Terms & Conditions at cancasstudio.com before signing. This summary highlights the main points only; the full T&C govern this Agreement.",bold:true,fillColor:LIGHT}]]},layout:{hLineColor:function(){return TEAL;},vLineColor:function(){return TEAL;},hLineWidth:function(){return 1;},vLineWidth:function(){return 1;},paddingLeft:function(){return 8;},paddingRight:function(){return 8;},paddingTop:function(){return 6;},paddingBottom:function(){return 6;}},margin:[0,10,0,0]},h2p("4.  Acceptance & Signature"),{text:"By signing below, the Client agrees to this Agreement and the full Terms & Conditions of CANCAS STUDIO, and authorises work to begin on receipt of the 50% advance."},{stack:sb,margin:[0,4,0,0]}]};}
 
   function fname(s){return String(s||"doc").replace(/[^\w.\-]+/g,"-");}
   function need(d){ if(!d.clientName){ alert("Open a client and enter the Business Name first."); return false;} return true; }
@@ -5417,7 +5502,7 @@ function autoBackupOnSave() {
      +'<div style="max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
      +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
      +'    <div id="pv-title" style="font-weight:800;font-size:16px;">Preview</div>'
-     +'    <button onclick="document.getElementById(\'cancas-pv\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">✕ Close</button>'
+     +'    <button onclick="document.getElementById(\'cancas-pv\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">× Close</button>'
      +'  </div>'
      +'  <div id="pv-link" style="display:none;padding:10px 16px;border-bottom:1px solid #1f2c38;"></div>'
      +'  <iframe id="pv-frame" title="preview" style="flex:1;width:100%;border:0;background:#fff;min-height:0;"></iframe>'
@@ -5477,8 +5562,8 @@ function autoBackupOnSave() {
         document.getElementById("pv-link").style.display="none";
         pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
         var foot=document.getElementById("pv-foot"); foot.innerHTML="";
-        foot.appendChild(pvBtn("⬇ Download PDF",function(){ pdf.download(fname("Cancas-"+(isInv?"Invoice-"+(d.invoiceNo||"CS"):"Agreement-"+d.clientName))+".pdf"); },true));
-        if(!isInv) foot.appendChild(pvBtn("🔗 Get Signing Link",function(){ showSign(); }));
+        foot.appendChild(pvBtn("Download PDF",function(){ pdf.download(fname("Cancas-"+(isInv?"Invoice-"+(d.invoiceNo||"CS"):"Agreement-"+d.clientName))+".pdf"); },true));
+        if(!isInv) foot.appendChild(pvBtn("Get Signing Link",function(){ showSign(); }));
         document.getElementById("cancas-pv").style.display="flex";
         if(isInv) saveInvoiceRecord(d);
       });
@@ -5544,8 +5629,8 @@ function autoBackupOnSave() {
         document.getElementById("pv-link").style.display="none";
         pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
         var foot=document.getElementById("pv-foot"); foot.innerHTML="";
-        foot.appendChild(pvBtn("⬇ Download Signed PDF",function(){ pdf.download(fname("Cancas-Agreement-SIGNED-"+d.clientName)+".pdf"); },true));
-        foot.appendChild(pvBtn("📄 View blank template",function(){ showDoc("agreement"); }));
+        foot.appendChild(pvBtn("Download Signed PDF",function(){ pdf.download(fname("Cancas-Agreement-SIGNED-"+d.clientName)+".pdf"); },true));
+        foot.appendChild(pvBtn("View blank template",function(){ showDoc("agreement"); }));
         document.getElementById("cancas-pv").style.display="flex";
       });
     },function(){ showDoc("agreement"); });
@@ -5566,10 +5651,10 @@ function autoBackupOnSave() {
         var box=document.getElementById("pv-lbox"); if(box) box.value=link;
         var msg=document.getElementById("pv-lmsg"); if(msg) msg.innerHTML="This is exactly what the client will review &amp; sign. Send them this link:";
         foot.innerHTML="";
-        foot.appendChild(pvBtn("📋 Copy Link",function(){ copyText(link); },true));
+        foot.appendChild(pvBtn("Copy Link",function(){ copyText(link); },true));
         var mob=dg(document.getElementById("cf-mobile1")&&document.getElementById("cf-mobile1").value)||dg(document.getElementById("cf-phone")&&document.getElementById("cf-phone").value);
-        foot.appendChild(pvBtn("📲 Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(link),"_blank"); }));
-        foot.appendChild(pvBtn("👁 Open client view",function(){ window.open(link,"_blank"); }));
+        foot.appendChild(pvBtn("Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(link),"_blank"); }));
+        foot.appendChild(pvBtn("Open client view",function(){ window.open(link,"_blank"); }));
         foot.appendChild(pvBtn("⤓ Get signed copy",function(){ getSignedCopy(d); }));
         try{ if(typeof refreshAgreementStatus==="function") refreshAgreementStatus(); }catch(e){}
       });
@@ -5587,7 +5672,7 @@ function autoBackupOnSave() {
      +'<div style="max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
      +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
      +'    <div id="ih-title" style="font-weight:800;font-size:16px;">Invoice History</div>'
-     +'    <button onclick="document.getElementById(\'cancas-ih\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">✕ Close</button>'
+     +'    <button onclick="document.getElementById(\'cancas-ih\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">× Close</button>'
      +'  </div>'
      +'  <div style="display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #1f2c38;">'
      +'    <select id="ih-year" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"><option value="">All years</option></select>'
@@ -5613,7 +5698,7 @@ function autoBackupOnSave() {
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #1f2c38;">'
         +'<div><div style="font-weight:700;">'+r.invoice_no+'</div>'
         +'<div style="color:#8aa0b2;font-size:12px;">'+kindLabel+' · '+when+' · AED '+Number(r.amount||0).toLocaleString("en-US",{minimumFractionDigits:2})+'</div></div>'
-        +'<button data-ih-idx="'+i+'" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer;flex-shrink:0;">⬇ PDF</button>'
+        +'<button data-ih-idx="'+i+'" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer;flex-shrink:0;">PDF</button>'
         +'</div>';
     }).join("");
     Array.prototype.forEach.call(list.querySelectorAll("[data-ih-idx]"), function(btn){
@@ -5719,8 +5804,8 @@ function autoBackupOnSave() {
     m.innerHTML=''
     +'<div style="max-width:1000px;margin:0 auto;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;color:#e7eef4;font-family:Arial,Helvetica,sans-serif;">'
     +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1f2c38;">'
-    +'    <div style="font-size:20px;font-weight:800;">📊 Reports</div>'
-    +'    <button onclick="document.getElementById(\'cancas-reports\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;">✕ Close</button>'
+    +'    <div style="font-size:20px;font-weight:800;">Reports</div>'
+    +'    <button onclick="document.getElementById(\'cancas-reports\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;">× Close</button>'
     +'  </div>'
     +'  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;padding:16px 20px;border-bottom:1px solid #1f2c38;">'
     +'    <div><div style="font-size:11px;color:#8aa0b2;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">From</div><input type="date" id="rep-from" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"></div>'
@@ -5729,8 +5814,8 @@ function autoBackupOnSave() {
     +'    <button onclick="CancasReports.preset(\'month\')" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">This month</button>'
     +'    <button onclick="CancasReports.preset(\'year\')" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">This year</button>'
     +'    <div style="flex:1"></div>'
-    +'    <button onclick="CancasReports.exportPayments()" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">⬇ Payments CSV</button>'
-    +'    <button onclick="CancasReports.backup()" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">💾 Backup all data</button>'
+    +'    <button onclick="CancasReports.exportPayments()" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">Payments CSV</button>'
+    +'    <button onclick="CancasReports.backup()" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">Backup all data</button>'
     +'  </div>'
     +'  <div id="rep-body" style="padding:18px 20px;"></div>'
     +'</div>';
@@ -5780,7 +5865,7 @@ function autoBackupOnSave() {
     if(!Object.keys(r.byStatus).length) html+='<tr><td colspan="3" style="padding:8px;color:#8aa0b2;">No clients yet.</td></tr>';
     html+='</table>';
     // action needed
-    html+='<div style="font-weight:800;margin:6px 0 8px;">⚠ Needs follow-up ('+r.actions.length+')</div>';
+    html+='<div style="font-weight:800;margin:6px 0 8px;">Needs follow-up ('+r.actions.length+')</div>';
     if(r.actions.length){ html+='<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:18px;">';
       r.actions.sort(function(a,b){return b.pend-a.pend;}).forEach(function(a){ html+='<tr><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+a.name+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;color:#e8b84b;">'+a.kind+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;text-align:right;color:#ff5050;">AED '+money(a.pend)+'</td></tr>'; });
       html+='</table>'; } else { html+='<div style="color:#00e87a;margin-bottom:18px;">All clear — nothing outstanding.</div>'; }
@@ -5808,7 +5893,7 @@ function autoBackupOnSave() {
     var nav=document.querySelector(".crm-nav");
     if(nav && !document.getElementById("tab-reports")){
       var b=document.createElement("button");
-      b.className="crm-tab"; b.id="tab-reports"; b.textContent="📊 Reports";
+      b.className="crm-tab"; b.id="tab-reports"; b.textContent="Reports";
       b.onclick=function(){ CancasReports.open(); };
       nav.appendChild(b);
     }
