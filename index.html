@@ -1019,11 +1019,14 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:72px 72px
 .admin-topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:center;gap:20px;flex-shrink:0;}
 .admin-badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 12px;background:rgba(0,212,255,.1);border:1px solid var(--border-lit);color:var(--cyan);border-radius:2px;letter-spacing:1.5px;}
 .admin-body{padding:48px;}
-.admin-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:48px;}
+.admin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:24px;}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:28px 24px;border-left:2px solid var(--cyan);transition:border-color .2s,background .2s;}
 .kpi[onclick]:hover{background:rgba(0,212,255,.04);border-color:var(--border-lit);}
 .kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:var(--cyan);line-height:1;}
 .kpi-lbl{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.5px;}
+#attn-strip{display:none;gap:10px;overflow-x:auto;padding:2px 2px 16px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+.attn-chip{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;cursor:pointer;flex-shrink:0;transition:border-color .2s;min-width:150px;}
+.attn-chip:hover{border-color:var(--cyan);}
 .admin-section{margin-bottom:44px;}
 .admin-section-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--white);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
 .admin-section-title::before{content:'';width:3px;height:20px;background:var(--cyan);display:block;}
@@ -2541,6 +2544,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
   </div>
   <div class="admin-body">
 
+    <!-- Needs Attention (live) -->
+    <div id="attn-strip"></div>
+
     <!-- KPIs (live) -->
     <div class="admin-kpis" id="crm-kpis">
       <div class="kpi" style="border-left-color:#b464ff;cursor:pointer;" onclick="showEnquiriesView()">
@@ -2552,6 +2558,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('active_all')" title="Active & In Progress clients"><div class="kpi-val" id="kpi-active">0</div><div class="kpi-lbl">Active / In Progress</div><div class="kpi-live" id="kpi-rev">AED 0/mo</div></div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('lead')" title="Open leads"><div class="kpi-val" id="kpi-leads">0</div><div class="kpi-lbl">Open Leads</div><div class="kpi-live" id="kpi-leads-sub"></div></div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('completed')" title="Completed"><div class="kpi-val" id="kpi-done">0</div><div class="kpi-lbl">Completed</div><div class="kpi-live" id="kpi-done-sub"></div></div>
+      <div class="kpi" style="border-left-color:#00d4ff;cursor:pointer;" onclick="kpiClick('due_week')" title="Project deadlines in the next 7 days"><div class="kpi-val" id="kpi-dueweek" style="color:#00d4ff;">0</div><div class="kpi-lbl">Due This Week</div><div class="kpi-live" id="kpi-dueweek-sub"></div></div>
+      <div class="kpi" style="border-left-color:#ff5050;cursor:pointer;" onclick="kpiClick('overdue_payment')" title="Active clients with an outstanding balance"><div class="kpi-val" id="kpi-overdue" style="color:#ff5050;">0</div><div class="kpi-lbl">Payment Overdue</div><div class="kpi-live" id="kpi-overdue-sub"></div></div>
+      <div class="kpi" style="border-left-color:#ffd23f;cursor:pointer;" onclick="kpiClick('followup_due')" title="Clients with a follow-up due or overdue today"><div class="kpi-val" id="kpi-followup" style="color:#ffd23f;">0</div><div class="kpi-lbl">Follow-Ups Due</div><div class="kpi-live" id="kpi-followup-sub"></div></div>
     </div>
 
     <!-- CRM Tabs -->
@@ -2584,15 +2593,24 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <!-- Toolbar -->
     <div class="crm-toolbar">
       <input class="crm-search" id="crm-search" type="text" placeholder="Search clients by name, business, email..." oninput="renderCrmGrid()">
-      <select class="crm-filter" id="crm-sort" onchange="renderCrmGrid()">
+      <select class="crm-filter" id="crm-sort" onchange="onCrmSortChange()">
+        <option value="urgent" selected>Needs Attention First</option>
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
         <option value="name">Name A-Z</option>
         <option value="revenue">Revenue ↓</option>
       </select>
+      <button class="crm-btn sec" onclick="openTodayView()" style="color:#ffd23f;border-color:#ffd23f;" title="Everything due or overdue today">Today</button>
       <button class="crm-btn" onclick="openNewClient()">+ New Client</button>
       <button class="crm-btn sec" onclick="exportClientsCSV()" title="Download all client data as CSV">Export CSV</button>
       <button class="crm-btn sec" onclick="exportClientsJSON()" title="Download full backup as JSON" style="color:var(--gold);border-color:var(--gold);">Backup JSON</button>
+    </div>
+    <div class="crm-tag-row" id="crm-tag-filter" style="margin:-6px 0 14px;">
+      <span class="crm-tag sel" data-tag="" onclick="filterByTag(this)">All Tags</span>
+      <span class="crm-tag" data-tag="vip" onclick="filterByTag(this)">VIP</span>
+      <span class="crm-tag" data-tag="high-touch" onclick="filterByTag(this)">High-Touch</span>
+      <span class="crm-tag" data-tag="low-touch" onclick="filterByTag(this)">Low-Touch</span>
+      <span class="crm-tag" data-tag="at-risk" onclick="filterByTag(this)">At-Risk</span>
     </div>
 
     <!-- Client Grid -->
@@ -2680,15 +2698,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel active" id="pp-info" style="padding:28px 36px;">
           <div class="crm-section-hd">Contact Information</div>
           <div class="crm-field-grid">
-            <div class="crm-field"><label class="crm-label">Client Name</label><input class="crm-input" id="cf-name" placeholder="Full name" oninput="updateProfileHeader()"></div>
-            <div class="crm-field"><label class="crm-label">Business Name</label><input class="crm-input" id="cf-biz" placeholder="Business / Company" oninput="updateProfileHeader()"></div>
-            <div class="crm-field"><label class="crm-label">Billing Entity <span style="opacity:.6;font-weight:400">(for invoice — leave blank to use Business Name)</span></label><input class="crm-input" id="cf-billing" placeholder="e.g. Stratseek Media FZE LLC"></div>
-            <div class="crm-field"><label class="crm-label">Email Address</label><input class="crm-input" id="cf-email" type="email" placeholder="email@example.com"></div>
-            <div class="crm-field"><label class="crm-label">Secondary Email</label><input class="crm-input" id="cf-email2" type="email" placeholder="secondary@example.com"></div>
-            <div class="crm-field"><label class="crm-label">Main Business Number</label><input class="crm-input" id="cf-phone" placeholder="+971 XX XXX XXXX"></div>
-            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 1</label><input class="crm-input" id="cf-mobile1" placeholder="+971 XX XXX XXXX"></div>
-            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 2</label><input class="crm-input" id="cf-mobile2" placeholder="+971 XX XXX XXXX"></div>
-            <div class="crm-field"><label class="crm-label">Location / City</label><input class="crm-input" id="cf-location" placeholder="Dubai, UAE"></div>
+            <div class="crm-field"><label class="crm-label">Client Name</label><input class="crm-input" id="cf-name" placeholder="" oninput="updateProfileHeader()"></div>
+            <div class="crm-field"><label class="crm-label">Business Name</label><input class="crm-input" id="cf-biz" placeholder="" oninput="updateProfileHeader()"></div>
+            <div class="crm-field"><label class="crm-label">Billing Entity <span style="opacity:.6;font-weight:400">(for invoice — leave blank to use Business Name)</span></label><input class="crm-input" id="cf-billing" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Email Address</label><input class="crm-input" id="cf-email" type="email" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Secondary Email</label><input class="crm-input" id="cf-email2" type="email" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Main Business Number</label><input class="crm-input" id="cf-phone" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 1</label><input class="crm-input" id="cf-mobile1" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 2</label><input class="crm-input" id="cf-mobile2" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Location / City</label><input class="crm-input" id="cf-location" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Industry</label>
               <select class="crm-select" id="cf-industry" onchange="toggleIndustryOther(this)">
                 <option value="">Select industry...</option>
@@ -2698,15 +2716,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 <option>Hospitality</option><option>Finance</option><option>Legal</option><option>Other</option>
               </select>
             </div>
-            <div class="crm-field" id="cf-industry-other-wrap" style="display:none"><label class="crm-label">Specify Industry</label><input class="crm-input" id="cf-industry-other" placeholder="Type your industry..."></div>
+            <div class="crm-field" id="cf-industry-other-wrap" style="display:none"><label class="crm-label">Specify Industry</label><input class="crm-input" id="cf-industry-other" placeholder=""></div>
             <div class="crm-field full" style="padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;grid-column:1/-1;">
               <div style="font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:12px;">Secondary Contact Person</div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-                <div class="crm-field"><label class="crm-label">Contact Name</label><input class="crm-input" id="cf-contact2-name" placeholder="Full name"></div>
-                <div class="crm-field"><label class="crm-label">Role / Title</label><input class="crm-input" id="cf-contact2-role" placeholder="e.g. Manager, Owner"></div>
-                <div class="crm-field"><label class="crm-label">Phone / WhatsApp</label><input class="crm-input" id="cf-contact2-phone" placeholder="+971 XX XXX XXXX"></div>
-                <div class="crm-field"><label class="crm-label">Email</label><input class="crm-input" id="cf-contact2-email" type="email" placeholder="email@example.com"></div>
-                <div class="crm-field"><label class="crm-label">Best Time to Contact</label><input class="crm-input" id="cf-contact2-time" placeholder="e.g. Mornings, After 5pm"></div>
+                <div class="crm-field"><label class="crm-label">Contact Name</label><input class="crm-input" id="cf-contact2-name" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Role / Title</label><input class="crm-input" id="cf-contact2-role" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Phone / WhatsApp</label><input class="crm-input" id="cf-contact2-phone" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Email</label><input class="crm-input" id="cf-contact2-email" type="email" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Best Time to Contact</label><input class="crm-input" id="cf-contact2-time" placeholder=""></div>
                 <div class="crm-field"><label class="crm-label">Preferred Method</label>
                   <select class="crm-select" id="cf-contact2-pref">
                     <option value="">Select...</option>
@@ -2715,7 +2733,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 </div>
               </div>
             </div>
-            <div class="crm-field full"><label class="crm-label">Current Website (if any)</label><input class="crm-input" id="cf-oldsite" placeholder="https://..."></div>
+            <div class="crm-field full"><label class="crm-label">Current Website (if any)</label><input class="crm-input" id="cf-oldsite" placeholder=""></div>
           </div>
 
           <div class="crm-section-hd">Project Details</div>
@@ -2739,13 +2757,28 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 <option>Custom</option>
               </select>
             </div>
-            <div class="crm-field"><label class="crm-label">Project Type</label><input class="crm-input" id="cf-project" placeholder="e.g. Restaurant website + booking"></div>
-            <div class="crm-field"><label class="crm-label">Number of Pages</label><input class="crm-input" id="cf-pages" placeholder="e.g. 5, 10, Unlimited"></div>
+            <div class="crm-field"><label class="crm-label">Project Type</label><input class="crm-input" id="cf-project" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Number of Pages</label><input class="crm-input" id="cf-pages" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Start Date</label><input class="crm-input" id="cf-start" type="date"></div>
             <div class="crm-field"><label class="crm-label">Deadline / Due Date</label><input class="crm-input" id="cf-due" type="date" onchange="calcPending()"></div>
             <div class="crm-field"><label class="crm-label">Launch Date</label><input class="crm-input" id="cf-launch" type="date"></div>
             <div class="crm-field"><label class="crm-label">Contract End Date</label><input class="crm-input" id="cf-end" type="date" onchange="calcPending()"></div>
-            <div class="crm-field full"><label class="crm-label">Live Website URL</label><input class="crm-input" id="cf-live" placeholder="https://"></div>
+            <div class="crm-field full"><label class="crm-label">Live Website URL</label><input class="crm-input" id="cf-live" placeholder=""></div>
+          </div>
+
+          <div class="crm-section-hd">Follow-Up &amp; Tags</div>
+          <div class="crm-field-grid">
+            <div class="crm-field"><label class="crm-label">Next Follow-Up Date</label><input class="crm-input" id="cf-followup-date" type="date"></div>
+            <div class="crm-field full"><label class="crm-label">Follow-Up Note</label><input class="crm-input" id="cf-followup-note" placeholder=""></div>
+            <div class="crm-field full">
+              <label class="crm-label">Tags</label>
+              <div class="crm-tag-row" id="client-tags-row">
+                <span class="crm-tag" data-tag="vip" onclick="this.classList.toggle('sel')">VIP</span>
+                <span class="crm-tag" data-tag="high-touch" onclick="this.classList.toggle('sel')">High-Touch</span>
+                <span class="crm-tag" data-tag="low-touch" onclick="this.classList.toggle('sel')">Low-Touch</span>
+                <span class="crm-tag" data-tag="at-risk" onclick="this.classList.toggle('sel')">At-Risk</span>
+              </div>
+            </div>
           </div>
 
           <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save All Changes</button></div>
@@ -2755,9 +2788,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel" id="pp-billing" style="padding:28px 36px;display:none;">
             <div class="crm-section-hd">Contract &amp; Pricing</div>
             <div class="crm-field-grid">
-              <div class="crm-field"><label class="crm-label">Total Contract Value (AED)</label><input class="crm-input" id="cf-value" type="number" placeholder="0" oninput="calcPending()"></div>
-              <div class="crm-field"><label class="crm-label">Monthly Fee (AED)</label><input class="crm-input" id="cf-monthly" type="number" placeholder="0" oninput="calcPending()"></div>
-              <div class="crm-field"><label class="crm-label">Invoice / Reference No.</label><input class="crm-input" id="cf-invoice" placeholder="INV-001"></div>
+              <div class="crm-field"><label class="crm-label">Total Contract Value (AED)</label><input class="crm-input" id="cf-value" type="number" placeholder="" oninput="calcPending()"></div>
+              <div class="crm-field"><label class="crm-label">Monthly Fee (AED)</label><input class="crm-input" id="cf-monthly" type="number" placeholder="" oninput="calcPending()"></div>
+              <div class="crm-field"><label class="crm-label">Invoice / Reference No.</label><input class="crm-input" id="cf-invoice" placeholder=""></div>
               <div class="crm-field"><label class="crm-label">Billing Renewal Date</label><input class="crm-input" id="cf-renewal" type="date"></div>
             </div>
 
@@ -2766,7 +2799,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;">
               <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;font-weight:600;">Add Payment</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-                <div class="crm-field"><label class="crm-label">Amount (AED)</label><input class="crm-input" id="pay-amount" type="number" placeholder="0"></div>
+                <div class="crm-field"><label class="crm-label">Amount (AED)</label><input class="crm-input" id="pay-amount" type="number" placeholder=""></div>
                 <div class="crm-field"><label class="crm-label">Date</label><input class="crm-input" id="pay-date" type="date"></div>
                 <div class="crm-field"><label class="crm-label">Payment Method</label>
                   <select class="crm-select" id="pay-method">
@@ -2785,8 +2818,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
                     <option>Other</option>
                   </select>
                 </div>
-                <div class="crm-field"><label class="crm-label">Reference / Transaction ID</label><input class="crm-input" id="pay-ref" placeholder="TXN-123 or last 4 digits"></div>
-                <div class="crm-field full"><label class="crm-label">Notes (optional)</label><input class="crm-input" id="pay-note" placeholder="e.g. Deposit for project, Monthly March..."></div>
+                <div class="crm-field"><label class="crm-label">Reference / Transaction ID</label><input class="crm-input" id="pay-ref" placeholder=""></div>
+                <div class="crm-field full"><label class="crm-label">Notes (optional)</label><input class="crm-input" id="pay-note" placeholder=""></div>
               </div>
               <button class="crm-btn" onclick="addPayment()" style="width:100%;">+ Record Payment</button>
             </div>
@@ -2814,13 +2847,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel" id="pp-technical" style="padding:28px 36px;display:none;">
             <div class="crm-section-hd">Technical Details</div>
             <div class="crm-field-grid">
-              <div class="crm-field"><label class="crm-label">Domain Name</label><input class="crm-input" id="cf-domain" placeholder="example.com"></div>
-              <div class="crm-field"><label class="crm-label">Domain Registrar</label><input class="crm-input" id="cf-registrar" placeholder="Namecheap / GoDaddy..."></div>
-              <div class="crm-field"><label class="crm-label">Hosting Platform</label><input class="crm-input" id="cf-hosting" placeholder="GitHub Pages / Vercel..."></div>
+              <div class="crm-field"><label class="crm-label">Domain Name</label><input class="crm-input" id="cf-domain" placeholder=""></div>
+              <div class="crm-field"><label class="crm-label">Domain Registrar</label><input class="crm-input" id="cf-registrar" placeholder=""></div>
+              <div class="crm-field"><label class="crm-label">Hosting Platform</label><input class="crm-input" id="cf-hosting" placeholder=""></div>
               <div class="crm-field"><label class="crm-label">Domain Expiry</label><input class="crm-input" id="cf-domain-exp" type="date"></div>
-              <div class="crm-field"><label class="crm-label">Admin Email (client's)</label><input class="crm-input" id="cf-admin-email" placeholder="client admin email"></div>
-              <div class="crm-field"><label class="crm-label">CPanel / GitHub Username</label><input class="crm-input" id="cf-cpanel" placeholder="username"></div>
-              <div class="crm-field full"><label class="crm-label">Technologies Used</label><input class="crm-input" id="cf-tech" placeholder="e.g. HTML, WordPress, Shopify, React..."></div>
+              <div class="crm-field"><label class="crm-label">Admin Email (client's)</label><input class="crm-input" id="cf-admin-email" placeholder=""></div>
+              <div class="crm-field"><label class="crm-label">CPanel / GitHub Username</label><input class="crm-input" id="cf-cpanel" placeholder=""></div>
+              <div class="crm-field full"><label class="crm-label">Technologies Used</label><input class="crm-input" id="cf-tech" placeholder=""></div>
             </div>
             <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save Technical</button></div>
           </div><!-- /pp-technical -->
@@ -2829,9 +2862,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel" id="pp-notes" style="padding:28px 36px;display:none;">
             <div class="crm-section-hd">Project Notes</div>
             <div class="crm-field-grid">
-              <div class="crm-field full"><label class="crm-label">Project Brief / Requirements</label><textarea class="crm-textarea" id="cf-brief" rows="4" placeholder="What does the client need?"></textarea></div>
-              <div class="crm-field full"><label class="crm-label">Internal Notes</label><textarea class="crm-textarea" id="cf-notes" rows="4" placeholder="Private notes, reminders, anything..."></textarea></div>
-              <div class="crm-field full"><label class="crm-label">End of Service Notes</label><textarea class="crm-textarea" id="cf-eos" rows="3" placeholder="Reason for ending, handover notes..."></textarea></div>
+              <div class="crm-field full"><label class="crm-label">Project Brief / Requirements</label><textarea class="crm-textarea" id="cf-brief" rows="4" placeholder=""></textarea></div>
+              <div class="crm-field full"><label class="crm-label">Internal Notes</label><textarea class="crm-textarea" id="cf-notes" rows="4" placeholder=""></textarea></div>
+              <div class="crm-field full"><label class="crm-label">End of Service Notes</label><textarea class="crm-textarea" id="cf-eos" rows="3" placeholder=""></textarea></div>
             </div>
             <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save Notes</button></div>
           </div><!-- /pp-notes -->
@@ -2863,7 +2896,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
               <!-- Populated by selectMainCat() -->
             </div>
 
-            <textarea class="crm-textarea" id="note-text" rows="3" placeholder="Type your note, message, or log entry..."></textarea>
+            <textarea class="crm-textarea" id="note-text" rows="3" placeholder=""></textarea>
             <div style="display:flex;gap:8px;align-items:center;">
               <button class="crm-btn" onclick="addNote()" style="flex:1;">Add Entry</button>
               <span style="font-size:11px;color:var(--muted);">Ctrl+Enter</span>
@@ -4244,6 +4277,221 @@ function openClientByName(name){
   showClientsView();
   openClientProfile(c.id);
 }
+
+// ── NEEDS ATTENTION / URGENCY ───────────────────────────────────
+// Pulls a couple of cheap cloud queries (all invoices, all signed agreements),
+// combines them with the local client list, and flags anything that plausibly
+// needs the admin's attention today: an outstanding balance, a signed agreement
+// that never got moved off "Lead", a contract ending soon, a project deadline
+// inside the next 7 days, or a lead that's gone quiet for 3+ days.
+var ATTN = { byId: {}, items: [] };
+function relativeTime(ts){
+  if(!ts) return '—';
+  var diff = Date.now()-ts;
+  if(diff<0) diff=0;
+  var mins=Math.floor(diff/60000);
+  if(mins<1) return 'just now';
+  if(mins<60) return mins+'m ago';
+  var hrs=Math.floor(mins/60);
+  if(hrs<24) return hrs+'h ago';
+  var days=Math.floor(hrs/24);
+  if(days<30) return days+'d ago';
+  var months=Math.floor(days/30);
+  if(months<12) return months+'mo ago';
+  return Math.floor(months/12)+'y ago';
+}
+async function refreshAttention(){
+  CRM.load();
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  var now = Date.now();
+  var invoicedByKey = {};
+  var signedSet = {};
+  if(sb){
+    try{
+      var invRes = await sb.from('invoices').select('client_name,amount');
+      ((invRes && invRes.data)||[]).forEach(function(r){
+        var k=r.client_name||''; invoicedByKey[k]=(invoicedByKey[k]||0)+parseFloat(r.amount||0);
+      });
+    }catch(e){}
+    try{
+      var agrRes = await sb.from('agreements').select('data').eq('status','signed');
+      ((agrRes && agrRes.data)||[]).forEach(function(r){
+        var k=(r.data && r.data.clientName)||''; if(k) signedSet[k]=true;
+      });
+    }catch(e){}
+  }
+  var byId = {};
+  var items = [];
+  // Snoozing (see snoozeAttention()) defers a specific flag type on a specific
+  // client past a chosen date — check it before deciding a flag is "live".
+  function snoozed(c, type){
+    var s = c.attnSnooze && c.attnSnooze[type];
+    return !!(s && s > now);
+  }
+  CRM.clients.forEach(function(c){
+    var key = c.biz || c.name || '';
+    var paid = (c.payments||[]).reduce(function(s,p){ return s+parseFloat(p.amount||0); },0);
+    var invoiced = invoicedByKey[key] || 0;
+    var pending = Math.max(0, invoiced-paid);
+    var isActiveish = c.status==='active'||c.status==='inprogress'||c.status==='revision';
+    var lastTouch = c.updated || c.created || 0;
+    var daysSinceTouch = lastTouch ? Math.floor((now-lastTouch)/86400000) : null;
+    // Contact cadence: leads go stale fast (3 days). Active/in-progress clients
+    // get a longer leash, shorter for VIP/high-touch tagged accounts.
+    var tags = c.tags || [];
+    var activeStaleThreshold = tags.indexOf('vip')>-1 || tags.indexOf('high-touch')>-1 ? 7 : 21;
+
+    var flags = { pending: pending, lastTouch: lastTouch };
+    flags.overduePayment = isActiveish && pending>0 && !snoozed(c,'overduePayment');
+    flags.signedNotActive = !!signedSet[key] && c.status==='lead' && !snoozed(c,'signedNotActive');
+    flags.staleLead = c.status==='lead' && daysSinceTouch!==null && daysSinceTouch>=3 && !snoozed(c,'staleLead');
+    flags.staleActive = isActiveish && daysSinceTouch!==null && daysSinceTouch>=activeStaleThreshold && !snoozed(c,'staleActive');
+    var endTs = c.end ? new Date(c.end).getTime() : NaN;
+    flags.endingSoon = !isNaN(endTs) && (endTs-now) <= 14*86400000 && !snoozed(c,'endingSoon');
+    if(flags.endingSoon) flags.endTs = endTs;
+    var dueTs = c.due ? new Date(c.due).getTime() : NaN;
+    flags.dueThisWeek = !isNaN(dueTs) && (dueTs-now) <= 7*86400000 && !snoozed(c,'dueThisWeek');
+    if(flags.dueThisWeek) flags.dueTs = dueTs;
+    var followTs = c.followupdate ? new Date(c.followupdate).getTime() : NaN;
+    flags.followUpDue = !isNaN(followTs) && followTs <= now && !snoozed(c,'followUpDue');
+    if(flags.followUpDue) flags.followTs = followTs;
+
+    byId[c.id] = flags;
+
+    var label = c.name||c.biz||'Client';
+    if(flags.overduePayment) items.push({type:'overdue', severity:0, clientId:c.id, sub:'Payment Due', label:label+' — AED '+pending.toLocaleString()});
+    if(flags.followUpDue) items.push({type:'followup', severity:1, clientId:c.id, sub:(flags.followTs<now?'Follow-Up Overdue':'Follow-Up Due'), label:label+(c.followupnote?' — '+c.followupnote:'')});
+    if(flags.signedNotActive) items.push({type:'signed', severity:2, clientId:c.id, sub:'Signed — Activate?', label:label});
+    if(flags.endingSoon) items.push({type:'ending', severity:3, clientId:c.id, sub:(flags.endTs<now?'Contract Ended':'Contract Ending'), label:label+' — '+new Date(flags.endTs).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})});
+    if(flags.dueThisWeek) items.push({type:'due', severity:4, clientId:c.id, sub:'Deadline', label:label+' — due '+new Date(flags.dueTs).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})});
+    if(flags.staleLead) items.push({type:'stale', severity:5, clientId:c.id, sub:'Stale Lead', label:label+' — quiet '+daysSinceTouch+'d'});
+    if(flags.staleActive) items.push({type:'staleactive', severity:6, clientId:c.id, sub:'Gone Quiet', label:label+' — quiet '+daysSinceTouch+'d'});
+  });
+  items.sort(function(a,b){ return a.severity-b.severity; });
+  ATTN.byId = byId;
+  ATTN.items = items;
+  renderAttentionStrip();
+  renderCrmGrid();
+}
+// Maps an attention item's "type" to the flag key stored on ATTN.byId / used
+// as the attnSnooze key on the client record — kept in one place since both
+// the strip and the card pills need it.
+var ATTN_FLAG_KEY = {overdue:'overduePayment', followup:'followUpDue', signed:'signedNotActive', ending:'endingSoon', due:'dueThisWeek', stale:'staleLead', staleactive:'staleActive'};
+function renderAttentionStrip(){
+  var host = document.getElementById('attn-strip');
+  if(!host) return;
+  if(!ATTN.items.length){ host.style.display='none'; host.innerHTML=''; return; }
+  var colors = {overdue:'#ff5050', followup:'#ffd23f', signed:'#00e87a', ending:'#ff9632', due:'#00d4ff', stale:'#b464ff', staleactive:'#7a8ff0'};
+  host.style.display = 'flex';
+  host.innerHTML = '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding-right:4px;display:flex;align-items:center;flex-shrink:0;">Needs Attention</div>'
+    + ATTN.items.slice(0,20).map(function(it){
+      var c = colors[it.type]||'#888';
+      return '<div class="attn-chip" data-cid="'+it.clientId+'" data-type="'+it.type+'" style="border-left:3px solid '+c+';position:relative;">'
+        + '<div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:'+c+';font-weight:700;">'+it.sub+'</div>'
+        + '<div style="font-size:12px;color:var(--white);white-space:nowrap;padding-right:14px;">'+it.label+'</div>'
+        + '<span class="attn-snooze-x" title="Snooze" style="position:absolute;top:4px;right:6px;color:var(--muted);font-size:12px;cursor:pointer;">&times;</span>'
+        + '</div>';
+    }).join('');
+  Array.prototype.forEach.call(host.querySelectorAll('.attn-chip'), function(el){
+    el.onclick = function(){ openClientProfile(el.getAttribute('data-cid')); };
+  });
+  Array.prototype.forEach.call(host.querySelectorAll('.attn-snooze-x'), function(el){
+    el.onclick = function(e){
+      e.stopPropagation();
+      var chip = el.closest('.attn-chip');
+      snoozeAttention(chip.getAttribute('data-cid'), chip.getAttribute('data-type'));
+    };
+  });
+}
+// Defers a specific attention flag for a client past a chosen number of days —
+// use when something's already being handled and doesn't need to keep nagging.
+function snoozeAttention(clientId, type){
+  var flagKey = ATTN_FLAG_KEY[type];
+  if(!flagKey) return;
+  var days = prompt('Snooze this for how many days?','3');
+  if(days===null) return;
+  days = parseInt(days,10);
+  if(!days || days<1) return;
+  CRM.load();
+  var c = CRM.get(clientId);
+  if(!c) return;
+  c.attnSnooze = c.attnSnooze || {};
+  c.attnSnooze[flagKey] = Date.now() + days*86400000;
+  var idx = CRM.clients.findIndex(function(x){ return x.id===clientId; });
+  if(idx>-1) CRM.clients[idx] = c;
+  CRM.save();
+  refreshAttention();
+}
+
+// ── TODAY AGENDA VIEW ──────────────────────────────────────────
+// A focused, full-screen list of everything needing attention right now —
+// follow-ups, overdue payments, deadlines, stale contacts — grouped by type,
+// so nothing has to be pieced together from the strip + KPIs + card pills.
+function ensureTodayModal(){
+  if(document.getElementById('today-modal')) return;
+  var m = document.createElement('div');
+  m.id = 'today-modal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(6,10,14,.94);display:none;flex-direction:column;padding:16px;font-family:Arial,Helvetica,sans-serif;';
+  m.innerHTML = ''
+    + '<div style="max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
+    + '  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
+    + '    <div style="font-weight:800;font-size:18px;">Today</div>'
+    + '    <button onclick="document.getElementById(\'today-modal\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;">&times; Close</button>'
+    + '  </div>'
+    + '  <div id="today-body" style="flex:1;overflow-y:auto;padding:16px 18px;"></div>'
+    + '</div>';
+  document.body.appendChild(m);
+}
+function openTodayView(){
+  ensureTodayModal();
+  refreshAttention();
+  renderTodayView();
+  document.getElementById('today-modal').style.display = 'flex';
+}
+function renderTodayView(){
+  var body = document.getElementById('today-body');
+  if(!body) return;
+  var groups = [
+    {type:'overdue', label:'Payment Overdue', color:'#ff5050'},
+    {type:'followup', label:'Follow-Ups Due / Overdue', color:'#ffd23f'},
+    {type:'signed', label:'Signed — Ready to Activate', color:'#00e87a'},
+    {type:'ending', label:'Contract Ending / Ended', color:'#ff9632'},
+    {type:'due', label:'Deadlines This Week', color:'#00d4ff'},
+    {type:'stale', label:'Stale Leads', color:'#b464ff'},
+    {type:'staleactive', label:'Active Clients Gone Quiet', color:'#7a8ff0'}
+  ];
+  if(!ATTN.items.length){
+    body.innerHTML = '<div style="color:#7d8b96;font-size:13px;padding:20px 0;text-align:center;">Nothing needs attention today. Nice.</div>';
+    return;
+  }
+  body.innerHTML = groups.map(function(g){
+    var rows = ATTN.items.filter(function(it){ return it.type===g.type; });
+    if(!rows.length) return '';
+    return '<div style="margin-bottom:18px;">'
+      + '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:'+g.color+';margin-bottom:8px;">'+g.label+' ('+rows.length+')</div>'
+      + rows.map(function(it){
+          return '<div class="today-row" data-cid="'+it.clientId+'" data-type="'+it.type+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#151f29;border:1px solid #1f2c38;border-radius:8px;margin-bottom:6px;cursor:pointer;">'
+          + '<span style="color:#e7eef4;font-size:13px;">'+it.label+'</span>'
+          + '<span class="today-snooze" style="color:#7d8b96;font-size:11px;padding:4px 8px;border:1px solid #2a3946;border-radius:6px;flex-shrink:0;">Snooze</span>'
+          + '</div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+  Array.prototype.forEach.call(body.querySelectorAll('.today-row'), function(row){
+    row.onclick = function(){
+      document.getElementById('today-modal').style.display='none';
+      openClientProfile(row.getAttribute('data-cid'));
+    };
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('.today-snooze'), function(el){
+    el.onclick = function(e){
+      e.stopPropagation();
+      var row = el.closest('.today-row');
+      snoozeAttention(row.getAttribute('data-cid'), row.getAttribute('data-type'));
+      renderTodayView();
+    };
+  });
+}
 var NOTIF = {
   lastSeen: null,
   items: [],
@@ -4256,8 +4504,10 @@ var NOTIF = {
       if(!lastSeen){
         // First run on this account — establish a baseline instead of flooding
         // the panel with the entire agreement history as "new".
-        await sb.from('app_config').upsert({key:'notif_last_seen', value:new Date().toISOString()});
-        this.lastSeen = new Date().toISOString();
+        var baseNow = new Date().toISOString();
+        var baseRes = await sb.from('app_config').upsert({key:'notif_last_seen', value:baseNow},{onConflict:'key'}).select();
+        if(baseRes && baseRes.error) console.error('notif baseline save failed', baseRes.error);
+        this.lastSeen = baseNow;
         this.items = [];
         this.render();
         return;
@@ -4315,11 +4565,28 @@ var NOTIF = {
   },
   markSeen: async function(){
     var sb = (typeof getSB==='function') ? getSB() : null;
-    if(sb){
-      var now = new Date().toISOString();
-      try{ await sb.from('app_config').upsert({key:'notif_last_seen', value:now}); }catch(e){}
-      this.lastSeen = now;
+    if(!sb){ this.items = []; this.render(); return; }
+    var now = new Date().toISOString();
+    var saveOk = false;
+    var lastErr = null;
+    // Try up to 2 times — if the write genuinely fails (session hiccup, RLS,
+    // network), don't silently pretend it worked: the old items would just
+    // reappear on next login while looking "cleared" right now.
+    for(var attempt=0; attempt<2 && !saveOk; attempt++){
+      try{
+        var res = await sb.from('app_config').upsert({key:'notif_last_seen', value:now},{onConflict:'key'}).select();
+        if(res && res.error){ lastErr = res.error; }
+        else if(res && res.data && res.data.length){ saveOk = true; }
+        else { saveOk = true; } // some client versions omit data on upsert w/o select support
+      }catch(e){ lastErr = e; }
+      if(!saveOk && attempt===0) await new Promise(function(r){ setTimeout(r,600); });
     }
+    if(!saveOk){
+      console.error('notif_last_seen save failed', lastErr);
+      alert('Could not clear notifications — the save to the server failed'+(lastErr&&lastErr.message?(': '+lastErr.message):'')+'. Please try again; if this keeps happening, try logging out and back in.');
+      return; // keep items/lastSeen as-is so state stays honest
+    }
+    this.lastSeen = now;
     this.items = [];
     this.render();
   }
@@ -4380,11 +4647,23 @@ function subscribeAgreementRealtime(){
 }
 
 function crmInit(){
+  // Restore the last sort + tag filter the user had selected, so the view
+  // picks up where they left off instead of resetting every login.
+  try{
+    var savedSort = localStorage.getItem('crm_saved_sort');
+    if(savedSort){ var sortEl=document.getElementById('crm-sort'); if(sortEl) sortEl.value = savedSort; }
+    var savedTag = localStorage.getItem('crm_saved_tagfilter') || '';
+    CRM.currentTagFilter = savedTag;
+    document.querySelectorAll('#crm-tag-filter .crm-tag').forEach(function(t){
+      t.classList.toggle('sel', (t.getAttribute('data-tag')||'')===savedTag);
+    });
+  }catch(e){}
   // Load local mirror immediately so UI shows fast
   CRM.load();
   renderCrmGrid();
   updateKpis();
   updateEnquiryBadge();
+  refreshAttention();
   // Then sync with Supabase (migrate existing local clients up on first run, then pull)
   crmCloudSync();
 }
@@ -4405,11 +4684,11 @@ async function crmCloudSync(){
       SYNC._hydrated = true;            // trust this device's local data as the source
       SYNC.push(true);
       setTimeout(function(){
-        SYNC.pull(function(){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); });
+        SYNC.pull(function(){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); });
       }, 1400);
     } else {
       SYNC.pull(function(ok){
-        if(ok){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); }
+        if(ok){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); }
       });
     }
   } catch(e){ SYNC.status('Offline — local data', false); }
@@ -4457,7 +4736,7 @@ function manualPull(){
   if(st){ st.textContent = 'Pulling from cloud...'; st.style.color='var(--muted)'; }
   SYNC.pull(function(ok){
     if(ok){
-      CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge();
+      CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention();
       if(st){ st.textContent = 'Data updated from cloud!'; st.style.color='#00e87a'; }
     } else {
       if(st){ st.textContent = 'Could not reach cloud — check your API key is correct'; st.style.color='#ff5050'; }
@@ -4479,10 +4758,18 @@ function renderCrmGrid(){
   var sort = (document.getElementById('crm-sort')||{}).value||'newest';
   var tab = CRM.currentTab;
 
+  var tagFilter = CRM.currentTagFilter || '';
   var clients = CRM.clients.filter(function(c){
     if(tab==='active_all'){
       if(c.status!=='active' && c.status!=='inprogress' && c.status!=='revision') return false;
+    } else if(tab==='due_week'){
+      if(!ATTN.byId[c.id] || !ATTN.byId[c.id].dueThisWeek) return false;
+    } else if(tab==='overdue_payment'){
+      if(!ATTN.byId[c.id] || !ATTN.byId[c.id].overduePayment) return false;
+    } else if(tab==='followup_due'){
+      if(!ATTN.byId[c.id] || !ATTN.byId[c.id].followUpDue) return false;
     } else if(tab!=='all' && c.status!==tab) return false;
+    if(tagFilter && (c.tags||[]).indexOf(tagFilter)===-1) return false;
     if(search){
       var hay = ((c.name||'')+(c.biz||'')+(c.email||'')+(c.industry||'')).toLowerCase();
       if(hay.indexOf(search)===-1) return false;
@@ -4491,7 +4778,24 @@ function renderCrmGrid(){
   });
 
   // Sort
+  function urgencyScore(c){
+    var f = ATTN.byId[c.id];
+    if(!f) return 7;
+    if(f.overduePayment) return 0;
+    if(f.followUpDue) return 1;
+    if(f.signedNotActive) return 2;
+    if(f.endingSoon) return 3;
+    if(f.dueThisWeek) return 4;
+    if(f.staleLead) return 5;
+    if(f.staleActive) return 6;
+    return 7;
+  }
   clients = clients.slice().sort(function(a,b){
+    if(sort==='urgent'){
+      var sa=urgencyScore(a), sb2=urgencyScore(b);
+      if(sa!==sb2) return sa-sb2;
+      return (b.created||0)-(a.created||0);
+    }
     if(sort==='name') return (a.name||'').localeCompare(b.name||'');
     if(sort==='oldest') return (a.created||0)-(b.created||0);
     if(sort==='revenue') return (parseFloat(b.monthly||0)+parseFloat(b.value||0)/12)-(parseFloat(a.monthly||0)+parseFloat(a.value||0)/12);
@@ -4518,7 +4822,22 @@ function renderCrmGrid(){
     var catColors2 = {Communication:'#25d366',Project:'var(--cyan)',Billing:'#e8b84b',Support:'#ff5050',Content:'#b464ff',Internal:'#888'};
     var activeCatsHtml = '';
     if(c.activeCats){ Object.keys(c.activeCats).forEach(function(cat){ var cnt=c.activeCats[cat]; if(cnt>0){ var cc=catColors2[cat]||'#aaa'; activeCatsHtml+='<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 7px;border-radius:10px;background:'+cc+'22;color:'+cc+';border:1px solid '+cc+'33;">'+cat+' ('+cnt+')</span>'; }}); }
-    var cardHtml = '<div class="crm-card" data-cid="'+c.id+'" onclick="openClientProfile(this.dataset.cid)">'
+    // At-risk flags from ATTN (see refreshAttention) — a colored left border plus
+    // small pills so trouble is visible at a glance without opening the profile.
+    var attn = ATTN.byId[c.id] || {};
+    var riskDefs = [];
+    if(attn.overduePayment) riskDefs.push(['Payment Due','#ff5050']);
+    if(attn.followUpDue) riskDefs.push([attn.followTs<Date.now()?'Follow-Up Overdue':'Follow-Up Due','#ffd23f']);
+    if(attn.signedNotActive) riskDefs.push(['Signed','#00e87a']);
+    if(attn.endingSoon) riskDefs.push([attn.endTs<Date.now()?'Contract Ended':'Ending Soon','#ff9632']);
+    if(attn.dueThisWeek) riskDefs.push(['Deadline Soon','#00d4ff']);
+    if(attn.staleLead) riskDefs.push(['Stale Lead','#b464ff']);
+    if(attn.staleActive) riskDefs.push(['Gone Quiet','#7a8ff0']);
+    var tagColors = {vip:'#ffd23f','high-touch':'#00e87a','low-touch':'#888','at-risk':'#ff5050'};
+    (c.tags||[]).forEach(function(t){ riskDefs.push([t.toUpperCase(), tagColors[t]||'#aaa']); });
+    var riskColor = riskDefs.length ? riskDefs[0][1] : null;
+    var riskPillsHtml = riskDefs.map(function(d){ return '<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 7px;border-radius:10px;background:'+d[1]+'22;color:'+d[1]+';border:1px solid '+d[1]+'33;">'+d[0]+'</span>'; }).join('');
+    var cardHtml = '<div class="crm-card" data-cid="'+c.id+'"'+(riskColor?' style="border-left:3px solid '+riskColor+';"':'')+' onclick="openClientProfile(this.dataset.cid)">'
       +'<div class="crm-card-top">'
       +'<div style="display:flex;align-items:center;gap:12px;">'
       +'<div class="crm-avatar">'+initials+'</div>'
@@ -4526,11 +4845,12 @@ function renderCrmGrid(){
       +'<div class="crm-card-biz">'+(c.biz||'—')+'</div></div></div>'
       +'<div class="crm-status-dot" style="background:'+color+'"></div>'
       +'</div>'
-      +'<div style="margin-top:8px;">'
+      +'<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">'
       +'<span class="crm-pill '+sc+'">'+sl+'</span>'
-      +(c.package?'<span class="crm-pill" style="background:rgba(255,255,255,.05);color:var(--muted);margin-left:6px;font-size:9px;">'+c.package+'</span>':'')
+      +(c.package?'<span class="crm-pill" style="background:rgba(255,255,255,.05);color:var(--muted);font-size:9px;">'+c.package+'</span>':'')
+      +riskPillsHtml
       +'</div>'
-      +'<div class="crm-card-meta">'      +'<div class="crm-meta-item"><div class="crm-meta-label">Revenue</div><div class="crm-meta-val">'+monthly+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Industry</div><div class="crm-meta-val">'+(c.industry==='Other'&&c.industryother?c.industryother:c.industry||'—')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Pending</div><div class="crm-meta-val" style="color:'+(pending>0?'#ff5050':'#00e87a')+';font-weight:700;">'+(pending>0?'AED '+pending.toLocaleString():'Paid')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Service No.</div><div class="crm-meta-val" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--cyan);">'+(c.svcnum||'—')+'</div></div>'      +'</div>'      +(activeCatsHtml?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'+activeCatsHtml+'</div>':'')      +'</div>';
+      +'<div class="crm-card-meta">'      +'<div class="crm-meta-item"><div class="crm-meta-label">Revenue</div><div class="crm-meta-val">'+monthly+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Industry</div><div class="crm-meta-val">'+(c.industry==='Other'&&c.industryother?c.industryother:c.industry||'—')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Pending</div><div class="crm-meta-val" style="color:'+(pending>0?'#ff5050':'#00e87a')+';font-weight:700;">'+(pending>0?'AED '+pending.toLocaleString():'Paid')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Last Activity</div><div class="crm-meta-val">'+relativeTime(c.updated||c.created)+'</div></div>'      +'</div>'      +(activeCatsHtml?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'+activeCatsHtml+'</div>':'')      +'</div>';
     return cardHtml;
   }).join('');
 
@@ -4540,10 +4860,14 @@ function renderCrmGrid(){
 function updateKpis(){
   CRM.load();
   var total = CRM.clients.length;
-  var active = CRM.clients.filter(function(c){ return c.status==='active'||c.status==='inprogress'||c.status==='revision'; }).length;
+  var activeClients = CRM.clients.filter(function(c){ return c.status==='active'||c.status==='inprogress'||c.status==='revision'; });
+  var active = activeClients.length;
   var leads = CRM.clients.filter(function(c){ return c.status==='lead'; }).length;
   var done = CRM.clients.filter(function(c){ return c.status==='completed'; }).length;
-  var rev = CRM.clients.reduce(function(s,c){ return s+parseFloat(c.monthly||0); },0);
+  // Only count monthly revenue from clients actually in the active/in-progress/revision
+  // bucket — previously this summed every client's monthly fee regardless of status,
+  // including leads, completed, churned, and test entries, inflating the figure.
+  var rev = activeClients.reduce(function(s,c){ return s+parseFloat(c.monthly||0); },0);
 
   var el = function(id){ return document.getElementById(id); };
   if(el('kpi-total'))el('kpi-total').textContent=total;
@@ -4551,10 +4875,36 @@ function updateKpis(){
   if(el('kpi-leads'))el('kpi-leads').textContent=leads;
   if(el('kpi-done'))el('kpi-done').textContent=done;
   if(el('kpi-rev'))el('kpi-rev').textContent='AED '+rev.toLocaleString()+'/mo';
-  var leads = CRM.clients.filter(function(c){ return c.status==='lead'; }).length;
   if(el('kpi-total-sub'))el('kpi-total-sub').textContent=active+' active · '+leads+' lead'+(leads!==1?'s':'');
   if(el('kpi-leads-sub'))el('kpi-leads-sub').textContent=leads > 0 ? 'click to view' : '';
   if(el('kpi-done-sub'))el('kpi-done-sub').textContent=done > 0 ? done+' project'+(done!==1?'s':'') : '';
+
+  // Sourced from ATTN (see refreshAttention) — populated shortly after page load,
+  // so these read 0 for an instant on first paint, then fill in.
+  var dueWeek = 0, overdue = 0, followup = 0;
+  Object.keys(ATTN.byId||{}).forEach(function(id){
+    var f = ATTN.byId[id];
+    if(f.dueThisWeek) dueWeek++;
+    if(f.overduePayment) overdue++;
+    if(f.followUpDue) followup++;
+  });
+  if(el('kpi-dueweek'))el('kpi-dueweek').textContent=dueWeek;
+  if(el('kpi-dueweek-sub'))el('kpi-dueweek-sub').textContent=dueWeek>0?'click to view':'';
+  if(el('kpi-overdue'))el('kpi-overdue').textContent=overdue;
+  if(el('kpi-overdue-sub'))el('kpi-overdue-sub').textContent=overdue>0?'click to view':'';
+  if(el('kpi-followup'))el('kpi-followup').textContent=followup;
+  if(el('kpi-followup-sub'))el('kpi-followup-sub').textContent=followup>0?'click to view':'';
+}
+function filterByTag(el){
+  document.querySelectorAll('#crm-tag-filter .crm-tag').forEach(function(t){ t.classList.remove('sel'); });
+  el.classList.add('sel');
+  CRM.currentTagFilter = el.getAttribute('data-tag') || '';
+  try{ localStorage.setItem('crm_saved_tagfilter', CRM.currentTagFilter); }catch(e){}
+  renderCrmGrid();
+}
+function onCrmSortChange(){
+  try{ localStorage.setItem('crm_saved_sort', (document.getElementById('crm-sort')||{}).value||''); }catch(e){}
+  renderCrmGrid();
 }
 
 function openNewClient(){
@@ -4592,6 +4942,11 @@ function openClientProfile(id){
   // Fix hyphenated field names
   if(document.getElementById('cf-domain-exp')) document.getElementById('cf-domain-exp').value = c.domainexp||'';
   if(document.getElementById('cf-admin-email')) document.getElementById('cf-admin-email').value = c.adminemail||'';
+  if(document.getElementById('cf-followup-date')) document.getElementById('cf-followup-date').value = c.followupdate||'';
+  if(document.getElementById('cf-followup-note')) document.getElementById('cf-followup-note').value = c.followupnote||'';
+  document.querySelectorAll('#client-tags-row .crm-tag').forEach(function(chip){
+    chip.classList.toggle('sel', (c.tags||[]).indexOf(chip.dataset.tag) > -1);
+  });
   // Industry "Other" field
   if(c.industryother){
     var wrap = document.getElementById('cf-industry-other-wrap');
@@ -4843,13 +5198,14 @@ function clearProfileForm(){
     'domain','registrar','hosting','domain-exp','admin-email','cpanel','tech',
     'brief','notes','eos',
     'contact2-name','contact2-role','contact2-phone','contact2-email','contact2-time','contact2-pref',
-    'industry-other'];
+    'industry-other','followup-date','followup-note'];
   fields.forEach(function(f){
     var el = document.getElementById('cf-'+f);
     if(el){ el.value=''; }
   });
   var wrap = document.getElementById('cf-industry-other-wrap');
   if(wrap) wrap.style.display='none';
+  document.querySelectorAll('#client-tags-row .crm-tag').forEach(function(chip){ chip.classList.remove('sel'); });
 }
 
 function saveClient(){
@@ -4880,7 +5236,12 @@ function saveClient(){
     domainexp: getV('cf-domain-exp'), adminemail: getV('cf-admin-email'),
     cpanel: getV('cf-cpanel'), tech: getV('cf-tech'), brief: getV('cf-brief'),
     notes: CRM.currentId ? ((CRM.get(CRM.currentId)||{}).notes||[]) : [],
-    internalNotes: getV('cf-notes'), eos: getV('cf-eos')
+    internalNotes: getV('cf-notes'), eos: getV('cf-eos'),
+    followupdate: getV('cf-followup-date'), followupnote: getV('cf-followup-note'),
+    tags: (function(){ var t=[]; document.querySelectorAll('#client-tags-row .crm-tag.sel').forEach(function(el){ t.push(el.dataset.tag); }); return t; })(),
+    // Snoozes are set from the attention chips (snoozeAttention()), not from this form —
+    // preserve whatever was already there so editing/saving the profile doesn't wipe them.
+    attnSnooze: existing ? (existing.attnSnooze||{}) : {}
   };
 
   if(CRM.currentId){
@@ -4897,6 +5258,10 @@ function saveClient(){
   addTimelineEvent(client, 'Client saved — '+CRM.statusLabel(client.status));
   renderCrmGrid();
   updateProfileHeader();
+  // Recompute Needs Attention immediately — otherwise a just-saved follow-up
+  // date, tag, deadline, or contract-end date wouldn't show in the strip/KPIs
+  // until the next login or cloud sync.
+  refreshAttention();
 
   // Contract End Date = cancellation. Stop future monthly billing and raise
   // exactly one closing invoice for whatever balance remains (idempotent —
