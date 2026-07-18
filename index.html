@@ -2700,7 +2700,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-field-grid">
             <div class="crm-field"><label class="crm-label">Client Name</label><input class="crm-input" id="cf-name" placeholder="" oninput="updateProfileHeader()"></div>
             <div class="crm-field"><label class="crm-label">Business Name</label><input class="crm-input" id="cf-biz" placeholder="" oninput="updateProfileHeader()"></div>
-            <div class="crm-field"><label class="crm-label">Billing Entity <span style="opacity:.6;font-weight:400">(for invoice — leave blank to use Business Name)</span></label><input class="crm-input" id="cf-billing" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Billing Entity <span style="opacity:.6;font-weight:400">(for invoice — leave blank to use Client Name)</span></label><input class="crm-input" id="cf-billing" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Email Address</label><input class="crm-input" id="cf-email" type="email" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Secondary Email</label><input class="crm-input" id="cf-email2" type="email" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Main Business Number</label><input class="crm-input" id="cf-phone" placeholder=""></div>
@@ -5894,7 +5894,9 @@ function autoBackupOnSave() {
   function collect(){
     return {
       clientName:    V("cf-biz")||V("cf-name"),
-      billingEntity: V("cf-billing")||V("cf-biz")||V("cf-name"),
+      // Bill To: an explicit Billing Entity always wins. If left blank, invoices are
+      // addressed to the Client Name (not Business Name) per studio preference.
+      billingEntity: V("cf-billing")||V("cf-name")||V("cf-biz"),
       contactName:   V("cf-name"),
       clientLocation:V("cf-location")||"United Arab Emirates",
       emails:        [V("cf-email"),V("cf-email2")].filter(Boolean),
@@ -5989,33 +5991,46 @@ function autoBackupOnSave() {
   function showDoc(kind){
     var d=collect(); if(!need(d))return;
     var isInv=kind==="invoice";
-    function renderDoc(){
-      ensurePdfmake(function(){
-        ensurePreview();
-        var pdf=pdfMake.createPdf(isInv?buildInvoiceDoc(d):buildAgreementDoc(d,null));
-        document.getElementById("pv-title").textContent=(isInv?"Invoice — ":"Agreement — ")+(d.clientName||"");
-        document.getElementById("pv-link").style.display="none";
-        pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
-        var foot=document.getElementById("pv-foot"); foot.innerHTML="";
-        foot.appendChild(pvBtn("Download PDF",function(){ pdf.download(fname("Cancas-"+(isInv?"Invoice-"+(d.invoiceNo||"CS"):"Agreement-"+d.clientName))+".pdf"); },true));
-        if(!isInv) foot.appendChild(pvBtn("Get Signing Link",function(){ showSign(); }));
-        document.getElementById("cancas-pv").style.display="flex";
-        if(isInv) saveInvoiceRecord(d);
-      });
+    // Previewing must stay side-effect free — no invoice number burned, no record
+    // saved — until the client actually clicks Download. Previously this ran on
+    // every preview open, which is why repeatedly opening the Invoice preview
+    // (e.g. while checking billing details) created a new permanent invoice row
+    // and a new invoice number each time.
+    ensurePdfmake(function(){
+      ensurePreview();
+      var pdf=pdfMake.createPdf(isInv?buildInvoiceDoc(d):buildAgreementDoc(d,null));
+      document.getElementById("pv-title").textContent=(isInv?"Invoice — ":"Agreement — ")+(d.clientName||"");
+      document.getElementById("pv-link").style.display="none";
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      foot.appendChild(pvBtn("Download PDF",function(){
+        if(isInv) finalizeInvoiceThenDownload(d);
+        else pdf.download(fname("Cancas-Agreement-"+d.clientName)+".pdf");
+      },true));
+      if(!isInv) foot.appendChild(pvBtn("Get Signing Link",function(){ showSign(); }));
+      document.getElementById("cancas-pv").style.display="flex";
+    });
+  }
+  // Only on an explicit Download does an invoice become real: assign the invoice
+  // number (if one isn't already sitting on this client from an earlier download),
+  // persist the permanent record, then download. Re-renders the preview with the
+  // real number filled in.
+  function finalizeInvoiceThenDownload(d){
+    var sb=(typeof getSB==="function")?getSB():null;
+    function proceed(){
+      saveInvoiceRecord(d);
+      var pdf2=pdfMake.createPdf(buildInvoiceDoc(d));
+      pdf2.download(fname("Cancas-Invoice-"+(d.invoiceNo||"CS"))+".pdf");
+      pdf2.getDataUrl(function(url){ var f=document.getElementById("pv-frame"); if(f) f.src=url; });
+      document.getElementById("pv-title").textContent="Invoice — "+(d.clientName||"");
     }
-    if(isInv){
-      var sb=(typeof getSB==="function")?getSB():null;
-      if(sb){
-        sb.rpc('next_invoice_no').then(function(res){
-          if(res && res.data) d.invoiceNo = res.data;
-          var el=document.getElementById("cf-invoice");
-          if(el && d.invoiceNo){ el.value=d.invoiceNo; try{ if(typeof saveClient==="function") saveClient(); }catch(e){} }
-          renderDoc();
-        }, function(){ renderDoc(); });
-        return;
-      }
-    }
-    renderDoc();
+    if(!sb || d.invoiceNo){ proceed(); return; }
+    sb.rpc('next_invoice_no').then(function(res){
+      if(res && res.data) d.invoiceNo = res.data;
+      var el=document.getElementById("cf-invoice");
+      if(el && d.invoiceNo){ el.value=d.invoiceNo; try{ if(typeof saveClient==="function") saveClient(); }catch(e){} }
+      proceed();
+    }, function(){ proceed(); });
   }
   function slimData(d){ return {clientName:d.clientName,clientLocation:d.clientLocation,packageName:d.packageName,total:d.total,monthly:d.monthly,deposit:d.deposit,balance:d.balance,agreementDate:d.agreementDate}; }
   function shortId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
@@ -6169,11 +6184,31 @@ function autoBackupOnSave() {
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #1f2c38;">'
         +'<div><div style="font-weight:700;">'+r.invoice_no+'</div>'
         +'<div style="color:#8aa0b2;font-size:12px;">'+kindLabel+' · '+when+' · AED '+Number(r.amount||0).toLocaleString("en-US",{minimumFractionDigits:2})+'</div></div>'
-        +'<button data-ih-idx="'+i+'" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer;flex-shrink:0;">PDF</button>'
-        +'</div>';
+        +'<div style="display:flex;gap:8px;flex-shrink:0;">'
+        +'<button data-ih-idx="'+i+'" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer;">PDF</button>'
+        +'<button data-ih-del="'+i+'" title="Delete this invoice record" style="background:#3a1414;color:#ff8080;border:1px solid #5a2020;border-radius:8px;padding:11px 12px;font-weight:800;cursor:pointer;">&times;</button>'
+        +'</div></div>';
     }).join("");
     Array.prototype.forEach.call(list.querySelectorAll("[data-ih-idx]"), function(btn){
       btn.onclick = function(){ downloadHistoryInvoice(rows[Number(btn.getAttribute("data-ih-idx"))]); };
+    });
+    Array.prototype.forEach.call(list.querySelectorAll("[data-ih-del]"), function(btn){
+      btn.onclick = function(){ deleteHistoryInvoice(rows[Number(btn.getAttribute("data-ih-del"))]); };
+    });
+  }
+  // Removes a permanent invoice record — for cleaning up duplicates or mistakes
+  // (e.g. an invoice created by accident, or one previewed multiple times before
+  // the "preview shouldn't save" fix). Confirms first; this cannot be undone.
+  function deleteHistoryInvoice(row){
+    if(!row || !row.id) return;
+    if(!confirm("Delete invoice "+(row.invoice_no||"")+" (AED "+Number(row.amount||0).toLocaleString("en-US",{minimumFractionDigits:2})+")? This cannot be undone.")) return;
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb) return;
+    sb.from('invoices').delete().eq('id', row.id).then(function(res){
+      if(res && res.error){ alert("Delete failed: "+res.error.message); return; }
+      ihRows = ihRows.filter(function(r){ return r.id!==row.id; });
+      applyInvoiceHistoryFilter();
+      try{ if(typeof calcPending==="function") calcPending(); }catch(e){}
     });
   }
   function downloadHistoryInvoice(row){
