@@ -6415,5 +6415,160 @@ function autoBackupOnSave() {
   setTimeout(addReportsTab,1200);
 })();
 </script>
+
+<script>
+/* ──────────────────────────────────────────────────────────────────────────
+   LeadGen handoff  ·  added 24 Aug 2026
+
+   Opens the control panel with a New Client form already filled in, when the
+   CRM sends someone over. The CRM opens:
+
+       https://cancasstudio.com/#leadgen=<base64 of the lead>
+
+   A fragment is used, not a query string, so lead details never reach a web
+   server or appear in any access log.
+
+   Nothing is saved automatically — the form is populated and waits for you to
+   press Save, which goes through the site's own saveClient() into Supabase.
+   Every step is wrapped in try/catch: if anything here fails the page behaves
+   exactly as it did before.
+   ────────────────────────────────────────────────────────────────────────── */
+(function () {
+  var STASH = 'leadgen_pending';
+
+  function decode(raw) {
+    try {
+      return JSON.parse(decodeURIComponent(escape(atob(
+        raw.replace(/-/g, '+').replace(/_/g, '/')))));
+    } catch (e) { return null; }
+  }
+
+  // Grab the lead off the URL, stash it, then open the normal admin login.
+  function capture() {
+    try {
+      var m = (location.hash || '').match(/leadgen=([^&]+)/);
+      if (!m) return;
+      var lead = decode(m[1]);
+      if (!lead) return;
+      sessionStorage.setItem(STASH, JSON.stringify(lead));
+      // Clear the address bar so a refresh can't re-import the same lead.
+      history.replaceState(null, '', location.pathname + location.search);
+      banner('Lead received from LeadGen — sign in to review it');
+      var panel = document.getElementById('admin-panel');
+      if (panel && panel.classList.contains('open')) { fill(); return; }
+      if (typeof openAdmin === 'function') openAdmin();
+    } catch (e) { }
+  }
+
+  function banner(text) {
+    try {
+      if (document.getElementById('leadgen-note')) return;
+      var d = document.createElement('div');
+      d.id = 'leadgen-note';
+      d.textContent = text;
+      d.style.cssText = 'position:fixed;top:18px;left:50%;transform:translateX(-50%);' +
+        'z-index:99999;background:#062018;border:1px solid #16a34a;color:#4ade80;' +
+        'padding:11px 20px;border-radius:6px;font:500 13px/1.4 system-ui,sans-serif;' +
+        'box-shadow:0 8px 28px rgba(0,0,0,.5);';
+      document.body.appendChild(d);
+      setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 7000);
+    } catch (e) { }
+  }
+
+  function setF(id, val) {
+    var el = document.getElementById(id);
+    if (el && val) el.value = val;
+  }
+
+  function fill() {
+    var lead;
+    try {
+      var raw = sessionStorage.getItem(STASH);
+      if (!raw) return;
+      lead = JSON.parse(raw);
+      sessionStorage.removeItem(STASH);
+    } catch (e) { return; }
+    if (!lead || typeof openNewClient !== 'function') return;
+
+    try {
+      openNewClient();
+
+      setF('cf-biz',      lead.businessName);
+      setF('cf-name',     lead.clientName || lead.businessName);
+      setF('cf-phone',    lead.phone);
+      setF('cf-mobile1',  lead.phone);
+      setF('cf-email',    lead.email);
+      setF('cf-location', lead.city);
+      setF('cf-oldsite',  lead.website);
+      setF('cf-brief',    lead.brief);
+
+      var st = document.getElementById('cf-status');
+      if (st) st.value = 'lead';
+
+      // Match the industry to one of the dropdown's own options.
+      var ind = document.getElementById('cf-industry');
+      if (ind && lead.industry) {
+        var hit = Array.prototype.slice.call(ind.options).filter(function (o) {
+          return o.text.trim().toLowerCase() === String(lead.industry).trim().toLowerCase();
+        })[0];
+        if (hit) {
+          ind.value = hit.value || hit.text;
+        } else {
+          ind.value = 'Other';
+          setF('cf-industry-other', lead.industry);
+        }
+        if (typeof toggleIndustryOther === 'function') toggleIndustryOther(ind);
+      }
+
+      var nm  = document.getElementById('prof-name');
+      var sub = document.getElementById('prof-sub');
+      if (nm && lead.businessName) nm.textContent = lead.businessName;
+      if (sub) sub.textContent = 'From LeadGen — check the details, then press Save';
+      banner('Form filled from LeadGen — review and press Save');
+    } catch (e) { }
+  }
+
+  // The admin panel only appears after a successful Supabase login, so wait
+  // for that rather than guessing. Wraps whatever doAdminLogin is at the time.
+  function watchLogin() {
+    try {
+      var cur = window.doAdminLogin;
+      if (!cur || cur.__leadgen) return;
+      var wrapped = function () {
+        var out = cur.apply(this, arguments);
+        // Supabase login is async — poll briefly for the panel to open.
+        var tries = 0;
+        var t = setInterval(function () {
+          tries++;
+          var panel = document.getElementById('admin-panel');
+          if (panel && panel.classList.contains('open')) {
+            clearInterval(t);
+            setTimeout(fill, 350);
+          } else if (tries > 40) {          // ~10s, then give up quietly
+            clearInterval(t);
+          }
+        }, 250);
+        return out;
+      };
+      wrapped.__leadgen = true;
+      window.doAdminLogin = wrapped;
+    } catch (e) { }
+  }
+
+  function boot() {
+    watchLogin();
+    setTimeout(watchLogin, 400);   // re-wrap after the site's own patch runs
+    setTimeout(watchLogin, 1200);
+    capture();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+  window.addEventListener('hashchange', capture);
+})();
+</script>
 </body>
 </html>
