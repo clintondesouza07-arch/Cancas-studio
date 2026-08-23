@@ -5,6 +5,8 @@
 <!-- Google Analytics 4 (GA4) -->
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWM62JTN1D" onload="gtag('js',new Date());gtag('config','G-RWM62JTN1D');"></script>
+<!-- Supabase JS SDK (admin auth + cloud enquiry database) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -213,15 +215,6 @@ nav.scrolled{padding:14px 72px;}
 
 /* HERO */
 #hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:160px 72px 100px;position:relative;overflow:hidden;}
-/* --- Awwwards FX layers (background video + WebGL fluid distortion) --- */
-.hero-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.2s ease;pointer-events:none;}
-.hero-bg-video.is-ready{opacity:.42;}
-.hero-fx-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0;transition:opacity 1.4s ease;pointer-events:none;}
-.hero-fx-canvas.is-ready{opacity:1;}
-.hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(4,4,4,.50) 0%,rgba(4,4,4,.20) 38%,rgba(4,4,4,.80) 100%);}
-/* lift all hero content above the FX layers */
-#hero>.hero-eyebrow,#hero>h1,#hero>.hero-desc,#hero>.hero-actions,#hero>.hero-right,#hero>.hero-bar{position:relative;z-index:3;}
-.hero-glow,.hero-grid-lines{z-index:2;}
 .hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 55% at 68% 42%,rgba(0,212,255,0.07) 0%,transparent 65%);}
 .hero-grid-lines{position:absolute;inset:0;opacity:.025;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,1) 1px,transparent 1px);background-size:80px 80px;}
 .hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:4px;text-transform:uppercase;display:flex;align-items:center;gap:14px;margin-bottom:28px;opacity:0;animation:fadeUp .8s .2s forwards;}
@@ -1026,11 +1019,14 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:72px 72px
 .admin-topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:center;gap:20px;flex-shrink:0;}
 .admin-badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 12px;background:rgba(0,212,255,.1);border:1px solid var(--border-lit);color:var(--cyan);border-radius:2px;letter-spacing:1.5px;}
 .admin-body{padding:48px;}
-.admin-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:48px;}
+.admin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:24px;}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:28px 24px;border-left:2px solid var(--cyan);transition:border-color .2s,background .2s;}
 .kpi[onclick]:hover{background:rgba(0,212,255,.04);border-color:var(--border-lit);}
 .kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:var(--cyan);line-height:1;}
 .kpi-lbl{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.5px;}
+#attn-strip{display:none;gap:10px;overflow-x:auto;padding:2px 2px 16px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+.attn-chip{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;cursor:pointer;flex-shrink:0;transition:border-color .2s;min-width:150px;}
+.attn-chip:hover{border-color:var(--cyan);}
 .admin-section{margin-bottom:44px;}
 .admin-section-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--white);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
 .admin-section-title::before{content:'';width:3px;height:20px;background:var(--cyan);display:block;}
@@ -1318,6 +1314,10 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:72px 72px
 @media (pointer:fine) and (hover:hover) {
   html,body,a,button,input,select,textarea,[onclick]{cursor:none!important;}
 }
+/* Cancas document/report/invoice-history pop-ups: show the real cursor (override the custom-cursor hide) */
+#cancas-pv, #cancas-pv *, #cancas-reports, #cancas-reports *, #cancas-ih, #cancas-ih *{cursor:auto!important;}
+#cancas-pv button, #cancas-reports button, #cancas-ih button, #cancas-pv [onclick], #cancas-reports [onclick], #cancas-ih [onclick]{cursor:pointer!important;}
+#cancas-pv textarea, #cancas-pv input, #cancas-reports input, #cancas-ih select{cursor:pointer!important;}
 /* Touch/mobile — hide the custom cursor elements, keep default tap behaviour */
 @media (pointer:coarse) {
   #cursor-outer,#cursor-inner,.trail-dot{display:none!important;}
@@ -1730,7 +1730,9 @@ img, video, iframe { max-width: 100%; display: block; }
 /* Fix Safari font rendering */
 body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 /* Fix Safari input zoom (min 16px prevents auto-zoom) */
-.fg input, .fg select, .fg textarea, #chat-inp {
+.fg input, .fg select, .fg textarea, #chat-inp,
+.crm-input, .crm-select, .crm-textarea, .crm-search, .crm-filter,
+#pv-lbox, #ih-year, #ih-month {
   font-size: max(16px, 1rem);
 }
 /* Fix Safari position:fixed inside transforms */
@@ -1792,7 +1794,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#process">Process</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#" onclick="openAdmin(event)">Admin</a></li>
     <li class="mobile-cta-li"><a href="#contact">Get In Touch</a></li>
   </ul>
   <a href="#contact" class="btn-nav">Get In Touch</a>
@@ -1800,9 +1801,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 <!-- HERO -->
 <section id="hero">
-  <video class="hero-bg-video" data-hero-video muted loop playsinline preload="none" aria-hidden="true"></video>
-  <canvas class="hero-fx-canvas" data-hero-canvas aria-hidden="true"></canvas>
-  <div class="hero-scrim"></div>
   <div class="hero-glow"></div>
   <div class="hero-grid-lines"></div>
   <div class="hero-eyebrow">Premium Web Development Studio — Dubai, UAE</div>
@@ -2313,7 +2311,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="badge-track">
       <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></div>
-        <div class="tb-label">PageSpeed 99+<small>Google Verified</small></div>
+        <div class="tb-label">PageSpeed 99+<small>Lighthouse Tested</small></div>
       </div>
       <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></div>
@@ -2332,20 +2330,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div class="tb-label">DDoS Protected<small>Cloudflare Network</small></div>
       </div>
       <div class="trust-badge">
-        <div class="tb-logo"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="17" fill="#003399" stroke="#fff" stroke-width=".5"/><g fill="#ffcc00"><polygon points="18,4 19.2,7.6 23,7.6 20,9.8 21.2,13.4 18,11.2 14.8,13.4 16,9.8 13,7.6 16.8,7.6"/><polygon points="28,9 29.2,12.6 33,12.6 30,14.8 31.2,18.4 28,16.2 24.8,18.4 26,14.8 23,12.6 26.8,12.6"/><polygon points="30,20 31.2,23.6 35,23.6 32,25.8 33.2,29.4 30,27.2 26.8,29.4 28,25.8 25,23.6 28.8,23.6"/><polygon points="24,29 25.2,32.6 29,32.6 26,34.8 27.2,38.4 24,36.2 20.8,38.4 22,34.8 19,32.6 22.8,32.6"/><polygon points="12,29 13.2,32.6 17,32.6 14,34.8 15.2,38.4 12,36.2 8.8,38.4 10,34.8 7,32.6 10.8,32.6"/><polygon points="6,20 7.2,23.6 11,23.6 8,25.8 9.2,29.4 6,27.2 2.8,29.4 4,25.8 1,23.6 4.8,23.6"/><polygon points="8,9 9.2,12.6 13,12.6 10,14.8 11.2,18.4 8,16.2 4.8,18.4 6,14.8 3,12.6 6.8,12.6"/></g></svg></div>
-        <div class="tb-label">GDPR Compliant<small>EU Privacy Standard</small></div>
-      </div>
-      <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="17" fill="#1a73e8"/><polygon points="21,5 10,20 17,20 15,31 26,16 19,16" fill="#fff"/></svg></div>
         <div class="tb-label">Core Web Vitals<small>Google Standards</small></div>
-      </div>
-      <div class="trust-badge">
-        <div class="tb-logo"><svg viewBox="0 0 80 36" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="36" rx="6" fill="none" stroke="#fff" stroke-width="1.5"/><text x="8" y="23" font-family="Arial,sans-serif" font-size="14" fill="#fff" font-weight="900" letter-spacing="1">ISO</text><text x="50" y="15" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,.7)">27001</text><line x1="44" y1="6" x2="44" y2="30" stroke="rgba(255,255,255,.3)" stroke-width="1"/></svg></div>
-        <div class="tb-label">ISO 27001<small>Security Standard</small></div>
-      </div>
-      <div class="trust-badge">
-        <div class="tb-logo"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="17" fill="#007a3d"/><text x="18" y="23" font-family="serif" font-size="18" fill="#fff" text-anchor="middle">🏙</text></svg></div>
-        <div class="tb-label">Dubai Business<small>UAE Licensed</small></div>
       </div>
       <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 80 36" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="36" rx="4" fill="#005a9c"/><text x="6" y="25" font-family="Arial,sans-serif" font-size="18" fill="#fff" font-weight="900">W3C</text><rect x="52" y="5" width="22" height="26" rx="2" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1"/><text x="63" y="23" font-family="monospace" font-size="10" fill="rgba(255,255,255,.8)" text-anchor="middle">✓</text></svg></div>
@@ -2354,7 +2340,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <!-- duplicate -->
       <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></div>
-        <div class="tb-label">PageSpeed 99+<small>Google Verified</small></div>
+        <div class="tb-label">PageSpeed 99+<small>Lighthouse Tested</small></div>
       </div>
       <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></div>
@@ -2373,20 +2359,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div class="tb-label">DDoS Protected<small>Cloudflare Network</small></div>
       </div>
       <div class="trust-badge">
-        <div class="tb-logo"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="17" fill="#003399" stroke="#fff" stroke-width=".5"/><g fill="#ffcc00"><polygon points="18,4 19.2,7.6 23,7.6 20,9.8 21.2,13.4 18,11.2 14.8,13.4 16,9.8 13,7.6 16.8,7.6"/><polygon points="28,9 29.2,12.6 33,12.6 30,14.8 31.2,18.4 28,16.2 24.8,18.4 26,14.8 23,12.6 26.8,12.6"/><polygon points="30,20 31.2,23.6 35,23.6 32,25.8 33.2,29.4 30,27.2 26.8,29.4 28,25.8 25,23.6 28.8,23.6"/><polygon points="24,29 25.2,32.6 29,32.6 26,34.8 27.2,38.4 24,36.2 20.8,38.4 22,34.8 19,32.6 22.8,32.6"/><polygon points="12,29 13.2,32.6 17,32.6 14,34.8 15.2,38.4 12,36.2 8.8,38.4 10,34.8 7,32.6 10.8,32.6"/><polygon points="6,20 7.2,23.6 11,23.6 8,25.8 9.2,29.4 6,27.2 2.8,29.4 4,25.8 1,23.6 4.8,23.6"/><polygon points="8,9 9.2,12.6 13,12.6 10,14.8 11.2,18.4 8,16.2 4.8,18.4 6,14.8 3,12.6 6.8,12.6"/></g></svg></div>
-        <div class="tb-label">GDPR Compliant<small>EU Privacy Standard</small></div>
-      </div>
-      <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="17" fill="#1a73e8"/><polygon points="21,5 10,20 17,20 15,31 26,16 19,16" fill="#fff"/></svg></div>
         <div class="tb-label">Core Web Vitals<small>Google Standards</small></div>
-      </div>
-      <div class="trust-badge">
-        <div class="tb-logo"><svg viewBox="0 0 80 36" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="36" rx="6" fill="none" stroke="#fff" stroke-width="1.5"/><text x="8" y="23" font-family="Arial,sans-serif" font-size="14" fill="#fff" font-weight="900" letter-spacing="1">ISO</text><text x="50" y="15" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,.7)">27001</text><line x1="44" y1="6" x2="44" y2="30" stroke="rgba(255,255,255,.3)" stroke-width="1"/></svg></div>
-        <div class="tb-label">ISO 27001<small>Security Standard</small></div>
-      </div>
-      <div class="trust-badge">
-        <div class="tb-logo"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="17" fill="#007a3d"/><text x="18" y="23" font-family="serif" font-size="18" fill="#fff" text-anchor="middle">🏙</text></svg></div>
-        <div class="tb-label">Dubai Business<small>UAE Licensed</small></div>
       </div>
       <div class="trust-badge">
         <div class="tb-logo"><svg viewBox="0 0 80 36" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="36" rx="4" fill="#005a9c"/><text x="6" y="25" font-family="Arial,sans-serif" font-size="18" fill="#fff" font-weight="900">W3C</text><rect x="52" y="5" width="22" height="26" rx="2" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1"/><text x="63" y="23" font-family="monospace" font-size="10" fill="rgba(255,255,255,.8)" text-anchor="middle">✓</text></svg></div>
@@ -2403,9 +2377,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
   <div class="contact-grid reveal">
     <div class="contact-form">
       <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
-        <div class="fg"><label>Full Name</label><input type="text" name="fullname" placeholder="John Smith" autocomplete="name"></div>
-        <div class="fg"><label>Email Address</label><input type="email" name="email" placeholder="john@company.com" autocomplete="email"></div>
-        <div class="fg"><label>Phone / WhatsApp</label><input type="tel" name="phone" placeholder="+971 XX XXX XXXX" autocomplete="tel"></div>
+        <div class="fg"><label>Full Name</label><input type="text" name="fullname" placeholder="Your full name" autocomplete="name"></div>
+        <div class="fg"><label>Email Address</label><input type="email" name="email" id="contact-email" placeholder="john@company.com" autocomplete="email" oninput="clearEmailError(this)"></div>
+        <div class="fg"><label>Phone / WhatsApp</label><input type="tel" name="phone" id="contact-phone" placeholder="Phone number (with country code)" autocomplete="tel" inputmode="tel" oninput="sanitizePhone(this)"></div>
       </div>
       <div class="form-row">
         <div class="fg"><label>Business Type</label><select><option value="">Select your industry</option><option>Restaurant / Café</option><option>Salon / Beauty</option><option>Real Estate</option><option>Fitness &amp; Wellness</option><option>Retail &amp; Fashion</option><option>Tech / SaaS</option><option>Healthcare</option><option>Other</option></select></div>
@@ -2512,8 +2486,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><svg style="width:30px;height:30px;animation:navMarkSpin 28s linear infinite;filter:drop-shadow(0 0 6px rgba(74,173,173,0.5));flex-shrink:0;" viewBox="0 0 120 120" fill="none"><defs><radialGradient id="mmamBg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0d2828"/><stop offset="100%" stop-color="#040e0e"/></radialGradient></defs><circle cx="60" cy="60" r="57" fill="url(#mmamBg)"/><circle cx="60" cy="60" r="56" stroke="#4aadad" stroke-width="1.8" fill="none"/><g fill="#4aadad" fill-opacity="0.9"><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(120,60,60)"/><path d="M60,18 C44,32 44,54 60,64 C76,54 76,32 60,18 Z" transform="rotate(240,60,60)"/></g><circle cx="60" cy="33" r="5" fill="#040e0e"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(120,60,60)"/><circle cx="60" cy="33" r="5" fill="#040e0e" transform="rotate(240,60,60)"/><circle cx="60" cy="60" r="9" fill="#040e0e"/><circle cx="60" cy="60" r="9" stroke="#4aadad" stroke-width="1.4" fill="none"/><circle cx="60" cy="60" r="3.5" fill="#7dd4d4"/></svg><div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:13px;letter-spacing:3px;color:#f0ece5;">CANCAS</span><span style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#4aadad;text-transform:uppercase;margin-top:2px;">Studio</span></div></a>
     <h3>Admin Access</h3>
     <p>Enter your credentials to access the admin panel</p>
-    <div class="fg" style="margin-bottom:14px"><label>Username</label><input type="text" id="admin-u" placeholder="Username"></div>
-    <div class="fg" style="margin-bottom:28px"><label>Password</label><input type="password" id="admin-p" placeholder="Password" onkeypress="if(event.key==='Enter')doAdminLogin()"></div>
+    <div class="fg" style="margin-bottom:14px"><label>Email</label><input type="email" id="admin-u" placeholder="Email" autocomplete="username"></div>
+    <div class="fg" style="margin-bottom:28px"><label>Password</label><input type="password" id="admin-p" placeholder="Password" autocomplete="current-password" onkeypress="if(event.key==='Enter')doAdminLogin()"></div>
     <button class="btn-primary" style="width:100%;justify-content:center;" onclick="doAdminLogin()">Sign In</button>
     <button class="admin-cancel" onclick="document.getElementById('admin-modal').classList.remove('open')" aria-label="Close admin login">← Back to website</button>
   </div>
@@ -2522,38 +2496,23 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- SYNC SETUP MODAL -->
 <div id="sync-modal" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,.92);align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:36px 40px;width:min(520px,92vw);max-height:90vh;overflow-y:auto;">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--white);letter-spacing:1px;margin-bottom:6px;">☁ CLOUD SYNC SETUP</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;">Sync your CRM data across all devices (PC, phone, tablet). Uses <strong style="color:var(--cyan)">JSONBin.io</strong> — free, no credit card needed. Setup takes 2 minutes.</p>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--white);letter-spacing:1px;margin-bottom:6px;">CLOUD SYNC</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;">Your CRM is now stored securely in your private <strong style="color:var(--cyan)">Supabase</strong> database and syncs automatically across every device the moment you log in. No setup needed.</p>
 
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;">How to get your free API key</div>
-      <ol style="font-size:13px;color:var(--muted);line-height:2;padding-left:18px;margin:0;">
-        <li>Go to <a href="https://jsonbin.io/app/sign-in" target="_blank" style="color:var(--cyan);">jsonbin.io → sign in</a> → click <strong style="color:var(--text)">Sign Up Free</strong></li>
-        <li>Verify your email and log in</li>
-        <li>Go to <strong style="color:var(--text)">API Keys</strong> in the top menu</li>
-        <li>Copy your <strong style="color:var(--text)">X-Master-Key</strong> (starts with $2a$ or $2b$)</li>
-        <li>Paste it below and click Save &amp; Sync</li>
-      </ol>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
-      <div><label style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">JSONBin API Key (X-Master-Key)</label>
-        <input id="sync-api-key" class="crm-input" type="password" placeholder="$2b$10$..." style="font-family:'JetBrains Mono',monospace;font-size:12px;">
-      </div>
-      <div><label style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Bin ID <span style="color:#555;">(auto-filled after first save)</span></label>
-        <input id="sync-bin-id" class="crm-input" type="text" placeholder="Auto-generated — or paste manually from jsonbin.io" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
-      </div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;">How it works</div>
+      <ul style="font-size:13px;color:var(--muted);line-height:2;padding-left:18px;margin:0;">
+        <li>Every change you make saves to the cloud instantly.</li>
+        <li>Logging in on any device pulls your latest data.</li>
+        <li>Only your admin account can read or edit it.</li>
+      </ul>
     </div>
     <div id="sync-modal-status" style="font-size:12px;color:var(--muted);min-height:18px;margin-bottom:16px;"></div>
-    <div style="display:flex;gap:10px;flex-direction:column;">
-      <button class="crm-btn" onclick="saveSyncConfig()" style="width:100%;font-size:13px;padding:14px;">① Save &amp; Sync Now — do this FIRST on every new device</button>
-      <div style="display:flex;gap:10px;">
-        <button class="crm-btn sec" onclick="manualPull()" style="flex:1;">② Pull from Cloud — after Step 1 is done</button>
-        <button class="crm-btn sec" onclick="closeSyncSetup()">Close</button>
-      </div>
-    </div>
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:#555;line-height:1.6;">
-      Your data is stored privately in your own JSONBin account. The API key is saved in your browser and never sent anywhere except jsonbin.io.
+    <!-- Hidden legacy fields kept so older code references don't error -->
+    <input id="sync-api-key" type="hidden"><input id="sync-bin-id" type="hidden">
+    <div style="display:flex;gap:10px;">
+      <button class="crm-btn sec" onclick="manualPull()" style="flex:1;">Refresh from cloud</button>
+      <button class="crm-btn sec" onclick="closeSyncSetup()">Close</button>
     </div>
   </div>
 </div>
@@ -2567,12 +2526,26 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#555;display:inline-block;"></span>
       <span id="sync-txt">Local only</span>
     </div>
-    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-      <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" onclick="openSyncSetup()" title="Cloud Sync Settings">☁ Sync</button>
+    <div style="margin-left:auto;display:flex;gap:14px;align-items:center;">
+      <div id="notif-bell" style="position:relative;display:flex;align-items:center;cursor:pointer;" onclick="toggleNotifPanel(event)" title="Agreement activity">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8aa0b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="notif-count" style="display:none;position:absolute;top:-6px;right:-6px;background:#ff5050;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:14px;text-align:center;line-height:1.4;"></span>
+        <div id="notif-panel" style="display:none;position:absolute;top:28px;right:0;width:320px;max-height:400px;overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:9999;padding:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 8px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Agreement Activity</div>
+            <div id="notif-clear" style="font-size:11px;color:var(--cyan);cursor:pointer;" onclick="event.stopPropagation();NOTIF.markSeen();">Clear all</div>
+          </div>
+          <div id="notif-list"></div>
+        </div>
+      </div>
+      <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" onclick="openSyncSetup()" title="Cloud Sync Settings">Sync</button>
       <button class="btn-secondary" style="padding:9px 20px;font-size:11px" onclick="closeAdmin()">Exit Admin</button>
     </div>
   </div>
   <div class="admin-body">
+
+    <!-- Needs Attention (live) -->
+    <div id="attn-strip"></div>
 
     <!-- KPIs (live) -->
     <div class="admin-kpis" id="crm-kpis">
@@ -2585,12 +2558,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('active_all')" title="Active & In Progress clients"><div class="kpi-val" id="kpi-active">0</div><div class="kpi-lbl">Active / In Progress</div><div class="kpi-live" id="kpi-rev">AED 0/mo</div></div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('lead')" title="Open leads"><div class="kpi-val" id="kpi-leads">0</div><div class="kpi-lbl">Open Leads</div><div class="kpi-live" id="kpi-leads-sub"></div></div>
       <div class="kpi" style="cursor:pointer;" onclick="kpiClick('completed')" title="Completed"><div class="kpi-val" id="kpi-done">0</div><div class="kpi-lbl">Completed</div><div class="kpi-live" id="kpi-done-sub"></div></div>
+      <div class="kpi" style="border-left-color:#00d4ff;cursor:pointer;" onclick="kpiClick('due_week')" title="Project deadlines in the next 7 days"><div class="kpi-val" id="kpi-dueweek" style="color:#00d4ff;">0</div><div class="kpi-lbl">Due This Week</div><div class="kpi-live" id="kpi-dueweek-sub"></div></div>
+      <div class="kpi" style="border-left-color:#ff5050;cursor:pointer;" onclick="kpiClick('overdue_payment')" title="Active clients with an outstanding balance"><div class="kpi-val" id="kpi-overdue" style="color:#ff5050;">0</div><div class="kpi-lbl">Payment Overdue</div><div class="kpi-live" id="kpi-overdue-sub"></div></div>
+      <div class="kpi" style="border-left-color:#ffd23f;cursor:pointer;" onclick="kpiClick('followup_due')" title="Clients with a follow-up due or overdue today"><div class="kpi-val" id="kpi-followup" style="color:#ffd23f;">0</div><div class="kpi-lbl">Follow-Ups Due</div><div class="kpi-live" id="kpi-followup-sub"></div></div>
     </div>
 
     <!-- CRM Tabs -->
     <div class="crm-nav">
       <button class="crm-tab" id="tab-enquiries" onclick="showEnquiriesView()" style="color:#b464ff;border-bottom-color:transparent;">
-        📥 Enquiries <span id="enq-badge" style="display:none;background:#b464ff;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px;"></span>
+        Enquiries <span id="enq-badge" style="display:none;background:#b464ff;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px;"></span>
       </button>
       <button class="crm-tab active" id="tab-clients" onclick="showClientsView(this)">All Clients</button>
       <button class="crm-tab" onclick="crmTab('active',this)">Active</button>
@@ -2617,15 +2593,24 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <!-- Toolbar -->
     <div class="crm-toolbar">
       <input class="crm-search" id="crm-search" type="text" placeholder="Search clients by name, business, email..." oninput="renderCrmGrid()">
-      <select class="crm-filter" id="crm-sort" onchange="renderCrmGrid()">
+      <select class="crm-filter" id="crm-sort" onchange="onCrmSortChange()">
+        <option value="urgent" selected>Needs Attention First</option>
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
         <option value="name">Name A-Z</option>
         <option value="revenue">Revenue ↓</option>
       </select>
+      <button class="crm-btn sec" onclick="openTodayView()" style="color:#ffd23f;border-color:#ffd23f;" title="Everything due or overdue today">Today</button>
       <button class="crm-btn" onclick="openNewClient()">+ New Client</button>
-      <button class="crm-btn sec" onclick="exportClientsCSV()" title="Download all client data as CSV">⬇ Export CSV</button>
-      <button class="crm-btn sec" onclick="exportClientsJSON()" title="Download full backup as JSON" style="color:var(--gold);border-color:var(--gold);">⬇ Backup JSON</button>
+      <button class="crm-btn sec" onclick="exportClientsCSV()" title="Download all client data as CSV">Export CSV</button>
+      <button class="crm-btn sec" onclick="exportClientsJSON()" title="Download full backup as JSON" style="color:var(--gold);border-color:var(--gold);">Backup JSON</button>
+    </div>
+    <div class="crm-tag-row" id="crm-tag-filter" style="margin:-6px 0 14px;">
+      <span class="crm-tag sel" data-tag="" onclick="filterByTag(this)">All Tags</span>
+      <span class="crm-tag" data-tag="vip" onclick="filterByTag(this)">VIP</span>
+      <span class="crm-tag" data-tag="high-touch" onclick="filterByTag(this)">High-Touch</span>
+      <span class="crm-tag" data-tag="low-touch" onclick="filterByTag(this)">Low-Touch</span>
+      <span class="crm-tag" data-tag="at-risk" onclick="filterByTag(this)">At-Risk</span>
     </div>
 
     <!-- Client Grid -->
@@ -2660,6 +2645,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <div style="display:flex;flex-direction:column;gap:2px;">
               <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pending</span>
               <span id="prof-pending-val" style="font-family:Barlow Condensed,sans-serif;font-size:26px;font-weight:900;color:#ff5050;line-height:1;">AED 0</span>
+              <span id="prof-cancel-note" style="display:none;font-size:9px;color:#ff9632;letter-spacing:.5px;">Billing stopped</span>
             </div>
             <div style="width:1px;height:32px;background:var(--border);flex-shrink:0;"></div>
             <div style="display:flex;flex-direction:column;gap:2px;">
@@ -2675,16 +2661,32 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <div class="crm-profile-actions">
           <button class="crm-btn sec" onclick="saveClient()">Save</button>
-          <button class="crm-btn sec" onclick="closeCrmProfile()">✕ Close</button>
+          <button class="crm-btn sec" onclick="closeCrmProfile()">× Close</button>
         </div>
+      </div>
+
+      <!-- Cancas document / action toolbar (full width, below the header) -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);">
+        <button class="crm-btn" onclick="CancasPanel.invoice()">Invoice</button>
+        <button class="crm-btn" onclick="CancasPanel.agreement()">Agreement</button>
+        <button class="crm-btn" onclick="CancasPanel.signlink()">Sign Link</button>
+        <button class="crm-btn" onclick="CancasPanel.depositReminder()">Deposit Reminder</button>
+        <button class="crm-btn" onclick="CancasPanel.balanceReminder()">Balance Reminder</button>
+        <button class="crm-btn" onclick="CancasPanel.invoiceHistory()">Invoice History</button>
+      </div>
+
+      <!-- Agreement signing status (auto-checked from Supabase on profile open) -->
+      <div id="agr-status-bar" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:13px;flex-wrap:wrap;">
+        <span id="agr-status-text" style="font-weight:700;"></span>
+        <button id="agr-status-btn" class="crm-btn sec" style="display:none;" onclick="CancasPanel.getSignedCopy()">View Signed PDF</button>
       </div>
 
       <!-- Profile tabs nav -->
       <div style="background:var(--bg3);border-bottom:1px solid var(--border);padding:0;display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;" class="crm-prof-tabs-bar">
         <button class="crm-prof-tab active" onclick="switchProfTab('info',this)">Contact &amp; Project</button>
-        <button class="crm-prof-tab" onclick="switchProfTab('billing',this)">💳 Billing</button>
-        <button class="crm-prof-tab" onclick="switchProfTab('technical',this)">⚙️ Technical</button>
-        <button class="crm-prof-tab" onclick="switchProfTab('notes',this)">📋 Notes</button>
+        <button class="crm-prof-tab" onclick="switchProfTab('billing',this)">Billing</button>
+        <button class="crm-prof-tab" onclick="switchProfTab('technical',this)">Technical</button>
+        <button class="crm-prof-tab" onclick="switchProfTab('notes',this)">Notes</button>
       </div>
 
       <div class="crm-profile-body">
@@ -2696,14 +2698,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel active" id="pp-info" style="padding:28px 36px;">
           <div class="crm-section-hd">Contact Information</div>
           <div class="crm-field-grid">
-            <div class="crm-field"><label class="crm-label">Client Name</label><input class="crm-input" id="cf-name" placeholder="Full name" oninput="updateProfileHeader()"></div>
-            <div class="crm-field"><label class="crm-label">Business Name</label><input class="crm-input" id="cf-biz" placeholder="Business / Company" oninput="updateProfileHeader()"></div>
-            <div class="crm-field"><label class="crm-label">Email Address</label><input class="crm-input" id="cf-email" type="email" placeholder="email@example.com"></div>
-            <div class="crm-field"><label class="crm-label">Secondary Email</label><input class="crm-input" id="cf-email2" type="email" placeholder="secondary@example.com"></div>
-            <div class="crm-field"><label class="crm-label">Main Business Number</label><input class="crm-input" id="cf-phone" placeholder="+971 XX XXX XXXX"></div>
-            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 1</label><input class="crm-input" id="cf-mobile1" placeholder="+971 XX XXX XXXX"></div>
-            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 2</label><input class="crm-input" id="cf-mobile2" placeholder="+971 XX XXX XXXX"></div>
-            <div class="crm-field"><label class="crm-label">Location / City</label><input class="crm-input" id="cf-location" placeholder="Dubai, UAE"></div>
+            <div class="crm-field"><label class="crm-label">Client Name</label><input class="crm-input" id="cf-name" placeholder="" oninput="updateProfileHeader()"></div>
+            <div class="crm-field"><label class="crm-label">Business Name</label><input class="crm-input" id="cf-biz" placeholder="" oninput="updateProfileHeader()"></div>
+            <div class="crm-field"><label class="crm-label">Billing Entity <span style="opacity:.6;font-weight:400">(for invoice — leave blank to use Client Name)</span></label><input class="crm-input" id="cf-billing" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Email Address</label><input class="crm-input" id="cf-email" type="email" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Secondary Email</label><input class="crm-input" id="cf-email2" type="email" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Main Business Number</label><input class="crm-input" id="cf-phone" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 1</label><input class="crm-input" id="cf-mobile1" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Mobile / WhatsApp 2</label><input class="crm-input" id="cf-mobile2" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Location / City</label><input class="crm-input" id="cf-location" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Industry</label>
               <select class="crm-select" id="cf-industry" onchange="toggleIndustryOther(this)">
                 <option value="">Select industry...</option>
@@ -2713,15 +2716,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 <option>Hospitality</option><option>Finance</option><option>Legal</option><option>Other</option>
               </select>
             </div>
-            <div class="crm-field" id="cf-industry-other-wrap" style="display:none"><label class="crm-label">Specify Industry</label><input class="crm-input" id="cf-industry-other" placeholder="Type your industry..."></div>
+            <div class="crm-field" id="cf-industry-other-wrap" style="display:none"><label class="crm-label">Specify Industry</label><input class="crm-input" id="cf-industry-other" placeholder=""></div>
             <div class="crm-field full" style="padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;grid-column:1/-1;">
               <div style="font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:12px;">Secondary Contact Person</div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-                <div class="crm-field"><label class="crm-label">Contact Name</label><input class="crm-input" id="cf-contact2-name" placeholder="Full name"></div>
-                <div class="crm-field"><label class="crm-label">Role / Title</label><input class="crm-input" id="cf-contact2-role" placeholder="e.g. Manager, Owner"></div>
-                <div class="crm-field"><label class="crm-label">Phone / WhatsApp</label><input class="crm-input" id="cf-contact2-phone" placeholder="+971 XX XXX XXXX"></div>
-                <div class="crm-field"><label class="crm-label">Email</label><input class="crm-input" id="cf-contact2-email" type="email" placeholder="email@example.com"></div>
-                <div class="crm-field"><label class="crm-label">Best Time to Contact</label><input class="crm-input" id="cf-contact2-time" placeholder="e.g. Mornings, After 5pm"></div>
+                <div class="crm-field"><label class="crm-label">Contact Name</label><input class="crm-input" id="cf-contact2-name" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Role / Title</label><input class="crm-input" id="cf-contact2-role" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Phone / WhatsApp</label><input class="crm-input" id="cf-contact2-phone" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Email</label><input class="crm-input" id="cf-contact2-email" type="email" placeholder=""></div>
+                <div class="crm-field"><label class="crm-label">Best Time to Contact</label><input class="crm-input" id="cf-contact2-time" placeholder=""></div>
                 <div class="crm-field"><label class="crm-label">Preferred Method</label>
                   <select class="crm-select" id="cf-contact2-pref">
                     <option value="">Select...</option>
@@ -2730,7 +2733,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 </div>
               </div>
             </div>
-            <div class="crm-field full"><label class="crm-label">Current Website (if any)</label><input class="crm-input" id="cf-oldsite" placeholder="https://..."></div>
+            <div class="crm-field full"><label class="crm-label">Current Website (if any)</label><input class="crm-input" id="cf-oldsite" placeholder=""></div>
           </div>
 
           <div class="crm-section-hd">Project Details</div>
@@ -2754,13 +2757,28 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 <option>Custom</option>
               </select>
             </div>
-            <div class="crm-field"><label class="crm-label">Project Type</label><input class="crm-input" id="cf-project" placeholder="e.g. Restaurant website + booking"></div>
-            <div class="crm-field"><label class="crm-label">Number of Pages</label><input class="crm-input" id="cf-pages" placeholder="e.g. 5, 10, Unlimited"></div>
+            <div class="crm-field"><label class="crm-label">Project Type</label><input class="crm-input" id="cf-project" placeholder=""></div>
+            <div class="crm-field"><label class="crm-label">Number of Pages</label><input class="crm-input" id="cf-pages" placeholder=""></div>
             <div class="crm-field"><label class="crm-label">Start Date</label><input class="crm-input" id="cf-start" type="date"></div>
             <div class="crm-field"><label class="crm-label">Deadline / Due Date</label><input class="crm-input" id="cf-due" type="date" onchange="calcPending()"></div>
             <div class="crm-field"><label class="crm-label">Launch Date</label><input class="crm-input" id="cf-launch" type="date"></div>
-            <div class="crm-field"><label class="crm-label">Contract End Date</label><input class="crm-input" id="cf-end" type="date"></div>
-            <div class="crm-field full"><label class="crm-label">Live Website URL</label><input class="crm-input" id="cf-live" placeholder="https://"></div>
+            <div class="crm-field"><label class="crm-label">Contract End Date</label><input class="crm-input" id="cf-end" type="date" onchange="calcPending()"></div>
+            <div class="crm-field full"><label class="crm-label">Live Website URL</label><input class="crm-input" id="cf-live" placeholder=""></div>
+          </div>
+
+          <div class="crm-section-hd">Follow-Up &amp; Tags</div>
+          <div class="crm-field-grid">
+            <div class="crm-field"><label class="crm-label">Next Follow-Up Date</label><input class="crm-input" id="cf-followup-date" type="date"></div>
+            <div class="crm-field full"><label class="crm-label">Follow-Up Note</label><input class="crm-input" id="cf-followup-note" placeholder=""></div>
+            <div class="crm-field full">
+              <label class="crm-label">Tags</label>
+              <div class="crm-tag-row" id="client-tags-row">
+                <span class="crm-tag" data-tag="vip" onclick="this.classList.toggle('sel')">VIP</span>
+                <span class="crm-tag" data-tag="high-touch" onclick="this.classList.toggle('sel')">High-Touch</span>
+                <span class="crm-tag" data-tag="low-touch" onclick="this.classList.toggle('sel')">Low-Touch</span>
+                <span class="crm-tag" data-tag="at-risk" onclick="this.classList.toggle('sel')">At-Risk</span>
+              </div>
+            </div>
           </div>
 
           <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save All Changes</button></div>
@@ -2770,9 +2788,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel" id="pp-billing" style="padding:28px 36px;display:none;">
             <div class="crm-section-hd">Contract &amp; Pricing</div>
             <div class="crm-field-grid">
-              <div class="crm-field"><label class="crm-label">Total Contract Value (AED)</label><input class="crm-input" id="cf-value" type="number" placeholder="0" oninput="calcPending()"></div>
-              <div class="crm-field"><label class="crm-label">Monthly Fee (AED)</label><input class="crm-input" id="cf-monthly" type="number" placeholder="0" oninput="calcPending()"></div>
-              <div class="crm-field"><label class="crm-label">Invoice / Reference No.</label><input class="crm-input" id="cf-invoice" placeholder="INV-001"></div>
+              <div class="crm-field"><label class="crm-label">Total Contract Value (AED)</label><input class="crm-input" id="cf-value" type="number" placeholder="" oninput="calcPending()"></div>
+              <div class="crm-field"><label class="crm-label">Monthly Fee (AED)</label><input class="crm-input" id="cf-monthly" type="number" placeholder="" oninput="calcPending()"></div>
+              <div class="crm-field"><label class="crm-label">Invoice / Reference No.</label><input class="crm-input" id="cf-invoice" placeholder=""></div>
               <div class="crm-field"><label class="crm-label">Billing Renewal Date</label><input class="crm-input" id="cf-renewal" type="date"></div>
             </div>
 
@@ -2781,7 +2799,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;">
               <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;font-weight:600;">Add Payment</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-                <div class="crm-field"><label class="crm-label">Amount (AED)</label><input class="crm-input" id="pay-amount" type="number" placeholder="0"></div>
+                <div class="crm-field"><label class="crm-label">Amount (AED)</label><input class="crm-input" id="pay-amount" type="number" placeholder=""></div>
                 <div class="crm-field"><label class="crm-label">Date</label><input class="crm-input" id="pay-date" type="date"></div>
                 <div class="crm-field"><label class="crm-label">Payment Method</label>
                   <select class="crm-select" id="pay-method">
@@ -2800,8 +2818,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
                     <option>Other</option>
                   </select>
                 </div>
-                <div class="crm-field"><label class="crm-label">Reference / Transaction ID</label><input class="crm-input" id="pay-ref" placeholder="TXN-123 or last 4 digits"></div>
-                <div class="crm-field full"><label class="crm-label">Notes (optional)</label><input class="crm-input" id="pay-note" placeholder="e.g. Deposit for project, Monthly March..."></div>
+                <div class="crm-field"><label class="crm-label">Reference / Transaction ID</label><input class="crm-input" id="pay-ref" placeholder=""></div>
+                <div class="crm-field full"><label class="crm-label">Notes (optional)</label><input class="crm-input" id="pay-note" placeholder=""></div>
               </div>
               <button class="crm-btn" onclick="addPayment()" style="width:100%;">+ Record Payment</button>
             </div>
@@ -2821,6 +2839,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
                 <div id="bill-pending" style="font-family:Barlow Condensed,sans-serif;font-size:28px;font-weight:900;color:#ff5050;">AED 0</div>
               </div>
             </div>
+            <div id="bill-cancel-note" style="display:none;margin-top:8px;font-size:11px;color:#ff9632;background:rgba(255,150,50,.08);border:1px solid rgba(255,150,50,.25);border-radius:6px;padding:8px 10px;">Billing stopped — contract end date is set, no further monthly invoices will be generated. A final invoice has been issued for any remaining balance.</div>
             <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save Billing</button></div>
           </div><!-- /pp-billing -->
 
@@ -2828,13 +2847,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel" id="pp-technical" style="padding:28px 36px;display:none;">
             <div class="crm-section-hd">Technical Details</div>
             <div class="crm-field-grid">
-              <div class="crm-field"><label class="crm-label">Domain Name</label><input class="crm-input" id="cf-domain" placeholder="example.com"></div>
-              <div class="crm-field"><label class="crm-label">Domain Registrar</label><input class="crm-input" id="cf-registrar" placeholder="Namecheap / GoDaddy..."></div>
-              <div class="crm-field"><label class="crm-label">Hosting Platform</label><input class="crm-input" id="cf-hosting" placeholder="GitHub Pages / Vercel..."></div>
+              <div class="crm-field"><label class="crm-label">Domain Name</label><input class="crm-input" id="cf-domain" placeholder=""></div>
+              <div class="crm-field"><label class="crm-label">Domain Registrar</label><input class="crm-input" id="cf-registrar" placeholder=""></div>
+              <div class="crm-field"><label class="crm-label">Hosting Platform</label><input class="crm-input" id="cf-hosting" placeholder=""></div>
               <div class="crm-field"><label class="crm-label">Domain Expiry</label><input class="crm-input" id="cf-domain-exp" type="date"></div>
-              <div class="crm-field"><label class="crm-label">Admin Email (client's)</label><input class="crm-input" id="cf-admin-email" placeholder="client admin email"></div>
-              <div class="crm-field"><label class="crm-label">CPanel / GitHub Username</label><input class="crm-input" id="cf-cpanel" placeholder="username"></div>
-              <div class="crm-field full"><label class="crm-label">Technologies Used</label><input class="crm-input" id="cf-tech" placeholder="e.g. HTML, WordPress, Shopify, React..."></div>
+              <div class="crm-field"><label class="crm-label">Admin Email (client's)</label><input class="crm-input" id="cf-admin-email" placeholder=""></div>
+              <div class="crm-field"><label class="crm-label">CPanel / GitHub Username</label><input class="crm-input" id="cf-cpanel" placeholder=""></div>
+              <div class="crm-field full"><label class="crm-label">Technologies Used</label><input class="crm-input" id="cf-tech" placeholder=""></div>
             </div>
             <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save Technical</button></div>
           </div><!-- /pp-technical -->
@@ -2843,9 +2862,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="crm-prof-panel" id="pp-notes" style="padding:28px 36px;display:none;">
             <div class="crm-section-hd">Project Notes</div>
             <div class="crm-field-grid">
-              <div class="crm-field full"><label class="crm-label">Project Brief / Requirements</label><textarea class="crm-textarea" id="cf-brief" rows="4" placeholder="What does the client need?"></textarea></div>
-              <div class="crm-field full"><label class="crm-label">Internal Notes</label><textarea class="crm-textarea" id="cf-notes" rows="4" placeholder="Private notes, reminders, anything..."></textarea></div>
-              <div class="crm-field full"><label class="crm-label">End of Service Notes</label><textarea class="crm-textarea" id="cf-eos" rows="3" placeholder="Reason for ending, handover notes..."></textarea></div>
+              <div class="crm-field full"><label class="crm-label">Project Brief / Requirements</label><textarea class="crm-textarea" id="cf-brief" rows="4" placeholder=""></textarea></div>
+              <div class="crm-field full"><label class="crm-label">Internal Notes</label><textarea class="crm-textarea" id="cf-notes" rows="4" placeholder=""></textarea></div>
+              <div class="crm-field full"><label class="crm-label">End of Service Notes</label><textarea class="crm-textarea" id="cf-eos" rows="3" placeholder=""></textarea></div>
             </div>
             <div style="margin-top:8px;"><button class="crm-btn" onclick="saveClient()" style="width:100%;">Save Notes</button></div>
           </div><!-- /pp-notes -->
@@ -2863,12 +2882,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <!-- Main categories -->
             <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Category</div>
             <div class="crm-tag-row" id="note-main-cats">
-              <span class="crm-main-cat sel" data-cat="Communication" onclick="selectMainCat(this)">📞 Communication</span>
-              <span class="crm-main-cat" data-cat="Project" onclick="selectMainCat(this)">🏗 Project</span>
-              <span class="crm-main-cat" data-cat="Billing" onclick="selectMainCat(this)">💰 Billing</span>
-              <span class="crm-main-cat" data-cat="Support" onclick="selectMainCat(this)">🛠 Support</span>
-              <span class="crm-main-cat" data-cat="Content" onclick="selectMainCat(this)">📁 Content</span>
-              <span class="crm-main-cat" data-cat="Internal" onclick="selectMainCat(this)">🔒 Internal</span>
+              <span class="crm-main-cat sel" data-cat="Communication" onclick="selectMainCat(this)">Communication</span>
+              <span class="crm-main-cat" data-cat="Project" onclick="selectMainCat(this)">Project</span>
+              <span class="crm-main-cat" data-cat="Billing" onclick="selectMainCat(this)">Billing</span>
+              <span class="crm-main-cat" data-cat="Support" onclick="selectMainCat(this)">Support</span>
+              <span class="crm-main-cat" data-cat="Content" onclick="selectMainCat(this)">Content</span>
+              <span class="crm-main-cat" data-cat="Internal" onclick="selectMainCat(this)">Internal</span>
             </div>
 
             <!-- Sub-tags (change based on main cat) -->
@@ -2877,7 +2896,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
               <!-- Populated by selectMainCat() -->
             </div>
 
-            <textarea class="crm-textarea" id="note-text" rows="3" placeholder="Type your note, message, or log entry..."></textarea>
+            <textarea class="crm-textarea" id="note-text" rows="3" placeholder=""></textarea>
             <div style="display:flex;gap:8px;align-items:center;">
               <button class="crm-btn" onclick="addNote()" style="flex:1;">Add Entry</button>
               <span style="font-size:11px;color:var(--muted);">Ctrl+Enter</span>
@@ -2886,7 +2905,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
           <!-- Thread -->
           <div class="crm-thread" id="note-thread">
-            <div class="crm-empty" id="note-empty"><div class="crm-empty-icon">💬</div><div>No activity yet — add your first note above</div></div>
+            <div class="crm-empty" id="note-empty"><div>No activity yet — add your first note above</div></div>
           </div>
 
           <!-- Timeline -->
@@ -3015,13 +3034,18 @@ document.getElementById('demo-modal').addEventListener('click',function(e){if(e.
 
 // ADMIN
 function openAdmin(e){if(e)e.preventDefault();document.getElementById('admin-modal').classList.add('open');}
-function doAdminLogin(){
-  if(document.getElementById('admin-u').value==='cancas_admin'&&document.getElementById('admin-p').value==='Cancas@2026!'){
-    document.getElementById('admin-modal').classList.remove('open');
-    document.getElementById('admin-panel').classList.add('open');
-  }else{alert('Incorrect credentials. Check the hint shown below the form.');}
+// Discreet admin access: visit the site with #admin in the URL (e.g. cancasstudio.com/#admin)
+function _checkAdminHash(){ if((location.hash||'').toLowerCase()==='#admin'){ openAdmin(); } }
+window.addEventListener('hashchange', _checkAdminHash);
+window.addEventListener('DOMContentLoaded', _checkAdminHash);
+_checkAdminHash();
+// Real authentication is wired in _patchAdminForCrm() below (Supabase Auth).
+// This stub is replaced on load; it holds no credentials.
+function doAdminLogin(){ alert('Login service is still loading — please try again in a moment.'); }
+function closeAdmin(){
+  document.getElementById('admin-panel').classList.remove('open');
+  try { var sb = getSB(); if(sb) sb.auth.signOut(); } catch(e){}
 }
-function closeAdmin(){document.getElementById('admin-panel').classList.remove('open');}
 document.getElementById('admin-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
 // CHAT
@@ -3165,22 +3189,19 @@ async function sendChat(){
   chatHistory.push({role:'user', content: msg});
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    // Calls Claude securely through our Supabase Edge Function — the API key
+    // lives server-side and is never exposed in this page.
+    const r = await fetch(SUPABASE_URL + '/functions/v1/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'apikey': SUPABASE_KEY
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        system: CHAT_SYSTEM,
-        messages: chatHistory.slice(-10)
-      })
+      body: JSON.stringify({ messages: chatHistory.slice(-10) })
     });
     const data = await r.json();
-    const reply = data.content?.[0]?.text;
+    const reply = data && data.reply;
     if(reply){
       chatHistory.push({role:'assistant', content: reply});
       removeTyping();
@@ -3637,6 +3658,68 @@ window.addEventListener('scroll',()=>{
 </div>
 
 <script>
+// ════════════════════════════════════════════════════════════════════════
+// CONTACT FORM — Web3Forms access key
+// Get a FREE key at https://web3forms.com (enter hello@cancasstudio.com,
+// verify that inbox, copy the key). Paste it between the quotes below.
+// Until a real key is here, the form falls back to WhatsApp/email.
+// ════════════════════════════════════════════════════════════════════════
+const WEB3FORMS_KEY = "d477442f-d95c-49e5-8d92-d2265ef3d7e8";
+
+// ════════════════════════════════════════════════════════════════════════
+// SUPABASE — admin login + cloud enquiry database
+// The URL and publishable key below are SAFE to expose: all real security is
+// enforced server-side by Row Level Security. The public can only submit the
+// contact form; only the logged-in admin can read leads.
+// ════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL  = "https://dfckurqjlqhprdsrorvw.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_wYiqkV5i85UqwoszcpnBxA_8nPxWX-v";
+const ADMIN_EMAIL   = "hello@cancasstudio.com";
+var _sb = null;
+function getSB(){
+  if(_sb) return _sb;
+  if(typeof supabase === 'undefined' || !supabase.createClient) return null;
+  _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return _sb;
+}
+
+// Pull all enquiries from the cloud DB into the local CRM view (every device).
+async function SB_loadEnquiries(){
+  var sb = getSB();
+  if(!sb) return;
+  try {
+    var res = await sb.from('enquiries').select('*').order('created_at', {ascending:false});
+    if(res.error){ console.warn('Enquiry load failed:', res.error.message); return; }
+    var mapped = (res.data||[]).map(function(r){
+      return {
+        id: r.id,
+        name: r.name, email: r.email, phone: r.phone||'',
+        biz: r.business||'Not specified', pkg: r.package||'Not specified',
+        detail: r.detail||'',
+        date: new Date(r.created_at).toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+        status: r.status||'new', read: !!r.is_read
+      };
+    });
+    try { localStorage.setItem('crm_enquiries', JSON.stringify(mapped)); } catch(e){}
+    try { if(typeof renderEnquiries==='function') renderEnquiries(); } catch(e){}
+    try { updateEnquiryBadge(); } catch(e){}
+  } catch(e){ console.warn('Enquiry load error:', e); }
+}
+
+// Best-effort cloud updates for admin actions (read / status / delete).
+function SB_updateEnquiry(id, patch){
+  var sb = getSB(); if(!sb) return;
+  sb.from('enquiries').update(patch).eq('id', id).then(function(r){
+    if(r.error) console.warn('Enquiry update failed:', r.error.message);
+  });
+}
+function SB_deleteReadEnquiries(){
+  var sb = getSB(); if(!sb) return;
+  sb.from('enquiries').delete().eq('is_read', true).then(function(r){
+    if(r.error) console.warn('Enquiry cleanup failed:', r.error.message);
+  });
+}
+
 // ── PRICING ENGINE ──────────────────────────────────────────────────────
 // Base prices in USD (AED / 3.67)
 // ── Prices stored in AED, converted live ────────────────────────────────
@@ -3917,12 +4000,18 @@ function calcCustom(){
 // Data stored in localStorage under key 'crm_clients'
 // ══════════════════════════════════════════════════════════════
 
-// ── CLOUD SYNC ──────────────────────────────────────────────
+// ── CLOUD SYNC (Supabase) ───────────────────────────────────
+// Clients are stored in the Supabase `clients` table (one row each, full
+// object in a jsonb `data` column), protected by admin-only RLS. localStorage
+// is kept as an offline mirror so all the CRM UI code works unchanged.
 var SYNC = {
-  getKey:   function(){ return (localStorage.getItem('sync_api_key')||'').trim(); },
-  getBinId: function(){ return localStorage.getItem('sync_bin_id')||''; },
-  setKey:   function(k){ localStorage.setItem('sync_api_key', (k||'').trim()); },
-  setBinId: function(id){ localStorage.setItem('sync_bin_id', id); },
+  _hydrated: false,   // true once we've pulled from cloud — guards against wiping cloud with an empty local set
+
+  // Legacy no-ops (the old JSONBin key/bin UI is retired; Supabase auth is the gate)
+  getKey:   function(){ return 'supabase'; },
+  getBinId: function(){ return 'supabase'; },
+  setKey:   function(){},
+  setBinId: function(){},
 
   status: function(msg, ok){
     var dot = document.getElementById('sync-dot');
@@ -3931,90 +4020,62 @@ var SYNC = {
     if(txt) txt.textContent = msg||'';
   },
 
-  // Push all data to JSONBin
+  // Push all local clients to Supabase (upsert + delete-missing)
   push: function(silent){
-    var key = this.getKey();
-    if(!key) return;
-    var binId = this.getBinId();
-    var payload = {
-      crm_clients: localStorage.getItem('crm_clients')||'[]',
-      crm_enquiries: localStorage.getItem('crm_enquiries')||'[]',
-      ts: Date.now()
-    };
+    var sb = getSB();
+    if(!sb) return;
+    var clients = [];
+    try { clients = JSON.parse(localStorage.getItem('crm_clients')||'[]'); } catch(e){ return; }
     if(!silent) this.status('Syncing...', null);
     var self = this;
-    var url = binId
-      ? 'https://api.jsonbin.io/v3/b/' + binId
-      : 'https://api.jsonbin.io/v3/b';
-    var method = binId ? 'PUT' : 'POST';
-    var headers = {
-      'Content-Type': 'application/json',
-      'X-Master-Key': key,
-      'X-Access-Key': key
-    };
-    if(!binId) headers['X-Bin-Name'] = 'cancas-crm';
-    if(!binId) headers['X-Bin-Private'] = 'true';
+    var nowIso = new Date().toISOString();
+    var rows = clients.map(function(c){
+      return {
+        id: String(c.id),
+        name: c.name || '',
+        email: c.email || '',
+        status: c.status || 'lead',
+        data: c,
+        updated_at: nowIso
+      };
+    });
+    var ids = rows.map(function(r){ return r.id; });
 
-    // 15 second timeout
-    var controller = new AbortController();
-    var timer = setTimeout(function(){ controller.abort(); }, 15000);
+    var upsertP = rows.length
+      ? sb.from('clients').upsert(rows, { onConflict: 'id' })
+      : Promise.resolve({ error: null });
 
-    fetch(url, { method: method, headers: headers, body: JSON.stringify(payload), signal: controller.signal })
-      .then(function(r){
-        clearTimeout(timer);
-        if(r.status===401||r.status===403) throw new Error('HTTP 401 — invalid API key');
-        if(!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function(data){
-        if(data.metadata && data.metadata.id){
-          self.setBinId(data.metadata.id);
-          var binInp = document.getElementById('sync-bin-id');
-          if(binInp) binInp.value = data.metadata.id;
-        }
-        if(!silent) self.status('Synced ✓', true);
-        else self.status('Cloud sync ✓', true);
-      })
-      .catch(function(err){
-        clearTimeout(timer);
-        var errMsg = err&&err.message||'unknown';
-        var msg = err && err.name==='AbortError'
-          ? 'Timed out — check internet connection'
-          : errMsg.indexOf('401') > -1
-            ? 'Auth failed (401) — re-enter your key in ☁ Sync. Make sure you copy it fresh from jsonbin.io → API Keys'
-            : errMsg.indexOf('403') > -1
-              ? 'Access denied (403) — the Bin ID may belong to a different account'
-              : 'Sync failed: '+errMsg;
-        self.status(msg, false);
-        if(!silent){
-          var st = document.getElementById('sync-modal-status');
-          if(st){ st.textContent = '⚠ '+msg+'. Go to jsonbin.io → Bins — if "cancas-crm" exists there, copy its ID and paste it in the Bin ID field below, then click Pull from Cloud.'; st.style.color='#ff5050'; }
-          var binInp = document.getElementById('sync-bin-id');
-          if(binInp && binInp.value==='Creating...') binInp.value = '';
-          if(binInp) binInp.removeAttribute('readonly');
-        }
-      });
+    Promise.resolve(upsertP).then(function(res){
+      if(res && res.error) throw res.error;
+      // Remove clients deleted locally — but ONLY after a successful pull,
+      // so an un-hydrated empty browser can never wipe the cloud.
+      if(!self._hydrated) return { error: null };
+      if(ids.length){
+        return sb.from('clients').delete().not('id', 'in', '(' + ids.join(',') + ')');
+      }
+      return sb.from('clients').delete().neq('id', '__none__');
+    }).then(function(res){
+      if(res && res.error) throw res.error;
+      self.status('Cloud sync — up to date', true);
+    }).catch(function(err){
+      self.status('Sync failed: ' + (err && err.message || 'unknown'), false);
+    });
   },
 
-  // Pull latest data from JSONBin into localStorage then refresh UI
+  // Pull all clients from Supabase into localStorage, then refresh UI
   pull: function(cb){
-    var key = this.getKey();
-    var binId = this.getBinId();
-    if(!key || !binId){ if(cb) cb(false); return; }
+    var sb = getSB();
+    if(!sb){ if(cb) cb(false); return; }
     this.status('Loading...', null);
     var self = this;
-    fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', {
-      headers: { 'X-Master-Key': key, 'X-Access-Key': key }
-    })
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        var rec = data.record || data;
-        if(rec.crm_clients) localStorage.setItem('crm_clients', rec.crm_clients);
-        if(rec.crm_enquiries) localStorage.setItem('crm_enquiries', rec.crm_enquiries);
-        self.status('Cloud sync ✓', true);
-        if(cb) cb(true);
-      })
-      .catch(function(){ self.status('Offline — local data', false); if(cb) cb(false); });
+    sb.from('clients').select('data').order('updated_at', { ascending: false }).then(function(res){
+      if(res.error){ self.status('Offline — local data', false); if(cb) cb(false); return; }
+      var clients = (res.data||[]).map(function(r){ return r.data; });
+      try { localStorage.setItem('crm_clients', JSON.stringify(clients)); } catch(e){}
+      self._hydrated = true;
+      self.status('Cloud sync — up to date', true);
+      if(cb) cb(true);
+    }, function(){ self.status('Offline — local data', false); if(cb) cb(false); });
   }
 };
 
@@ -4109,7 +4170,7 @@ function renderEnquiries(){
   if(!list) return;
 
   if(enquiries.length===0){
-    list.innerHTML = '<div class="crm-empty"><div class="crm-empty-icon">📭</div><div>No enquiries yet — they will appear here when clients submit the contact form</div></div>';
+    list.innerHTML = '<div class="crm-empty"><div>No enquiries yet — they will appear here when clients submit the contact form</div></div>';
     return;
   }
 
@@ -4146,6 +4207,7 @@ function markEnquiryRead(id){
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries')||'[]'); } catch(e){}
   enquiries = enquiries.map(function(e){ if(e.id===id){ e.read=true; } return e; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_updateEnquiry(id, { is_read: true });
   renderEnquiries();
   updateEnquiryBadge();
 }
@@ -4155,6 +4217,7 @@ function markEnquiryReplied(id){
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries')||'[]'); } catch(e){}
   enquiries = enquiries.map(function(e){ if(e.id===id){ e.status='replied'; e.read=true; } return e; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_updateEnquiry(id, { status: 'replied', is_read: true });
   updateEnquiryBadge();
 }
 
@@ -4166,6 +4229,7 @@ function convertEnquiryToLead(id){
   // Mark as converted
   enquiries = enquiries.map(function(e){ if(e.id===id){ e.status='converted'; e.read=true; } return e; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_updateEnquiry(id, { status: 'converted', is_read: true });
   // Open new client profile pre-filled
   CRM.currentId = null;
   clearProfileForm();
@@ -4186,7 +4250,7 @@ function convertEnquiryToLead(id){
   var infoBtn = document.querySelector('.crm-prof-tab');
   if(infoBtn) switchProfTab('info', infoBtn);
   document.getElementById('crm-profile-modal').classList.add('open');
-  document.getElementById('note-thread').innerHTML='<div class="crm-empty"><div class="crm-empty-icon">💬</div><div>No activity yet</div></div>';
+  document.getElementById('note-thread').innerHTML='<div class="crm-empty"><div>No activity yet</div></div>';
   document.getElementById('crm-timeline-list').innerHTML='';
   renderEnquiries();
   updateEnquiryBadge();
@@ -4197,35 +4261,437 @@ function clearReadEnquiries(){
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries')||'[]'); } catch(e){}
   enquiries = enquiries.filter(function(e){ return !e.read; });
   localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
+  SB_deleteReadEnquiries();
   renderEnquiries();
   updateEnquiryBadge();
 }
 
+// Agreement activity notification — shows "sent" / "signed" events. Stays in the
+// bell (badge + list) until the admin explicitly clears it or clicks through to a
+// client — it does NOT silently clear itself just because the panel was opened.
+function openClientByName(name){
+  CRM.load();
+  var c = CRM.clients.find(function(x){ return (x.biz||x.name)===name; });
+  if(!c){ alert('Could not find "'+name+'" — they may have been renamed or removed.'); return; }
+  var panel=document.getElementById('notif-panel'); if(panel) panel.style.display='none';
+  showClientsView();
+  openClientProfile(c.id);
+}
+
+// ── NEEDS ATTENTION / URGENCY ───────────────────────────────────
+// Pulls a couple of cheap cloud queries (all invoices, all signed agreements),
+// combines them with the local client list, and flags anything that plausibly
+// needs the admin's attention today: an outstanding balance, a signed agreement
+// that never got moved off "Lead", a contract ending soon, a project deadline
+// inside the next 7 days, or a lead that's gone quiet for 3+ days.
+var ATTN = { byId: {}, items: [] };
+function relativeTime(ts){
+  if(!ts) return '—';
+  var diff = Date.now()-ts;
+  if(diff<0) diff=0;
+  var mins=Math.floor(diff/60000);
+  if(mins<1) return 'just now';
+  if(mins<60) return mins+'m ago';
+  var hrs=Math.floor(mins/60);
+  if(hrs<24) return hrs+'h ago';
+  var days=Math.floor(hrs/24);
+  if(days<30) return days+'d ago';
+  var months=Math.floor(days/30);
+  if(months<12) return months+'mo ago';
+  return Math.floor(months/12)+'y ago';
+}
+async function refreshAttention(){
+  CRM.load();
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  var now = Date.now();
+  var invoicedByKey = {};
+  var signedSet = {};
+  if(sb){
+    try{
+      var invRes = await sb.from('invoices').select('client_name,amount');
+      ((invRes && invRes.data)||[]).forEach(function(r){
+        var k=r.client_name||''; invoicedByKey[k]=(invoicedByKey[k]||0)+parseFloat(r.amount||0);
+      });
+    }catch(e){}
+    try{
+      var agrRes = await sb.from('agreements').select('data').eq('status','signed');
+      ((agrRes && agrRes.data)||[]).forEach(function(r){
+        var k=(r.data && r.data.clientName)||''; if(k) signedSet[k]=true;
+      });
+    }catch(e){}
+  }
+  var byId = {};
+  var items = [];
+  // Snoozing (see snoozeAttention()) defers a specific flag type on a specific
+  // client past a chosen date — check it before deciding a flag is "live".
+  function snoozed(c, type){
+    var s = c.attnSnooze && c.attnSnooze[type];
+    return !!(s && s > now);
+  }
+  CRM.clients.forEach(function(c){
+    var key = c.biz || c.name || '';
+    var paid = (c.payments||[]).reduce(function(s,p){ return s+parseFloat(p.amount||0); },0);
+    var invoiced = invoicedByKey[key] || 0;
+    var pending = Math.max(0, invoiced-paid);
+    var isActiveish = c.status==='active'||c.status==='inprogress'||c.status==='revision';
+    var lastTouch = c.updated || c.created || 0;
+    var daysSinceTouch = lastTouch ? Math.floor((now-lastTouch)/86400000) : null;
+    // Contact cadence: leads go stale fast (3 days). Active/in-progress clients
+    // get a longer leash, shorter for VIP/high-touch tagged accounts.
+    var tags = c.tags || [];
+    var activeStaleThreshold = tags.indexOf('vip')>-1 || tags.indexOf('high-touch')>-1 ? 7 : 21;
+
+    var flags = { pending: pending, lastTouch: lastTouch };
+    flags.overduePayment = isActiveish && pending>0 && !snoozed(c,'overduePayment');
+    flags.signedNotActive = !!signedSet[key] && c.status==='lead' && !snoozed(c,'signedNotActive');
+    flags.staleLead = c.status==='lead' && daysSinceTouch!==null && daysSinceTouch>=3 && !snoozed(c,'staleLead');
+    flags.staleActive = isActiveish && daysSinceTouch!==null && daysSinceTouch>=activeStaleThreshold && !snoozed(c,'staleActive');
+    var endTs = c.end ? new Date(c.end).getTime() : NaN;
+    flags.endingSoon = !isNaN(endTs) && (endTs-now) <= 14*86400000 && !snoozed(c,'endingSoon');
+    if(flags.endingSoon) flags.endTs = endTs;
+    var dueTs = c.due ? new Date(c.due).getTime() : NaN;
+    flags.dueThisWeek = !isNaN(dueTs) && (dueTs-now) <= 7*86400000 && !snoozed(c,'dueThisWeek');
+    if(flags.dueThisWeek) flags.dueTs = dueTs;
+    var followTs = c.followupdate ? new Date(c.followupdate).getTime() : NaN;
+    flags.followUpDue = !isNaN(followTs) && followTs <= now && !snoozed(c,'followUpDue');
+    if(flags.followUpDue) flags.followTs = followTs;
+
+    byId[c.id] = flags;
+
+    var label = c.name||c.biz||'Client';
+    if(flags.overduePayment) items.push({type:'overdue', severity:0, clientId:c.id, sub:'Payment Due', label:label+' — AED '+pending.toLocaleString()});
+    if(flags.followUpDue) items.push({type:'followup', severity:1, clientId:c.id, sub:(flags.followTs<now?'Follow-Up Overdue':'Follow-Up Due'), label:label+(c.followupnote?' — '+c.followupnote:'')});
+    if(flags.signedNotActive) items.push({type:'signed', severity:2, clientId:c.id, sub:'Signed — Activate?', label:label});
+    if(flags.endingSoon) items.push({type:'ending', severity:3, clientId:c.id, sub:(flags.endTs<now?'Contract Ended':'Contract Ending'), label:label+' — '+new Date(flags.endTs).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})});
+    if(flags.dueThisWeek) items.push({type:'due', severity:4, clientId:c.id, sub:'Deadline', label:label+' — due '+new Date(flags.dueTs).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})});
+    if(flags.staleLead) items.push({type:'stale', severity:5, clientId:c.id, sub:'Stale Lead', label:label+' — quiet '+daysSinceTouch+'d'});
+    if(flags.staleActive) items.push({type:'staleactive', severity:6, clientId:c.id, sub:'Gone Quiet', label:label+' — quiet '+daysSinceTouch+'d'});
+  });
+  items.sort(function(a,b){ return a.severity-b.severity; });
+  ATTN.byId = byId;
+  ATTN.items = items;
+  renderAttentionStrip();
+  renderCrmGrid();
+}
+// Maps an attention item's "type" to the flag key stored on ATTN.byId / used
+// as the attnSnooze key on the client record — kept in one place since both
+// the strip and the card pills need it.
+var ATTN_FLAG_KEY = {overdue:'overduePayment', followup:'followUpDue', signed:'signedNotActive', ending:'endingSoon', due:'dueThisWeek', stale:'staleLead', staleactive:'staleActive'};
+function renderAttentionStrip(){
+  var host = document.getElementById('attn-strip');
+  if(!host) return;
+  if(!ATTN.items.length){ host.style.display='none'; host.innerHTML=''; return; }
+  var colors = {overdue:'#ff5050', followup:'#ffd23f', signed:'#00e87a', ending:'#ff9632', due:'#00d4ff', stale:'#b464ff', staleactive:'#7a8ff0'};
+  host.style.display = 'flex';
+  host.innerHTML = '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding-right:4px;display:flex;align-items:center;flex-shrink:0;">Needs Attention</div>'
+    + ATTN.items.slice(0,20).map(function(it){
+      var c = colors[it.type]||'#888';
+      return '<div class="attn-chip" data-cid="'+it.clientId+'" data-type="'+it.type+'" style="border-left:3px solid '+c+';position:relative;">'
+        + '<div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:'+c+';font-weight:700;">'+it.sub+'</div>'
+        + '<div style="font-size:12px;color:var(--white);white-space:nowrap;padding-right:14px;">'+it.label+'</div>'
+        + '<span class="attn-snooze-x" title="Snooze" style="position:absolute;top:4px;right:6px;color:var(--muted);font-size:12px;cursor:pointer;">&times;</span>'
+        + '</div>';
+    }).join('');
+  Array.prototype.forEach.call(host.querySelectorAll('.attn-chip'), function(el){
+    el.onclick = function(){ openClientProfile(el.getAttribute('data-cid')); };
+  });
+  Array.prototype.forEach.call(host.querySelectorAll('.attn-snooze-x'), function(el){
+    el.onclick = function(e){
+      e.stopPropagation();
+      var chip = el.closest('.attn-chip');
+      snoozeAttention(chip.getAttribute('data-cid'), chip.getAttribute('data-type'));
+    };
+  });
+}
+// Defers a specific attention flag for a client past a chosen number of days —
+// use when something's already being handled and doesn't need to keep nagging.
+function snoozeAttention(clientId, type){
+  var flagKey = ATTN_FLAG_KEY[type];
+  if(!flagKey) return;
+  var days = prompt('Snooze this for how many days?','3');
+  if(days===null) return;
+  days = parseInt(days,10);
+  if(!days || days<1) return;
+  CRM.load();
+  var c = CRM.get(clientId);
+  if(!c) return;
+  c.attnSnooze = c.attnSnooze || {};
+  c.attnSnooze[flagKey] = Date.now() + days*86400000;
+  var idx = CRM.clients.findIndex(function(x){ return x.id===clientId; });
+  if(idx>-1) CRM.clients[idx] = c;
+  CRM.save();
+  refreshAttention();
+}
+
+// ── TODAY AGENDA VIEW ──────────────────────────────────────────
+// A focused, full-screen list of everything needing attention right now —
+// follow-ups, overdue payments, deadlines, stale contacts — grouped by type,
+// so nothing has to be pieced together from the strip + KPIs + card pills.
+function ensureTodayModal(){
+  if(document.getElementById('today-modal')) return;
+  var m = document.createElement('div');
+  m.id = 'today-modal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(6,10,14,.94);display:none;flex-direction:column;padding:16px;font-family:Arial,Helvetica,sans-serif;';
+  m.innerHTML = ''
+    + '<div style="max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
+    + '  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
+    + '    <div style="font-weight:800;font-size:18px;">Today</div>'
+    + '    <button onclick="document.getElementById(\'today-modal\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;">&times; Close</button>'
+    + '  </div>'
+    + '  <div id="today-body" style="flex:1;overflow-y:auto;padding:16px 18px;"></div>'
+    + '</div>';
+  document.body.appendChild(m);
+}
+function openTodayView(){
+  ensureTodayModal();
+  refreshAttention();
+  renderTodayView();
+  document.getElementById('today-modal').style.display = 'flex';
+}
+function renderTodayView(){
+  var body = document.getElementById('today-body');
+  if(!body) return;
+  var groups = [
+    {type:'overdue', label:'Payment Overdue', color:'#ff5050'},
+    {type:'followup', label:'Follow-Ups Due / Overdue', color:'#ffd23f'},
+    {type:'signed', label:'Signed — Ready to Activate', color:'#00e87a'},
+    {type:'ending', label:'Contract Ending / Ended', color:'#ff9632'},
+    {type:'due', label:'Deadlines This Week', color:'#00d4ff'},
+    {type:'stale', label:'Stale Leads', color:'#b464ff'},
+    {type:'staleactive', label:'Active Clients Gone Quiet', color:'#7a8ff0'}
+  ];
+  if(!ATTN.items.length){
+    body.innerHTML = '<div style="color:#7d8b96;font-size:13px;padding:20px 0;text-align:center;">Nothing needs attention today. Nice.</div>';
+    return;
+  }
+  body.innerHTML = groups.map(function(g){
+    var rows = ATTN.items.filter(function(it){ return it.type===g.type; });
+    if(!rows.length) return '';
+    return '<div style="margin-bottom:18px;">'
+      + '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:'+g.color+';margin-bottom:8px;">'+g.label+' ('+rows.length+')</div>'
+      + rows.map(function(it){
+          return '<div class="today-row" data-cid="'+it.clientId+'" data-type="'+it.type+'" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#151f29;border:1px solid #1f2c38;border-radius:8px;margin-bottom:6px;cursor:pointer;">'
+          + '<span style="color:#e7eef4;font-size:13px;">'+it.label+'</span>'
+          + '<span class="today-snooze" style="color:#7d8b96;font-size:11px;padding:4px 8px;border:1px solid #2a3946;border-radius:6px;flex-shrink:0;">Snooze</span>'
+          + '</div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+  Array.prototype.forEach.call(body.querySelectorAll('.today-row'), function(row){
+    row.onclick = function(){
+      document.getElementById('today-modal').style.display='none';
+      openClientProfile(row.getAttribute('data-cid'));
+    };
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('.today-snooze'), function(el){
+    el.onclick = function(e){
+      e.stopPropagation();
+      var row = el.closest('.today-row');
+      snoozeAttention(row.getAttribute('data-cid'), row.getAttribute('data-type'));
+      renderTodayView();
+    };
+  });
+}
+var NOTIF = {
+  lastSeen: null,
+  items: [],
+  check: async function(){
+    var sb = (typeof getSB==='function') ? getSB() : null;
+    if(!sb) return;
+    try{
+      var cfgRes = await sb.from('app_config').select('value').eq('key','notif_last_seen').maybeSingle();
+      var lastSeen = cfgRes && cfgRes.data ? cfgRes.data.value : null;
+      if(!lastSeen){
+        // First run on this account — establish a baseline instead of flooding
+        // the panel with the entire agreement history as "new".
+        var baseNow = new Date().toISOString();
+        var baseRes = await sb.from('app_config').upsert({key:'notif_last_seen', value:baseNow},{onConflict:'key'}).select();
+        if(baseRes && baseRes.error) console.error('notif baseline save failed', baseRes.error);
+        this.lastSeen = baseNow;
+        this.items = [];
+        this.render();
+        return;
+      }
+      this.lastSeen = lastSeen;
+      var sentRes = await sb.from('agreements').select('data,created_at').gt('created_at', lastSeen).order('created_at',{ascending:false}).limit(20);
+      var signedRes = await sb.from('agreements').select('data,signed_name,signed_at').eq('status','signed').gt('signed_at', lastSeen).order('signed_at',{ascending:false}).limit(20);
+      var sent = ((sentRes && sentRes.data) || []).map(function(r){ return {type:'sent', client:(r.data && r.data.clientName) || 'Client', at:r.created_at}; });
+      var signed = ((signedRes && signedRes.data) || []).map(function(r){ return {type:'signed', client:(r.data && r.data.clientName) || 'Client', at:r.signed_at}; });
+      this.items = sent.concat(signed).sort(function(a,b){ return new Date(b.at) - new Date(a.at); }).slice(0,30);
+      this.render();
+    }catch(e){}
+  },
+  // Called by the realtime subscription the instant a signature lands, so the
+  // bell updates immediately without waiting for the next login/check().
+  pushLive: function(item){
+    this.items.unshift(item);
+    if(this.items.length>30) this.items.length=30;
+    this.render();
+  },
+  render: function(){
+    var count = document.getElementById('notif-count');
+    if(count){
+      if(this.items.length){ count.textContent = this.items.length; count.style.display = 'inline-block'; }
+      else count.style.display = 'none';
+    }
+    var clearBtn = document.getElementById('notif-clear');
+    if(clearBtn) clearBtn.style.display = this.items.length ? '' : 'none';
+    var list = document.getElementById('notif-list');
+    if(!list) return;
+    if(!this.items.length){
+      list.innerHTML = '<div style="padding:14px 8px;color:var(--muted);font-size:12px;">No new activity.</div>';
+      return;
+    }
+    list.innerHTML = this.items.map(function(n,i){
+      var when = new Date(n.at).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      var label = n.type==='signed' ? 'Agreement signed' : 'Agreement sent';
+      var color = n.type==='signed' ? '#00e87a' : '#e8b84b';
+      return '<div data-notif-idx="'+i+'" style="padding:8px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;" onmouseover="this.style.background=\'rgba(255,255,255,.04)\'" onmouseout="this.style.background=\'\'">'
+        +'<div style="font-weight:700;color:'+color+';">'+label+'</div>'
+        +'<div style="color:var(--white);">'+n.client+'</div>'
+        +'<div style="color:var(--muted);font-size:11px;">'+when+'</div>'
+        +'</div>';
+    }).join('');
+    Array.prototype.forEach.call(list.querySelectorAll('[data-notif-idx]'), function(row){
+      row.onclick = function(){
+        var idx = Number(row.getAttribute('data-notif-idx'));
+        var n = NOTIF.items[idx];
+        if(!n) return;
+        NOTIF.items.splice(idx,1);
+        NOTIF.render();
+        openClientByName(n.client);
+      };
+    });
+  },
+  markSeen: async function(){
+    var sb = (typeof getSB==='function') ? getSB() : null;
+    if(!sb){ this.items = []; this.render(); return; }
+    var now = new Date().toISOString();
+    var saveOk = false;
+    var lastErr = null;
+    // Try up to 2 times — if the write genuinely fails (session hiccup, RLS,
+    // network), don't silently pretend it worked: the old items would just
+    // reappear on next login while looking "cleared" right now.
+    for(var attempt=0; attempt<2 && !saveOk; attempt++){
+      try{
+        var res = await sb.from('app_config').upsert({key:'notif_last_seen', value:now},{onConflict:'key'}).select();
+        if(res && res.error){ lastErr = res.error; }
+        else if(res && res.data && res.data.length){ saveOk = true; }
+        else { saveOk = true; } // some client versions omit data on upsert w/o select support
+      }catch(e){ lastErr = e; }
+      if(!saveOk && attempt===0) await new Promise(function(r){ setTimeout(r,600); });
+    }
+    if(!saveOk){
+      console.error('notif_last_seen save failed', lastErr);
+      alert('Could not clear notifications — the save to the server failed'+(lastErr&&lastErr.message?(': '+lastErr.message):'')+'. Please try again; if this keeps happening, try logging out and back in.');
+      return; // keep items/lastSeen as-is so state stays honest
+    }
+    this.lastSeen = now;
+    this.items = [];
+    this.render();
+  }
+};
+function toggleNotifPanel(e){
+  if(e) e.stopPropagation();
+  var panel = document.getElementById('notif-panel');
+  if(!panel) return;
+  var isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) NOTIF.render();
+}
+document.addEventListener('click', function(e){
+  var bell = document.getElementById('notif-bell');
+  var panel = document.getElementById('notif-panel');
+  if(panel && panel.style.display==='block' && bell && !bell.contains(e.target)){
+    panel.style.display = 'none';
+  }
+});
+
+// Small top-right toast — fires the instant a signature lands (see the realtime
+// subscription below), independent of whether the bell panel is open.
+function showToast(title, subtitle, onClick){
+  var host = document.getElementById('toast-host');
+  if(!host){
+    host = document.createElement('div');
+    host.id = 'toast-host';
+    host.style.cssText = 'position:fixed;top:16px;right:16px;z-index:100010;display:flex;flex-direction:column;gap:10px;max-width:320px;';
+    document.body.appendChild(host);
+  }
+  var t = document.createElement('div');
+  t.style.cssText = 'background:#0f1720;border:1px solid #1f2c38;border-left:4px solid #00e87a;border-radius:8px;padding:12px 14px;color:#e7eef4;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;font-family:Arial,Helvetica,sans-serif;';
+  t.innerHTML = '<div style="font-weight:800;font-size:13px;color:#00e87a;margin-bottom:2px;">'+title+'</div><div style="font-size:12px;color:#cfe0ea;">'+subtitle+'</div>';
+  t.onclick = function(){ if(onClick) onClick(); if(t.parentNode) t.parentNode.removeChild(t); };
+  host.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 8000);
+}
+
+// Live "agreement signed" alerts — subscribes to the agreements table so the
+// admin is notified the instant a signature is saved, not just at next login.
+var _agreementRealtimeChannel = null;
+function subscribeAgreementRealtime(){
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  if(!sb || _agreementRealtimeChannel) return;
+  _agreementRealtimeChannel = sb.channel('agreements-signed-watch')
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'agreements'}, function(payload){
+      try{
+        var oldRow = payload.old||{}, newRow = payload.new||{};
+        if(newRow.status==='signed' && oldRow.status!=='signed'){
+          var client = (newRow.data && newRow.data.clientName) || 'Client';
+          var at = newRow.signed_at || new Date().toISOString();
+          NOTIF.pushLive({type:'signed', client:client, at:at});
+          showToast('Agreement Signed', client+' just signed — click to open their profile.', function(){ openClientByName(client); });
+        }
+      }catch(e){}
+    })
+    .subscribe();
+}
+
 function crmInit(){
-  // Load local data immediately so UI shows fast
+  // Restore the last sort + tag filter the user had selected, so the view
+  // picks up where they left off instead of resetting every login.
+  try{
+    var savedSort = localStorage.getItem('crm_saved_sort');
+    if(savedSort){ var sortEl=document.getElementById('crm-sort'); if(sortEl) sortEl.value = savedSort; }
+    var savedTag = localStorage.getItem('crm_saved_tagfilter') || '';
+    CRM.currentTagFilter = savedTag;
+    document.querySelectorAll('#crm-tag-filter .crm-tag').forEach(function(t){
+      t.classList.toggle('sel', (t.getAttribute('data-tag')||'')===savedTag);
+    });
+  }catch(e){}
+  // Load local mirror immediately so UI shows fast
   CRM.load();
   renderCrmGrid();
   updateKpis();
   updateEnquiryBadge();
-  // Then pull latest from cloud and refresh
-  var syncKey = SYNC.getKey();
-  if(syncKey && SYNC.getBinId()){
-    SYNC.pull(function(ok){
-      if(ok){
-        CRM.load();
-        renderCrmGrid();
-        updateKpis();
-        updateEnquiryBadge();
-      }
-    });
-  } else if(!syncKey) {
-    SYNC.status('Local only — set up ☁ Sync', null);
-  }
-  // Restore sync UI config
-  var keyInp = document.getElementById('sync-api-key');
-  var binInp = document.getElementById('sync-bin-id');
-  if(keyInp && SYNC.getKey()) keyInp.value = SYNC.getKey();
-  if(binInp && SYNC.getBinId()) binInp.value = SYNC.getBinId();
+  refreshAttention();
+  // Then sync with Supabase (migrate existing local clients up on first run, then pull)
+  crmCloudSync();
+}
+
+// Reconcile local clients with the Supabase cloud database.
+async function crmCloudSync(){
+  var sb = getSB();
+  if(!sb){ SYNC.status('Offline — local data', false); return; }
+  var local = [];
+  try { local = JSON.parse(localStorage.getItem('crm_clients')||'[]'); } catch(e){}
+  try {
+    var res = await sb.from('clients').select('id');
+    if(res.error){ SYNC.status('Offline — local data', false); return; }
+    var cloudCount = (res.data||[]).length;
+    if(cloudCount === 0 && local.length > 0){
+      // First run on a device that already has clients → migrate them to the cloud.
+      SYNC.status('Migrating your clients to the cloud...', null);
+      SYNC._hydrated = true;            // trust this device's local data as the source
+      SYNC.push(true);
+      setTimeout(function(){
+        SYNC.pull(function(){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); });
+      }, 1400);
+    } else {
+      SYNC.pull(function(ok){
+        if(ok){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); }
+      });
+    }
+  } catch(e){ SYNC.status('Offline — local data', false); }
 }
 
 function openSyncSetup(){
@@ -4241,7 +4707,7 @@ function closeSyncSetup(){
 function saveSyncConfig(){
   var key = (document.getElementById('sync-api-key')||{}).value||'';
   var st = document.getElementById('sync-modal-status');
-  if(!key || !key.startsWith('$')){ if(st) st.textContent = '⚠ Paste the full key from JSONBin — it should start with $2a$ or $2b$'; if(st) st.style.color='#ff5050'; return; }
+  if(!key || !key.startsWith('$')){ if(st) st.textContent = 'Paste the full key from JSONBin — it should start with $2a$ or $2b$'; if(st) st.style.color='#ff5050'; return; }
   SYNC.setKey(key.trim().replace(/[\s\u200B\u00A0\uFEFF]/g,''));
   // Save manually entered Bin ID if present
   var binInp = document.getElementById('sync-bin-id');
@@ -4253,9 +4719,9 @@ function saveSyncConfig(){
   setTimeout(function(){
     var binId = SYNC.getBinId();
     if(binId){
-      if(st){ st.textContent = '✅ Synced! Bin ID saved. Now go to your other devices, enter the same key and click Save & Sync Now.'; st.style.color='#00e87a'; }
+      if(st){ st.textContent = 'Synced! Bin ID saved. Now go to your other devices, enter the same key and click Save & Sync Now.'; st.style.color='#00e87a'; }
     } else {
-      if(st){ st.textContent = '✅ Key saved — syncing data now...'; st.style.color='#00e87a'; }
+      if(st){ st.textContent = 'Key saved — syncing data now...'; st.style.color='#00e87a'; }
     }
     var binInp = document.getElementById('sync-bin-id');
     if(binInp) binInp.value = SYNC.getBinId() || 'Creating...';
@@ -4265,15 +4731,15 @@ function manualPull(){
   var st = document.getElementById('sync-modal-status');
   var key = SYNC.getKey();
   var binId = SYNC.getBinId();
-  if(!key){ if(st){ st.textContent = '⚠ Enter your API key first, then click Save & Sync Now'; st.style.color='#ff5050'; } return; }
-  if(!binId){ if(st){ st.textContent = '⚠ No cloud bin yet — click Save & Sync Now first to create it, then Pull will work'; st.style.color='#e8b84b'; } return; }
+  if(!key){ if(st){ st.textContent = 'Enter your API key first, then click Save & Sync Now'; st.style.color='#ff5050'; } return; }
+  if(!binId){ if(st){ st.textContent = 'No cloud bin yet — click Save & Sync Now first to create it, then Pull will work'; st.style.color='#e8b84b'; } return; }
   if(st){ st.textContent = 'Pulling from cloud...'; st.style.color='var(--muted)'; }
   SYNC.pull(function(ok){
     if(ok){
-      CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge();
-      if(st){ st.textContent = '✅ Data updated from cloud!'; st.style.color='#00e87a'; }
+      CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention();
+      if(st){ st.textContent = 'Data updated from cloud!'; st.style.color='#00e87a'; }
     } else {
-      if(st){ st.textContent = '⚠ Could not reach cloud — check your API key is correct'; st.style.color='#ff5050'; }
+      if(st){ st.textContent = 'Could not reach cloud — check your API key is correct'; st.style.color='#ff5050'; }
     }
   });
 }
@@ -4292,10 +4758,18 @@ function renderCrmGrid(){
   var sort = (document.getElementById('crm-sort')||{}).value||'newest';
   var tab = CRM.currentTab;
 
+  var tagFilter = CRM.currentTagFilter || '';
   var clients = CRM.clients.filter(function(c){
     if(tab==='active_all'){
       if(c.status!=='active' && c.status!=='inprogress' && c.status!=='revision') return false;
+    } else if(tab==='due_week'){
+      if(!ATTN.byId[c.id] || !ATTN.byId[c.id].dueThisWeek) return false;
+    } else if(tab==='overdue_payment'){
+      if(!ATTN.byId[c.id] || !ATTN.byId[c.id].overduePayment) return false;
+    } else if(tab==='followup_due'){
+      if(!ATTN.byId[c.id] || !ATTN.byId[c.id].followUpDue) return false;
     } else if(tab!=='all' && c.status!==tab) return false;
+    if(tagFilter && (c.tags||[]).indexOf(tagFilter)===-1) return false;
     if(search){
       var hay = ((c.name||'')+(c.biz||'')+(c.email||'')+(c.industry||'')).toLowerCase();
       if(hay.indexOf(search)===-1) return false;
@@ -4304,7 +4778,24 @@ function renderCrmGrid(){
   });
 
   // Sort
+  function urgencyScore(c){
+    var f = ATTN.byId[c.id];
+    if(!f) return 7;
+    if(f.overduePayment) return 0;
+    if(f.followUpDue) return 1;
+    if(f.signedNotActive) return 2;
+    if(f.endingSoon) return 3;
+    if(f.dueThisWeek) return 4;
+    if(f.staleLead) return 5;
+    if(f.staleActive) return 6;
+    return 7;
+  }
   clients = clients.slice().sort(function(a,b){
+    if(sort==='urgent'){
+      var sa=urgencyScore(a), sb2=urgencyScore(b);
+      if(sa!==sb2) return sa-sb2;
+      return (b.created||0)-(a.created||0);
+    }
     if(sort==='name') return (a.name||'').localeCompare(b.name||'');
     if(sort==='oldest') return (a.created||0)-(b.created||0);
     if(sort==='revenue') return (parseFloat(b.monthly||0)+parseFloat(b.value||0)/12)-(parseFloat(a.monthly||0)+parseFloat(a.value||0)/12);
@@ -4315,7 +4806,7 @@ function renderCrmGrid(){
   if(!grid) return;
 
   if(clients.length===0){
-    grid.innerHTML = '<div class="crm-empty" style="grid-column:1/-1"><div class="crm-empty-icon">👥</div><div>'+(CRM.clients.length===0?'No clients yet — click <strong>+ New Client</strong> to add your first':'No clients match this filter')+'</div></div>';
+    grid.innerHTML = '<div class="crm-empty" style="grid-column:1/-1"><div>'+(CRM.clients.length===0?'No clients yet — click <strong>+ New Client</strong> to add your first':'No clients match this filter')+'</div></div>';
     return;
   }
 
@@ -4331,7 +4822,22 @@ function renderCrmGrid(){
     var catColors2 = {Communication:'#25d366',Project:'var(--cyan)',Billing:'#e8b84b',Support:'#ff5050',Content:'#b464ff',Internal:'#888'};
     var activeCatsHtml = '';
     if(c.activeCats){ Object.keys(c.activeCats).forEach(function(cat){ var cnt=c.activeCats[cat]; if(cnt>0){ var cc=catColors2[cat]||'#aaa'; activeCatsHtml+='<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 7px;border-radius:10px;background:'+cc+'22;color:'+cc+';border:1px solid '+cc+'33;">'+cat+' ('+cnt+')</span>'; }}); }
-    var cardHtml = '<div class="crm-card" data-cid="'+c.id+'" onclick="openClientProfile(this.dataset.cid)">'
+    // At-risk flags from ATTN (see refreshAttention) — a colored left border plus
+    // small pills so trouble is visible at a glance without opening the profile.
+    var attn = ATTN.byId[c.id] || {};
+    var riskDefs = [];
+    if(attn.overduePayment) riskDefs.push(['Payment Due','#ff5050']);
+    if(attn.followUpDue) riskDefs.push([attn.followTs<Date.now()?'Follow-Up Overdue':'Follow-Up Due','#ffd23f']);
+    if(attn.signedNotActive) riskDefs.push(['Signed','#00e87a']);
+    if(attn.endingSoon) riskDefs.push([attn.endTs<Date.now()?'Contract Ended':'Ending Soon','#ff9632']);
+    if(attn.dueThisWeek) riskDefs.push(['Deadline Soon','#00d4ff']);
+    if(attn.staleLead) riskDefs.push(['Stale Lead','#b464ff']);
+    if(attn.staleActive) riskDefs.push(['Gone Quiet','#7a8ff0']);
+    var tagColors = {vip:'#ffd23f','high-touch':'#00e87a','low-touch':'#888','at-risk':'#ff5050'};
+    (c.tags||[]).forEach(function(t){ riskDefs.push([t.toUpperCase(), tagColors[t]||'#aaa']); });
+    var riskColor = riskDefs.length ? riskDefs[0][1] : null;
+    var riskPillsHtml = riskDefs.map(function(d){ return '<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 7px;border-radius:10px;background:'+d[1]+'22;color:'+d[1]+';border:1px solid '+d[1]+'33;">'+d[0]+'</span>'; }).join('');
+    var cardHtml = '<div class="crm-card" data-cid="'+c.id+'"'+(riskColor?' style="border-left:3px solid '+riskColor+';"':'')+' onclick="openClientProfile(this.dataset.cid)">'
       +'<div class="crm-card-top">'
       +'<div style="display:flex;align-items:center;gap:12px;">'
       +'<div class="crm-avatar">'+initials+'</div>'
@@ -4339,11 +4845,12 @@ function renderCrmGrid(){
       +'<div class="crm-card-biz">'+(c.biz||'—')+'</div></div></div>'
       +'<div class="crm-status-dot" style="background:'+color+'"></div>'
       +'</div>'
-      +'<div style="margin-top:8px;">'
+      +'<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">'
       +'<span class="crm-pill '+sc+'">'+sl+'</span>'
-      +(c.package?'<span class="crm-pill" style="background:rgba(255,255,255,.05);color:var(--muted);margin-left:6px;font-size:9px;">'+c.package+'</span>':'')
+      +(c.package?'<span class="crm-pill" style="background:rgba(255,255,255,.05);color:var(--muted);font-size:9px;">'+c.package+'</span>':'')
+      +riskPillsHtml
       +'</div>'
-      +'<div class="crm-card-meta">'      +'<div class="crm-meta-item"><div class="crm-meta-label">Revenue</div><div class="crm-meta-val">'+monthly+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Industry</div><div class="crm-meta-val">'+(c.industry==='Other'&&c.industryother?c.industryother:c.industry||'—')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Pending</div><div class="crm-meta-val" style="color:'+(pending>0?'#ff5050':'#00e87a')+';font-weight:700;">'+(pending>0?'AED '+pending.toLocaleString():'✓ Paid')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Service No.</div><div class="crm-meta-val" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--cyan);">'+(c.svcnum||'—')+'</div></div>'      +'</div>'      +(activeCatsHtml?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'+activeCatsHtml+'</div>':'')      +'</div>';
+      +'<div class="crm-card-meta">'      +'<div class="crm-meta-item"><div class="crm-meta-label">Revenue</div><div class="crm-meta-val">'+monthly+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Industry</div><div class="crm-meta-val">'+(c.industry==='Other'&&c.industryother?c.industryother:c.industry||'—')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Pending</div><div class="crm-meta-val" style="color:'+(pending>0?'#ff5050':'#00e87a')+';font-weight:700;">'+(pending>0?'AED '+pending.toLocaleString():'Paid')+'</div></div>'      +'<div class="crm-meta-item"><div class="crm-meta-label">Last Activity</div><div class="crm-meta-val">'+relativeTime(c.updated||c.created)+'</div></div>'      +'</div>'      +(activeCatsHtml?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">'+activeCatsHtml+'</div>':'')      +'</div>';
     return cardHtml;
   }).join('');
 
@@ -4353,10 +4860,14 @@ function renderCrmGrid(){
 function updateKpis(){
   CRM.load();
   var total = CRM.clients.length;
-  var active = CRM.clients.filter(function(c){ return c.status==='active'||c.status==='inprogress'||c.status==='revision'; }).length;
+  var activeClients = CRM.clients.filter(function(c){ return c.status==='active'||c.status==='inprogress'||c.status==='revision'; });
+  var active = activeClients.length;
   var leads = CRM.clients.filter(function(c){ return c.status==='lead'; }).length;
   var done = CRM.clients.filter(function(c){ return c.status==='completed'; }).length;
-  var rev = CRM.clients.reduce(function(s,c){ return s+parseFloat(c.monthly||0); },0);
+  // Only count monthly revenue from clients actually in the active/in-progress/revision
+  // bucket — previously this summed every client's monthly fee regardless of status,
+  // including leads, completed, churned, and test entries, inflating the figure.
+  var rev = activeClients.reduce(function(s,c){ return s+parseFloat(c.monthly||0); },0);
 
   var el = function(id){ return document.getElementById(id); };
   if(el('kpi-total'))el('kpi-total').textContent=total;
@@ -4364,10 +4875,36 @@ function updateKpis(){
   if(el('kpi-leads'))el('kpi-leads').textContent=leads;
   if(el('kpi-done'))el('kpi-done').textContent=done;
   if(el('kpi-rev'))el('kpi-rev').textContent='AED '+rev.toLocaleString()+'/mo';
-  var leads = CRM.clients.filter(function(c){ return c.status==='lead'; }).length;
   if(el('kpi-total-sub'))el('kpi-total-sub').textContent=active+' active · '+leads+' lead'+(leads!==1?'s':'');
   if(el('kpi-leads-sub'))el('kpi-leads-sub').textContent=leads > 0 ? 'click to view' : '';
   if(el('kpi-done-sub'))el('kpi-done-sub').textContent=done > 0 ? done+' project'+(done!==1?'s':'') : '';
+
+  // Sourced from ATTN (see refreshAttention) — populated shortly after page load,
+  // so these read 0 for an instant on first paint, then fill in.
+  var dueWeek = 0, overdue = 0, followup = 0;
+  Object.keys(ATTN.byId||{}).forEach(function(id){
+    var f = ATTN.byId[id];
+    if(f.dueThisWeek) dueWeek++;
+    if(f.overduePayment) overdue++;
+    if(f.followUpDue) followup++;
+  });
+  if(el('kpi-dueweek'))el('kpi-dueweek').textContent=dueWeek;
+  if(el('kpi-dueweek-sub'))el('kpi-dueweek-sub').textContent=dueWeek>0?'click to view':'';
+  if(el('kpi-overdue'))el('kpi-overdue').textContent=overdue;
+  if(el('kpi-overdue-sub'))el('kpi-overdue-sub').textContent=overdue>0?'click to view':'';
+  if(el('kpi-followup'))el('kpi-followup').textContent=followup;
+  if(el('kpi-followup-sub'))el('kpi-followup-sub').textContent=followup>0?'click to view':'';
+}
+function filterByTag(el){
+  document.querySelectorAll('#crm-tag-filter .crm-tag').forEach(function(t){ t.classList.remove('sel'); });
+  el.classList.add('sel');
+  CRM.currentTagFilter = el.getAttribute('data-tag') || '';
+  try{ localStorage.setItem('crm_saved_tagfilter', CRM.currentTagFilter); }catch(e){}
+  renderCrmGrid();
+}
+function onCrmSortChange(){
+  try{ localStorage.setItem('crm_saved_sort', (document.getElementById('crm-sort')||{}).value||''); }catch(e){}
+  renderCrmGrid();
 }
 
 function openNewClient(){
@@ -4376,12 +4913,14 @@ function openNewClient(){
   document.getElementById('prof-name').textContent='New Client';
   document.getElementById('prof-sub').textContent='Fill in the details below';
   document.getElementById('prof-avatar').textContent='?';
-  document.getElementById('note-thread').innerHTML='<div class="crm-empty" id="note-empty"><div class="crm-empty-icon">💬</div><div>No activity yet</div></div>';
+  document.getElementById('note-thread').innerHTML='<div class="crm-empty" id="note-empty"><div>No activity yet</div></div>';
   document.getElementById('crm-timeline-list').innerHTML='';
   document.getElementById('crm-profile-modal').classList.add('open');
   // Init main category tabs
   var firstCat = document.querySelector('.crm-main-cat');
   if(firstCat) selectMainCat(firstCat);
+  var agrBar = document.getElementById('agr-status-bar');
+  if(agrBar) agrBar.style.display = 'none';
 }
 
 function openClientProfile(id){
@@ -4390,7 +4929,7 @@ function openClientProfile(id){
   if(!c) return;
   CRM.currentId = id;
   // Populate all fields
-  var fields = ['name','biz','email','email2','phone','mobile1','mobile2','location','oldsite',
+  var fields = ['name','biz','billing','email','email2','phone','mobile1','mobile2','location','oldsite',
     'status','package','project','pages','start','due','launch','end','live',
     'value','monthly','deposit','balance','payment','renewal','invoice',
     'domain','registrar','hosting','domain-exp','admin-email','cpanel','tech',
@@ -4403,6 +4942,11 @@ function openClientProfile(id){
   // Fix hyphenated field names
   if(document.getElementById('cf-domain-exp')) document.getElementById('cf-domain-exp').value = c.domainexp||'';
   if(document.getElementById('cf-admin-email')) document.getElementById('cf-admin-email').value = c.adminemail||'';
+  if(document.getElementById('cf-followup-date')) document.getElementById('cf-followup-date').value = c.followupdate||'';
+  if(document.getElementById('cf-followup-note')) document.getElementById('cf-followup-note').value = c.followupnote||'';
+  document.querySelectorAll('#client-tags-row .crm-tag').forEach(function(chip){
+    chip.classList.toggle('sel', (c.tags||[]).indexOf(chip.dataset.tag) > -1);
+  });
   // Industry "Other" field
   if(c.industryother){
     var wrap = document.getElementById('cf-industry-other-wrap');
@@ -4424,6 +4968,49 @@ function openClientProfile(id){
   // Switch to info tab by default
   var infoBtn = document.querySelector('.crm-prof-tab');
   if(infoBtn) switchProfTab('info', infoBtn);
+  refreshAgreementStatus();
+}
+
+// Checks Supabase for the latest agreement tied to this client (matched the same way
+// the sign-link is created: business name, falling back to contact name) and shows
+// a live status badge — no more asking clients to email back a signed copy.
+function refreshAgreementStatus(){
+  var bar = document.getElementById('agr-status-bar');
+  var txt = document.getElementById('agr-status-text');
+  var btn = document.getElementById('agr-status-btn');
+  if(!bar || !txt) return;
+  var name = ((document.getElementById('cf-biz')||{}).value || (document.getElementById('cf-name')||{}).value || '').trim();
+  if(!name){ bar.style.display='none'; return; }
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  if(!sb){ bar.style.display='none'; return; }
+  function renderRow(row){
+    bar.style.display = 'flex';
+    if(!row){
+      txt.textContent = 'No agreement sent yet';
+      txt.style.color = 'var(--muted)';
+      if(btn) btn.style.display = 'none';
+      return;
+    }
+    if(row.status === 'signed'){
+      var d = row.signed_at ? new Date(row.signed_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '';
+      txt.textContent = 'Signed by ' + (row.signed_name||'—') + (row.signed_title ? ' ('+row.signed_title+')' : '') + (d ? ' on '+d : '');
+      txt.style.color = '#00e87a';
+      if(btn) btn.style.display = 'inline-flex';
+    } else {
+      txt.textContent = 'Agreement sent — awaiting signature';
+      txt.style.color = '#e8b84b';
+      if(btn) btn.style.display = 'none';
+    }
+  }
+  // A signature, once given, always wins — even if a newer unsigned "sent" row was
+  // created afterward (e.g. by generating a fresh link). Check for a signed record first.
+  sb.from('agreements').select('*').eq('data->>clientName', name).eq('status','signed').order('signed_at',{ascending:false}).limit(1).then(function(signedRes){
+    var signedRow = (signedRes && signedRes.data || [])[0];
+    if(signedRow){ renderRow(signedRow); return; }
+    sb.from('agreements').select('*').eq('data->>clientName', name).order('created_at',{ascending:false}).limit(1).then(function(res){
+      renderRow((res && res.data || [])[0]);
+    }, function(){ bar.style.display='none'; });
+  }, function(){ bar.style.display='none'; });
 }
 
 function updateProfileHeader(){
@@ -4446,24 +5033,51 @@ function updateProfileHeader(){
   calcPending();
 }
 
-function calcPending(){
-  var total = parseFloat((document.getElementById('cf-value')||{}).value||0);
-  var monthly = parseFloat((document.getElementById('cf-monthly')||{}).value||0);
-  var c = CRM.currentId ? CRM.get(CRM.currentId) : null;
-  var paid = c ? (c.payments||[]).reduce(function(s,p){ return s+parseFloat(p.amount||0); },0) : 0;
-  var pending = Math.max(0, total - paid);
-
+function renderPendingUI(total, paid, pending, monthly, cancelled){
   var set = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
   set('prof-total-val','AED '+total.toLocaleString());
   set('prof-paid-val','AED '+paid.toLocaleString());
-  set('prof-pending-val', pending>0 ? 'AED '+pending.toLocaleString() : '✓ PAID');
+  set('prof-pending-val', pending>0 ? 'AED '+pending.toLocaleString() : 'PAID');
   var pendEl = document.getElementById('prof-pending-val');
   if(pendEl) pendEl.style.color = pending>0 ? '#ff5050' : '#00e87a';
   set('prof-monthly-val','AED '+monthly.toLocaleString()+'/mo');
   set('bill-total','AED '+total.toLocaleString());
   set('bill-paid','AED '+paid.toLocaleString());
   var billPend = document.getElementById('bill-pending');
-  if(billPend){ billPend.textContent = pending>0 ? 'AED '+pending.toLocaleString() : '✓ PAID'; billPend.style.color = pending>0 ? '#ff5050' : '#00e87a'; }
+  if(billPend){ billPend.textContent = pending>0 ? 'AED '+pending.toLocaleString() : 'PAID'; billPend.style.color = pending>0 ? '#ff5050' : '#00e87a'; }
+  var profNote = document.getElementById('prof-cancel-note');
+  if(profNote) profNote.style.display = cancelled ? '' : 'none';
+  var billNote = document.getElementById('bill-cancel-note');
+  if(billNote) billNote.style.display = cancelled ? '' : 'none';
+}
+
+var _pendingFetchToken = 0;
+function calcPending(){
+  var total = parseFloat((document.getElementById('cf-value')||{}).value||0);
+  var monthly = parseFloat((document.getElementById('cf-monthly')||{}).value||0);
+  var c = CRM.currentId ? CRM.get(CRM.currentId) : null;
+  var paid = c ? (c.payments||[]).reduce(function(s,p){ return s+parseFloat(p.amount||0); },0) : 0;
+  var cancelled = !!((document.getElementById('cf-end')||{}).value);
+  var pending = Math.max(0, total - paid);
+
+  // Render immediately from local fields so the UI never feels stuck,
+  // then refine with the true running total (sum of every invoice ever
+  // raised for this client) pulled from Supabase.
+  renderPendingUI(total, paid, pending, monthly, cancelled);
+
+  var clientKey = c ? (c.biz || c.name || '') : '';
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  if(sb && clientKey){
+    var myToken = ++_pendingFetchToken;
+    sb.from('invoices').select('amount').eq('client_name', clientKey).then(function(res){
+      if(myToken !== _pendingFetchToken) return; // a newer call superseded this one
+      if(res && !res.error && res.data && res.data.length){
+        var invoiced = res.data.reduce(function(s,r){ return s+parseFloat(r.amount||0); },0);
+        var pending2 = Math.max(0, invoiced - paid);
+        renderPendingUI(invoiced, paid, pending2, monthly, cancelled);
+      }
+    }).catch(function(){});
+  }
 
   // Countdown from deadline date
   var dueEl = document.getElementById('cf-due');
@@ -4551,21 +5165,16 @@ function renderPaymentsList(){
     list.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;margin-bottom:8px;">No payments recorded yet.</div>';
     return;
   }
-  var methodIcons = {'Bank Transfer':'🏦','Cash':'💵','Credit Card (Visa)':'💳','Credit Card (Mastercard)':'💳',
-    'Debit Card':'💳','Apple Pay':'🍎','Google Pay':'G','PayPal':'🅿','Wise / Transferwise':'💱',
-    'Crypto (USDT)':'₿','Cheque':'📄','Other':'💰'};
   list.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;">'
     +payments.slice().reverse().map(function(p){
-      var icon = methodIcons[p.method]||'💰';
       return '<div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid rgba(0,232,122,.15);border-radius:6px;padding:10px 14px;">'
-        +'<span style="font-size:16px;">'+icon+'</span>'
         +'<div style="flex:1;">'
         +'<div style="font-size:13px;font-weight:600;color:#00e87a;">AED '+parseFloat(p.amount).toLocaleString()+'</div>'
         +'<div style="font-size:11px;color:var(--muted);">'+(p.method||'—')+(p.ref?' · Ref: '+p.ref:'')+'</div>'
         +(p.note?'<div style="font-size:11px;color:var(--muted);font-style:italic;">'+p.note+'</div>':'')        +'</div>'
         +'<div style="text-align:right;">'
         +'<div style="font-size:11px;color:var(--muted);">'+p.date+'</div>'
-        +'<button onclick="deletePayment('+p.id+')" style="background:none;border:none;color:rgba(255,80,80,.4);font-size:12px;cursor:pointer;padding:2px 4px;" title="Delete">✕</button>'
+        +'<button onclick="deletePayment('+p.id+')" style="background:none;border:none;color:rgba(255,80,80,.4);font-size:12px;cursor:pointer;padding:2px 4px;" title="Delete">×</button>'
         +'</div>'
         +'</div>';
     }).join('')+'</div>';
@@ -4583,19 +5192,20 @@ function deletePayment(pid){
 }
 
 function clearProfileForm(){
-  var fields = ['name','biz','email','email2','phone','mobile1','mobile2','location','oldsite',
+  var fields = ['name','biz','billing','email','email2','phone','mobile1','mobile2','location','oldsite',
     'status','package','project','pages','start','due','launch','end','live',
     'value','monthly','deposit','balance','payment','renewal','invoice',
     'domain','registrar','hosting','domain-exp','admin-email','cpanel','tech',
     'brief','notes','eos',
     'contact2-name','contact2-role','contact2-phone','contact2-email','contact2-time','contact2-pref',
-    'industry-other'];
+    'industry-other','followup-date','followup-note'];
   fields.forEach(function(f){
     var el = document.getElementById('cf-'+f);
     if(el){ el.value=''; }
   });
   var wrap = document.getElementById('cf-industry-other-wrap');
   if(wrap) wrap.style.display='none';
+  document.querySelectorAll('#client-tags-row .crm-tag').forEach(function(chip){ chip.classList.remove('sel'); });
 }
 
 function saveClient(){
@@ -4609,7 +5219,7 @@ function saveClient(){
     updated: Date.now(),
     payments: existing ? (existing.payments||[]) : [],
     activeCats: existing ? (existing.activeCats||{}) : {},
-    name: getV('cf-name'), biz: getV('cf-biz'), email: getV('cf-email'),
+    name: getV('cf-name'), biz: getV('cf-biz'), billing: getV('cf-billing'), email: getV('cf-email'),
     phone: getV('cf-phone'), mobile1: getV('cf-mobile1'), mobile2: getV('cf-mobile2'),
     email2: getV('cf-email2'), industry: getV('cf-industry'),
     industryother: getV('cf-industry-other'), location: getV('cf-location'),
@@ -4626,7 +5236,12 @@ function saveClient(){
     domainexp: getV('cf-domain-exp'), adminemail: getV('cf-admin-email'),
     cpanel: getV('cf-cpanel'), tech: getV('cf-tech'), brief: getV('cf-brief'),
     notes: CRM.currentId ? ((CRM.get(CRM.currentId)||{}).notes||[]) : [],
-    internalNotes: getV('cf-notes'), eos: getV('cf-eos')
+    internalNotes: getV('cf-notes'), eos: getV('cf-eos'),
+    followupdate: getV('cf-followup-date'), followupnote: getV('cf-followup-note'),
+    tags: (function(){ var t=[]; document.querySelectorAll('#client-tags-row .crm-tag.sel').forEach(function(el){ t.push(el.dataset.tag); }); return t; })(),
+    // Snoozes are set from the attention chips (snoozeAttention()), not from this form —
+    // preserve whatever was already there so editing/saving the profile doesn't wipe them.
+    attnSnooze: existing ? (existing.attnSnooze||{}) : {}
   };
 
   if(CRM.currentId){
@@ -4643,10 +5258,32 @@ function saveClient(){
   addTimelineEvent(client, 'Client saved — '+CRM.statusLabel(client.status));
   renderCrmGrid();
   updateProfileHeader();
+  // Recompute Needs Attention immediately — otherwise a just-saved follow-up
+  // date, tag, deadline, or contract-end date wouldn't show in the strip/KPIs
+  // until the next login or cloud sync.
+  refreshAttention();
+
+  // Contract End Date = cancellation. Stop future monthly billing and raise
+  // exactly one closing invoice for whatever balance remains (idempotent —
+  // safe to call again on every save, it will only ever fire once per client).
+  if(client.end){
+    try{
+      var sbFinal = (typeof getSB==='function') ? getSB() : null;
+      var finalClientKey = client.biz || client.name || '';
+      if(sbFinal && finalClientKey){
+        sbFinal.rpc('ensure_final_invoice', { p_client_name: finalClientKey }).then(function(res){
+          if(res && !res.error){
+            refreshInvoiceHistoryIfOpen();
+            calcPending();
+          }
+        }).catch(function(){});
+      }
+    }catch(e){}
+  }
 
   // Flash save button
   var btn = document.querySelector('.crm-profile-actions .crm-btn.sec');
-  if(btn){ var orig=btn.textContent; btn.textContent='✅ Saved!'; btn.style.color='#00e87a'; setTimeout(function(){ btn.textContent=orig; btn.style.color=''; },1500); }
+  if(btn){ var orig=btn.textContent; btn.textContent='Saved!'; btn.style.color='#00e87a'; setTimeout(function(){ btn.textContent=orig; btn.style.color=''; },1500); }
 }
 
 function deleteClient(){
@@ -4785,7 +5422,7 @@ function renderNoteThread(c){
   if(!thread) return;
   var notes = c.notes||[];
   if(notes.length===0){
-    thread.innerHTML='<div class="crm-empty"><div class="crm-empty-icon">💬</div><div>No activity yet — add your first note above</div></div>';
+    thread.innerHTML='<div class="crm-empty"><div>No activity yet — add your first note above</div></div>';
     return;
   }
   var tagColors = {Update:'var(--cyan)','Invoice Sent':'#e8b84b','Payment Received':'#00e87a',
@@ -4812,7 +5449,7 @@ function renderNoteThread(c){
       +(mainCat?'<span style="font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 8px;border-radius:3px;background:'+catColor+'22;color:'+catColor+';border:1px solid '+catColor+'44;font-weight:700;text-transform:uppercase;">'+mainCat+'</span>':'')
       +'<span style="display:flex;gap:4px;flex-wrap:wrap;">'+tagsHtml+'</span>'
       +'<span class="crm-note-date" style="margin-left:auto;">'+n.date+'</span>'
-      +'<button class="crm-note-del" onclick="deleteNote('+n.id+')" title="Delete">✕</button>'
+      +'<button class="crm-note-del" onclick="deleteNote('+n.id+')" title="Delete">×</button>'
       +'</div>'
       +'<div class="crm-note-text" style="margin-top:8px;">'+n.text.split('\n').join('<br>')+'</div>'
       +'</div>';
@@ -4861,15 +5498,34 @@ var _crmAdminPatched = false;
 function _patchAdminForCrm(){
   if(_crmAdminPatched) return;
   _crmAdminPatched = true;
-  var origLogin = window.doAdminLogin;
-  window.doAdminLogin = function(){
-    if(document.getElementById('admin-u').value==='cancas_admin'
-      && document.getElementById('admin-p').value==='Cancas@2026!'){
+  window.doAdminLogin = async function(){
+    var email = (document.getElementById('admin-u').value||'').trim();
+    var pass  = document.getElementById('admin-p').value||'';
+    var btn   = document.querySelector('#admin-modal .btn-primary');
+    if(!email || !pass){ alert('Please enter your email and password.'); return; }
+
+    var sb = getSB();
+    if(!sb){ alert('Login service is still loading — please try again in a moment.'); return; }
+
+    if(btn){ btn.disabled = true; btn.dataset._t = btn.textContent; btn.textContent = 'Signing in...'; }
+    try {
+      var res = await sb.auth.signInWithPassword({ email: email, password: pass });
+      if(res.error){
+        alert('Incorrect email or password.');
+        return;
+      }
+      // Signed in — open the panel and load cloud data.
       document.getElementById('admin-modal').classList.remove('open');
       document.getElementById('admin-panel').classList.add('open');
+      document.getElementById('admin-p').value = '';
       setTimeout(crmInit, 80);
-    } else {
-      alert('Incorrect credentials.');
+      SB_loadEnquiries();
+      NOTIF.check();
+      subscribeAgreementRealtime();
+    } catch(e){
+      alert('Could not reach the login service. Check your connection and try again.');
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = btn.dataset._t || 'Sign In'; }
     }
   };
 }
@@ -4889,12 +5545,17 @@ window.submitContactForm = function submitContactForm(btn) {
   var biz    = form.querySelectorAll('select')[0].value || 'Not specified';
 
   if (!name)  { showFormError(form, 'Please enter your full name.'); return; }
-  if (!email || !email.includes('@')) { showFormError(form, 'Please enter a valid email address.'); return; }
+  // Proper email-format check — must look like name@domain.tld
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRe.test(email)) { setEmailError(form, 'Please enter a valid email address.'); return; }
+  // Phone must be a real contact number — 7 to 15 digits (international range).
+  var phoneDigits = (phone || '').replace(/\D/g, '');
+  if (phoneDigits.length < 7 || phoneDigits.length > 15) { setPhoneError(form, 'Please enter a valid contact number.'); return; }
 
   btn.disabled = true;
   btn.innerHTML = '<span style="opacity:.7">Sending...</span>';
 
-  // Save enquiry directly to admin inbox (localStorage)
+  // ── 1. Save to the in-page CRM (works on the admin's own device) ──
   var enquiries = [];
   try { enquiries = JSON.parse(localStorage.getItem('crm_enquiries') || '[]'); } catch(e){}
   var enquiry = {
@@ -4910,12 +5571,69 @@ window.submitContactForm = function submitContactForm(btn) {
     read: false
   };
   enquiries.unshift(enquiry);
-  localStorage.setItem('crm_enquiries', JSON.stringify(enquiries));
-  setTimeout(function(){ SYNC.push(true); }, 200);
+  try { localStorage.setItem('crm_enquiries', JSON.stringify(enquiries)); } catch(e){}
+  setTimeout(function(){ try { SYNC.push(true); } catch(e){} }, 200);
+  try { updateEnquiryBadge(); } catch(e){}
 
-  // Update admin badge if panel is open
-  updateEnquiryBadge();
-  showFormSuccess(form, btn);
+  // ── 1b. Save to the cloud CRM database (Supabase) — shows in admin on ANY device ──
+  try {
+    var sbc = getSB();
+    if (sbc) {
+      sbc.from('enquiries').insert({
+        name: name, email: email, phone: phone,
+        business: biz, package: pkg, detail: detail
+      }).then(function(r){ if(r.error) console.warn('Cloud enquiry save failed:', r.error.message); });
+    }
+  } catch(e){}
+
+  // ── 2. Send to hello@cancasstudio.com via Web3Forms (works on ANY device) ──
+  var keyMissing = !WEB3FORMS_KEY || WEB3FORMS_KEY.indexOf('PASTE_YOUR') === 0;
+
+  function fallbackToWhatsApp(reason){
+    // Email delivery unavailable — hand the lead to WhatsApp so it is never lost.
+    var waText = 'New website enquiry%0A%0AName: ' + encodeURIComponent(name)
+      + '%0AEmail: ' + encodeURIComponent(email)
+      + '%0APhone: ' + encodeURIComponent(phone || '-')
+      + '%0ABusiness: ' + encodeURIComponent(biz)
+      + '%0APackage: ' + encodeURIComponent(pkg)
+      + '%0ADetails: ' + encodeURIComponent(detail || '-');
+    showFormFallback(form, btn, waText);
+  }
+
+  if (keyMissing) { fallbackToWhatsApp('no-key'); return; }
+
+  var payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: 'New website enquiry — ' + name + ' (' + biz + ')',
+    from_name: 'CANCAS STUDIO Website',
+    name: name,
+    email: email,
+    phone: phone || 'Not provided',
+    business_type: biz,
+    package_interest: pkg,
+    message: detail || 'No details provided',
+    botcheck: ''
+  };
+
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, 15000);
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload),
+    signal: controller.signal
+  })
+  .then(function(r){ clearTimeout(timer); return r.json(); })
+  .then(function(data){
+    if (data && data.success) {
+      if (typeof gtag === 'function') { try { gtag('event', 'generate_lead', { method: 'contact_form' }); } catch(e){} }
+      showFormSuccess(form, btn);
+    } else {
+      fallbackToWhatsApp('api-error');
+    }
+  })
+  .catch(function(){ clearTimeout(timer); fallbackToWhatsApp('network'); });
 }
 
 function showFormSuccess(form, btn){
@@ -4935,6 +5653,27 @@ function showFormSuccess(form, btn){
   }
 }
 
+function showFormFallback(form, btn, waText){
+  // Email delivery isn't available right now — give the visitor a one-tap
+  // WhatsApp button pre-filled with their enquiry so the lead still reaches us.
+  form.querySelectorAll('.form-row, .fg').forEach(function(el){ el.style.display='none'; });
+  btn.style.display = 'none';
+  var existing = form.querySelector('.form-success-msg, .form-fallback-msg');
+  if (existing) existing.remove();
+  var msg = document.createElement('div');
+  msg.className = 'form-fallback-msg';
+  msg.innerHTML = '<div style="text-align:center;padding:36px 20px;">'
+    + '<div style="font-size:44px;margin-bottom:14px;">📲</div>'
+    + '<div style="font-family:Barlow Condensed,sans-serif;font-size:26px;font-weight:900;color:#25d366;letter-spacing:1px;margin-bottom:10px;">ONE LAST STEP</div>'
+    + '<div style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px;">Tap below to send your enquiry to us on WhatsApp — it\'s pre-filled and takes one tap.</div>'
+    + '<a href="https://wa.me/971569016046?text=' + waText + '" target="_blank" rel="noopener noreferrer" '
+    + 'style="display:inline-flex;align-items:center;gap:10px;background:#25d366;color:#000;font-family:DM Sans,sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;padding:14px 32px;text-decoration:none;border-radius:4px;">'
+    + 'Send on WhatsApp →</a>'
+    + '<div style="font-size:12px;color:var(--muted);margin-top:18px;">Or email <strong style="color:var(--cyan)">hello@cancasstudio.com</strong> directly.</div>'
+    + '</div>';
+  form.appendChild(msg);
+}
+
 function showFormError(form, message){
   var existing = form.querySelector('.form-error-msg');
   if(existing) existing.remove();
@@ -4944,6 +5683,57 @@ function showFormError(form, message){
   err.textContent = message;
   form.appendChild(err);
   setTimeout(function(){ if(err.parentNode) err.remove(); }, 4000);
+}
+
+// Turn the email field red with an inline message when the address is invalid.
+function setEmailError(form, message){
+  var inp = document.getElementById('contact-email');
+  if(inp){
+    inp.style.borderColor = '#ff5050';
+    inp.style.color = '#ff5050';
+    inp.focus();
+  }
+  var fg = inp ? inp.closest('.fg') : form;
+  var existing = fg.querySelector('.email-err-msg');
+  if(!existing){
+    var m = document.createElement('div');
+    m.className = 'email-err-msg';
+    m.style.cssText = 'color:#ff5050;font-size:12px;margin-top:6px;';
+    m.textContent = message || 'Invalid email address';
+    fg.appendChild(m);
+  }
+}
+// Clear the red state as soon as the visitor edits the field.
+function clearEmailError(inp){
+  inp.style.borderColor = '';
+  inp.style.color = '';
+  var fg = inp.closest('.fg');
+  var msg = fg && fg.querySelector('.email-err-msg');
+  if(msg) msg.remove();
+}
+
+// Phone: turn the field red with an inline message when the number isn't valid.
+function setPhoneError(form, message){
+  var inp = document.getElementById('contact-phone');
+  if(inp){ inp.style.borderColor = '#ff5050'; inp.style.color = '#ff5050'; inp.focus(); }
+  var fg = inp ? inp.closest('.fg') : form;
+  if(fg && !fg.querySelector('.phone-err-msg')){
+    var m = document.createElement('div');
+    m.className = 'phone-err-msg';
+    m.style.cssText = 'color:#ff5050;font-size:12px;margin-top:6px;';
+    m.textContent = message || 'Invalid contact number';
+    fg.appendChild(m);
+  }
+}
+// Allow only phone characters (digits, + - ( ) space) and clear the error as they type.
+function sanitizePhone(inp){
+  var cleaned = inp.value.replace(/[^0-9+()\-\s]/g, '');
+  if(cleaned !== inp.value) inp.value = cleaned;
+  inp.style.borderColor = '';
+  inp.style.color = '';
+  var fg = inp.closest('.fg');
+  var msg = fg && fg.querySelector('.phone-err-msg');
+  if(msg) msg.remove();
 }
 
 // ══════════════════════════════════════════════════════
@@ -4982,7 +5772,7 @@ window.exportClientsCSV = function() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast('✅ CSV exported — ' + clients.length + ' clients saved!');
+  showToast('CSV exported — ' + clients.length + ' clients saved!');
 };
 
 window.exportClientsJSON = function() {
@@ -5001,7 +5791,7 @@ window.exportClientsJSON = function() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast('✅ Full backup downloaded — keep this file safe!');
+  showToast('Full backup downloaded — keep this file safe!');
 };
 
 window.importFromJSON = function(file) {
@@ -5011,7 +5801,7 @@ window.importFromJSON = function(file) {
       var data = JSON.parse(e.target.result);
       if (data.crm_clients) localStorage.setItem('crm_clients', JSON.stringify(data.crm_clients));
       if (data.crm_enquiries) localStorage.setItem('crm_enquiries', JSON.stringify(data.crm_enquiries));
-      showToast('✅ ' + (data.crm_clients||[]).length + ' clients restored! Refreshing...');
+      showToast((data.crm_clients||[]).length + ' clients restored! Refreshing...');
       setTimeout(function(){ location.reload(); }, 1500);
     } catch(err) { alert('Invalid backup file.'); }
   };
@@ -5061,139 +5851,568 @@ function autoBackupOnSave() {
       a.click();
       document.body.removeChild(a);
       localStorage.setItem('crm_auto_backup_last_dl', today);
-      showToast('✅ Saved + Daily backup file downloaded 💾');
+      showToast('Saved + Daily backup file downloaded');
     } else {
-      showToast('✅ Saved + Auto-backed up 💾');
+      showToast('Saved + Auto-backed up');
     }
   } catch(e) {
     // Backup failure must never break the save
-    showToast('✅ Saved!');
+    showToast('Saved!');
   }
 }
 </script>
 
+<!-- ===================== CANCAS DOCUMENT ENGINE (added) ===================== -->
 <script>
-/* ──────────────────────────────────────────────────────────────────────────
-   LeadGen handoff — receives a lead sent from the Cancas LeadGen CRM.
-
-   The CRM opens this page with the lead encoded in the URL fragment:
-       https://cancasstudio.com/#leadgen=<base64 JSON>
-
-   A fragment is used rather than a query string so the data never reaches
-   a web server or shows up in access logs. Nothing is saved automatically:
-   the New Client form is opened pre-filled and waits for you to press Save.
-   ────────────────────────────────────────────────────────────────────────── */
 (function(){
-  var STASH = 'leadgen_pending';
+  // >>> EDIT your studio bank details once (shown on the invoice) <<<
+  var SIGN_BASE = "https://cancasstudio.com/sign.html";
 
-  function decode(raw){
-    try {
-      var json = decodeURIComponent(escape(atob(raw.replace(/-/g,'+').replace(/_/g,'/'))));
-      return JSON.parse(json);
-    } catch(e){ return null; }
+  function ensurePdfmake(cb){
+    if(window.pdfMake&&window.pdfMake.createPdf)return cb();
+    var a=document.createElement("script");a.src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js";
+    a.onload=function(){var b=document.createElement("script");b.src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js";b.onload=cb;document.head.appendChild(b);};
+    document.head.appendChild(a);
   }
-
-  // Grab the payload on load and stash it — the admin login happens in between.
-  function capture(){
-    var m = (location.hash||'').match(/leadgen=([^&]+)/);
-    if(!m) return;
-    var lead = decode(m[1]);
-    if(!lead) return;
-    try { sessionStorage.setItem(STASH, JSON.stringify(lead)); } catch(e){}
-    // Clean the address bar so a refresh doesn't re-import the same lead.
-    history.replaceState(null, '', location.pathname + location.search);
-    promptLogin();
-  }
-
-  function promptLogin(){
-    var panel = document.getElementById('admin-panel');
-    if(panel && panel.classList.contains('open')) { fill(); return; }
-    if(typeof openAdmin === 'function') openAdmin();
-    var note = document.getElementById('admin-modal');
-    if(note && !document.getElementById('leadgen-note')){
-      var d = document.createElement('div');
-      d.id = 'leadgen-note';
-      d.style.cssText = 'position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:9999;'
-        + 'background:#0d2a1c;border:1px solid #1d7a52;color:#63e6a8;padding:10px 18px;'
-        + 'border-radius:6px;font-size:13px;font-family:system-ui,sans-serif;';
-      d.textContent = 'Lead received from LeadGen — sign in to review it';
-      document.body.appendChild(d);
-      setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 6000);
+  // read live values from the open client profile
+  function V(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+  // Scope line on the agreement/invoice must match whichever package tier is actually
+  // selected in the CRM — previously this was hardcoded to the Business tier for everyone.
+  function scopeForPackage(pkg){
+    var p = String(pkg||"").toLowerCase();
+    if(p.indexOf("starter")>-1){
+      return "Up to 5 pages · mobile-friendly design · contact form & WhatsApp button · Google Maps integration · basic SEO setup · 30 days support";
     }
-  }
-
-  function setField(id, val){
-    var el = document.getElementById(id);
-    if(el && val) el.value = val;
-  }
-
-  function fill(){
-    var raw;
-    try { raw = sessionStorage.getItem(STASH); } catch(e){}
-    if(!raw) return;
-    var lead;
-    try { lead = JSON.parse(raw); } catch(e){ return; }
-    try { sessionStorage.removeItem(STASH); } catch(e){}
-
-    if(typeof openNewClient !== 'function') return;
-    openNewClient();
-
-    setField('cf-biz',      lead.businessName);
-    setField('cf-name',     lead.clientName);
-    setField('cf-phone',    lead.phone);
-    setField('cf-mobile1',  lead.phone);
-    setField('cf-email',    lead.email);
-    setField('cf-location', lead.city);
-    setField('cf-oldsite',  lead.website);
-
-    var status = document.getElementById('cf-status');
-    if(status) status.value = 'lead';
-
-    var ind = document.getElementById('cf-industry');
-    if(ind && lead.industry){
-      var match = Array.prototype.slice.call(ind.options).filter(function(o){
-        return o.text.trim() === lead.industry.trim();
-      })[0];
-      if(match){ ind.value = match.value || match.text; }
-      else {
-        ind.value = 'Other';
-        setField('cf-industry-other', lead.industry);
-      }
-      if(typeof toggleIndustryOther === 'function') toggleIndustryOther(ind);
+    if(p.indexOf("premium")>-1){
+      return "Unlimited pages · fully bespoke design · advanced AI chatbot · booking/CRM integration · SEO power package (20–30 keywords) · full technical SEO audit · 6 months priority support";
     }
-
-    if(lead.brief) setField('cf-brief', lead.brief);
-
-    var head = document.getElementById('prof-sub');
-    if(head) head.textContent = 'Imported from LeadGen — check the details, then Save';
-    var nm = document.getElementById('prof-name');
-    if(nm && lead.businessName) nm.textContent = lead.businessName;
+    if(p.indexOf("business")>-1){
+      return "Up to 10 pages · AI chatbot · booking/enquiry · on-page SEO · GA4 & Search Console · Google Business Profile setup";
+    }
+    return "Custom scope as agreed with the client";
   }
-
-  // The admin panel opens after login, so fill once it's actually on screen.
-  var origLogin = window.doAdminLogin;
-  function watchLogin(){
-    var current = window.doAdminLogin;
-    if(current && current.__leadgenWrapped) return;
-    var wrapped = function(){
-      var r = current.apply(this, arguments);
-      setTimeout(fill, 260);
-      return r;
+  function collect(){
+    return {
+      clientName:    V("cf-biz")||V("cf-name"),
+      // Bill To: an explicit Billing Entity always wins. If left blank, invoices are
+      // addressed to the Client Name (not Business Name) per studio preference.
+      billingEntity: V("cf-billing")||V("cf-name")||V("cf-biz"),
+      contactName:   V("cf-name"),
+      clientLocation:V("cf-location")||"United Arab Emirates",
+      emails:        [V("cf-email"),V("cf-email2")].filter(Boolean),
+      packageName:   V("cf-package")||"Business — Custom Website (up to 10 pages)",
+      scope:         scopeForPackage(V("cf-package")),
+      total:         V("cf-value"),
+      monthly:       V("cf-monthly"),
+      deposit:       V("cf-deposit"),
+      balance:       V("cf-balance"),
+      invoiceNo:     V("cf-invoice"),
+      invoiceDate:   new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"}),
+      // Agreement date follows the CRM "Start Date" (cf-start). Change it in the CRM and the agreement updates. Falls back to today if the Start Date is blank.
+      agreementDate: (function(s){ if(!s) return new Date().toLocaleDateString("en-GB"); var m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/); return m? (m[3]+"/"+m[2]+"/"+m[1]) : s; })(V("cf-start")),
     };
-    wrapped.__leadgenWrapped = true;
-    window.doAdminLogin = wrapped;
   }
 
-  function boot(){
-    watchLogin();
-    setTimeout(watchLogin, 500);   // re-wrap after the page's own patch runs
-    capture();
+  var TEAL="#0E7C92",DARK="#1A1A1A",GREY="#5A5A5A",LIGHT="#EAF6F9",CREAM="#FFF3DC";
+  function money(n){var v=Number(n||0);return v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function splitDefaults(d){var total=Number(d.total||0);var deposit=(d.deposit!=null&&d.deposit!=="")?Number(d.deposit):Math.round(total*50)/100;var balance=(d.balance!=null&&d.balance!=="")?Number(d.balance):(total-deposit);return{total:total,deposit:deposit,balance:balance,monthly:Number(d.monthly||0)};}
+  function grid(){return{hLineWidth:function(){return .5;},vLineWidth:function(){return .5;},hLineColor:function(){return"#cccccc";},vLineColor:function(){return"#cccccc";},paddingLeft:function(){return 7;},paddingRight:function(){return 7;},paddingTop:function(){return 5;},paddingBottom:function(){return 5;}};}
+  function brandHeader(r){return{columns:[{text:[{text:"CANCAS ",bold:true,color:DARK},{text:"STUDIO",bold:true,color:TEAL}],fontSize:20},{text:r||"",alignment:"right",bold:true,color:TEAL,fontSize:20,margin:[0,2,0,0]}]};}
+  function footer(){return function(){return{text:"",margin:[0,0,0,0]};};}
+  // Project invoice — deliberately minimal: who it's for, what package, and the amount
+  // payable as the clear highlight. No feature bullets, no repeated subtotal/VAT rows.
+  function buildInvoiceDoc(d){var s=splitDefaults(d);var hasSplit=(s.deposit>0 && s.balance>0);var dueNow=hasSplit?s.deposit:s.total;return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.15},footer:footer(),content:[brandHeader("INVOICE"),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,10]},{canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.4,lineColor:TEAL}],margin:[0,0,0,14]},{columns:[[{text:"BILL TO",color:TEAL,bold:true,fontSize:8,margin:[0,0,0,2]},{text:d.billingEntity||d.clientName||"[Client]",bold:true},{text:d.clientLocation||"United Arab Emirates",color:GREY}],[{text:[{text:"Invoice No:  ",bold:true},(d.invoiceNo||"CS-____")],alignment:"right"},{text:[{text:"Date:  ",bold:true},(d.invoiceDate||"__")],alignment:"right"}]]},{text:"",margin:[0,16,0,0]},{table:{widths:["*",110],body:[[{text:"PACKAGE",fillColor:TEAL,color:"#fff",bold:true},{text:"AMOUNT (AED)",fillColor:TEAL,color:"#fff",bold:true,alignment:"right"}],[{text:d.packageName||"Website — Design & Development",bold:true},{text:money(s.total),alignment:"right"}]]},layout:grid()},{text:"",margin:[0,12,0,0]},{table:{widths:["*",130],body:[[{text:"AMOUNT DUE NOW",fillColor:TEAL,color:"#fff",bold:true,fontSize:13},{text:"AED "+money(dueNow),fillColor:TEAL,color:"#fff",bold:true,fontSize:13,alignment:"right"}]]},layout:{defaultBorder:false,paddingLeft:function(){return 10;},paddingRight:function(){return 10;},paddingTop:function(){return 9;},paddingBottom:function(){return 9;}}},hasSplit?{text:"50% advance due now, before work starts. Remaining balance of AED "+money(s.balance)+" due after final approval, before launch.",color:GREY,fontSize:8.5,margin:[0,6,0,0]}:{text:"",margin:[0,0,0,0]},{text:"Payment",color:TEAL,bold:true,fontSize:11,margin:[0,14,0,2]},{text:"Please reference Invoice No. "+(d.invoiceNo||"CS-____")+" with your payment. Contact us on WhatsApp or email to arrange payment.",color:GREY,fontSize:9}]};}
+  function kv(k,v){return[{text:k,bold:true,fillColor:LIGHT},{text:v}];}
+  function h2p(t){return{text:t,color:TEAL,bold:true,fontSize:12,margin:[0,12,0,4]};}
+  function buildAgreementDoc(d,sig){var s=splitDefaults(d);var sb=(sig&&sig.dataUrl)?[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,6]},{text:"Digitally signed via Cancas Studio",color:"#0a8f3c",bold:true,fontSize:9,margin:[0,0,0,8]},{image:sig.dataUrl,width:170,margin:[0,0,0,6]},{canvas:[{type:"line",x1:0,y1:0,x2:220,y2:0,lineWidth:.75,lineColor:"#999999"}],margin:[0,0,0,4]},{text:"Name: "+(sig.name||"—"),margin:[0,0,0,3]},{text:"Title / Position: "+(sig.title||"—"),margin:[0,0,0,3]},{text:"Signed on: "+(sig.date||"—"),margin:[0,0,0,0]}]:[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,10]},{text:"Signature: ______________________________________",margin:[0,0,0,10]},{text:"Name: __________________________________________",margin:[0,0,0,10]},{text:"Title / Position: _________________________________",margin:[0,0,0,10]},{text:"Company Stamp & Date: __________________________"}];return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[brandHeader(""),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,8]},{text:"WEBSITE DESIGN & DEVELOPMENT SERVICE AGREEMENT",bold:true,fontSize:13,alignment:"center"},{text:"This Agreement is made on "+(d.agreementDate||"____ / ____ / ____"),alignment:"center",color:GREY,italics:true,margin:[0,2,0,10]},{text:"This Service Agreement is entered into between:"},{text:[{text:"The Studio: ",bold:true},"CANCAS STUDIO, Dubai, UAE."],margin:[0,3,0,0]},{text:[{text:"The Client: ",bold:true},(d.clientName||"[Client Company]")+(d.clientLocation?", "+d.clientLocation:"")+"."]},h2p("1.  Key Terms at a Glance"),{table:{widths:[150,"*"],body:[kv("Package",d.packageName||"[Package]"),kv("One-Time Build Fee","AED "+money(s.total)),kv("Managed Monthly Plan","AED "+money(s.monthly)+" / month"),kv("Advance Deposit (50%)","AED "+money(s.deposit)+" — payable on signing"),kv("Balance (50%)","AED "+money(s.balance)+" — after final approval, before launch"),kv("Monthly Billing Starts","One month from the advance payment date"),kv("Domain & Hosting","Domain provided by the Client; hosting by Cancas Studio"),kv("Estimated Delivery","Approx. 14 days from deposit + all required content")]},layout:grid()},h2p("2.  Payment Schedule"),{ul:["50% advance — AED "+money(s.deposit)+" — due on signing. Work begins once received.","50% balance — AED "+money(s.balance)+" — due after final approval, before launch.","Managed monthly plan — AED "+money(s.monthly)+"/month — first payment one month after the advance date."]},{text:"The 50% deposit is non-refundable once work has commenced.",color:GREY,fontSize:9,margin:[0,3,0,0]},h2p("3.  Key Terms You Should Know"),{ul:["Deposit & balance: 50% deposit non-refundable once work starts; balance due before launch.","Monthly plan: hosting, SSL, monitoring, 6 updates/month, support. Cancel any time with 30 days' written notice.","Domain: provided and owned by the Client; Client gives DNS access and keeps it registered/renewed.","Revisions: unlimited during build (within agreed scope); new pages/features quoted separately.","Your part: provide content & approvals promptly (approve mockups within 7 business days).","Ownership: full custom code/design transfers on full & final payment; Studio may show work in portfolio unless asked not to.","Non-payment/cancellation: services stop and the site may go offline within 7 days; files transfer free within 7 business days.","Liability limited to fees paid in the prior 3 months. Governed by UAE law; Dubai courts."]},{table:{widths:["*"],body:[[{text:"Please review the full Terms & Conditions at cancasstudio.com before signing. This summary highlights the main points only; the full T&C govern this Agreement.",bold:true,fillColor:LIGHT}]]},layout:{hLineColor:function(){return TEAL;},vLineColor:function(){return TEAL;},hLineWidth:function(){return 1;},vLineWidth:function(){return 1;},paddingLeft:function(){return 8;},paddingRight:function(){return 8;},paddingTop:function(){return 6;},paddingBottom:function(){return 6;}},margin:[0,10,0,0]},h2p("4.  Acceptance & Signature"),{text:"By signing below, the Client agrees to this Agreement and the full Terms & Conditions of CANCAS STUDIO, and authorises work to begin on receipt of the 50% advance."},{stack:sb,margin:[0,4,0,0]}]};}
+
+  function fname(s){return String(s||"doc").replace(/[^\w.\-]+/g,"-");}
+  function need(d){ if(!d.clientName){ alert("Open a client and enter the Business Name first."); return false;} return true; }
+
+  // ---- preview modal: read the full document, then download / send ----
+  function ensurePreview(){
+    if(document.getElementById("cancas-pv")) return;
+    var m=document.createElement("div"); m.id="cancas-pv";
+    m.style.cssText="position:fixed;inset:0;z-index:100000;background:rgba(6,10,14,.94);display:none;flex-direction:column;padding:16px;font-family:Arial,Helvetica,sans-serif;";
+    m.innerHTML=''
+     +'<div style="max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
+     +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
+     +'    <div id="pv-title" style="font-weight:800;font-size:16px;">Preview</div>'
+     +'    <button onclick="document.getElementById(\'cancas-pv\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">× Close</button>'
+     +'  </div>'
+     +'  <div id="pv-link" style="display:none;padding:10px 16px;border-bottom:1px solid #1f2c38;"></div>'
+     +'  <iframe id="pv-frame" title="preview" style="flex:1;width:100%;border:0;background:#fff;min-height:0;"></iframe>'
+     +'  <div id="pv-foot" style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid #1f2c38;"></div>'
+     +'</div>';
+    document.body.appendChild(m);
+  }
+  function pvBtn(label,fn,primary){var b=document.createElement("button");b.textContent=label;b.style.cssText="background:"+(primary?"#0E7C92":"#1f2c38")+";color:#fff;border:none;border-radius:8px;padding:11px 16px;font-weight:800;cursor:pointer;";b.onclick=fn;return b;}
+  function dangerBtn(label,fn){var b=document.createElement("button");b.textContent=label;b.style.cssText="background:#3a1414;color:#ff8080;border:1px solid #5a2020;border-radius:8px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:12px;";b.onclick=fn;return b;}
+  function dg(s){return String(s||"").replace(/[^0-9]/g,"");}
+  function makeLink(d){ var slim={clientName:d.clientName,clientLocation:d.clientLocation,packageName:d.packageName,total:d.total,monthly:d.monthly,deposit:d.deposit,balance:d.balance,agreementDate:d.agreementDate}; return SIGN_BASE+"#d="+btoa(unescape(encodeURIComponent(JSON.stringify(slim)))); }
+
+  // Recurring monthly bill — deliberately minimal: who it's for, the period, the price,
+  // and the total. Nothing else (no project totals, no payment schedule).
+  function buildMonthlyInvoiceDoc(d){
+    var isFinal = (d.period === "Final Invoice");
+    var forLabel = isFinal ? "Final Invoice — Closing Balance" : ("Monthly Hosting & Maintenance — "+(d.period||""));
+    return {pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[
+      brandHeader("INVOICE"),
+      {text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,10]},
+      {canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.4,lineColor:TEAL}],margin:[0,0,0,14]},
+      {columns:[
+        [{text:"BILLED TO",color:TEAL,bold:true,fontSize:8,margin:[0,0,0,2]},{text:d.billingEntity||d.clientName||"[Client]",bold:true},{text:d.clientLocation||"United Arab Emirates",color:GREY}],
+        [{text:[{text:"Invoice No:  ",bold:true},(d.invoiceNo||"CS-____")],alignment:"right"},{text:[{text:"Date:  ",bold:true},(d.invoiceDate||"__")],alignment:"right"}]
+      ]},
+      {text:"",margin:[0,16,0,0]},
+      {table:{widths:["*",110],body:[
+        [{text:"FOR",fillColor:TEAL,color:"#fff",bold:true},{text:"AMOUNT (AED)",fillColor:TEAL,color:"#fff",bold:true,alignment:"right"}],
+        [{text:forLabel,bold:true},{text:money(d.monthly),alignment:"right"}]
+      ]},layout:grid()},
+      {text:"",margin:[0,10,0,0]},
+      {table:{widths:["*",110],body:[[{text:"TOTAL",fillColor:LIGHT,bold:true,fontSize:12},{text:"AED "+money(d.monthly),fillColor:LIGHT,bold:true,fontSize:12,alignment:"right"}]]},layout:grid()},
+      {text:"Please reference Invoice No. "+(d.invoiceNo||"CS-____")+" with your payment. Contact us on WhatsApp or email to arrange payment.",color:GREY,fontSize:9,margin:[0,16,0,0]}
+    ]};
+  }
+  // Persist a permanent, locked snapshot of a manually-issued project invoice so it can
+  // be re-viewed later from Invoice History — the same permanence the automated monthly
+  // invoices get.
+  function saveInvoiceRecord(d){
+    var sb=(typeof getSB==="function")?getSB():null; if(!sb) return;
+    var id=Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+    sb.from('invoices').insert({
+      id:id, invoice_no:d.invoiceNo||("CS-"+id), client_name:d.clientName, kind:'project',
+      period_label:null, amount:Number(d.total||0),
+      data:{clientName:d.clientName,billingEntity:d.billingEntity,clientLocation:d.clientLocation,
+            packageName:d.packageName,scope:d.scope,total:d.total,monthly:d.monthly,
+            deposit:d.deposit,balance:d.balance,invoiceNo:d.invoiceNo,invoiceDate:d.invoiceDate}
+    }).then(function(){ try{ if(typeof refreshInvoiceHistoryIfOpen==="function") refreshInvoiceHistoryIfOpen(); }catch(e){} });
+  }
+  function showDoc(kind){
+    var d=collect(); if(!need(d))return;
+    var isInv=kind==="invoice";
+    // Previewing must stay side-effect free — no invoice number burned, no record
+    // saved — until the client actually clicks Download. Previously this ran on
+    // every preview open, which is why repeatedly opening the Invoice preview
+    // (e.g. while checking billing details) created a new permanent invoice row
+    // and a new invoice number each time.
+    ensurePdfmake(function(){
+      ensurePreview();
+      var pdf=pdfMake.createPdf(isInv?buildInvoiceDoc(d):buildAgreementDoc(d,null));
+      document.getElementById("pv-title").textContent=(isInv?"Invoice — ":"Agreement — ")+(d.clientName||"");
+      document.getElementById("pv-link").style.display="none";
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      foot.appendChild(pvBtn("Download PDF",function(){
+        if(isInv) finalizeInvoiceThenDownload(d);
+        else pdf.download(fname("Cancas-Agreement-"+d.clientName)+".pdf");
+      },true));
+      if(!isInv) foot.appendChild(pvBtn("Get Signing Link",function(){ showSign(); }));
+      document.getElementById("cancas-pv").style.display="flex";
+    });
+  }
+  // Only on an explicit Download does an invoice become real: assign the invoice
+  // number (if one isn't already sitting on this client from an earlier download),
+  // persist the permanent record, then download. Re-renders the preview with the
+  // real number filled in.
+  function finalizeInvoiceThenDownload(d){
+    var sb=(typeof getSB==="function")?getSB():null;
+    function proceed(){
+      saveInvoiceRecord(d);
+      var pdf2=pdfMake.createPdf(buildInvoiceDoc(d));
+      pdf2.download(fname("Cancas-Invoice-"+(d.invoiceNo||"CS"))+".pdf");
+      pdf2.getDataUrl(function(url){ var f=document.getElementById("pv-frame"); if(f) f.src=url; });
+      document.getElementById("pv-title").textContent="Invoice — "+(d.clientName||"");
+    }
+    if(!sb || d.invoiceNo){ proceed(); return; }
+    sb.rpc('next_invoice_no').then(function(res){
+      if(res && res.data) d.invoiceNo = res.data;
+      var el=document.getElementById("cf-invoice");
+      if(el && d.invoiceNo){ el.value=d.invoiceNo; try{ if(typeof saveClient==="function") saveClient(); }catch(e){} }
+      proceed();
+    }, function(){ proceed(); });
+  }
+  function slimData(d){ return {clientName:d.clientName,clientLocation:d.clientLocation,packageName:d.packageName,total:d.total,monthly:d.monthly,deposit:d.deposit,balance:d.balance,agreementDate:d.agreementDate}; }
+  function shortId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
+  function copyText(t){ (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(function(){alert("Copied.");},function(){window.prompt("Copy:",t);}); }
+  // Store agreement in Supabase and return a SHORT link (sign.html?id=xxx). Falls back to the long hash link if offline.
+  function createSignLink(d){
+    return new Promise(function(resolve){
+      var sb=(typeof getSB==="function")?getSB():null;
+      if(!sb){ resolve(makeLink(d)); return; }
+      var id=shortId();
+      try{
+        sb.from('agreements').insert({id:id,data:slimData(d)}).then(function(res){
+          if(res&&res.error){ resolve(makeLink(d)); } else { resolve(SIGN_BASE+"?id="+id); }
+        },function(){ resolve(makeLink(d)); });
+      }catch(e){ resolve(makeLink(d)); }
+    });
+  }
+  // Fetch the client's signed agreement from Supabase and show it in the preview modal —
+  // downloading is a separate, deliberate step from inside that preview, never automatic.
+  function getSignedCopy(d){
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb){ alert("Supabase not available."); return; }
+    sb.from('agreements').select('*').eq('status','signed').eq('data->>clientName',d.clientName).order('signed_at',{ascending:false}).limit(1).then(function(res){
+      if(res&&res.error){ alert("Lookup failed: "+res.error.message); return; }
+      var row=(res.data||[])[0];
+      if(!row){ alert("No signed agreement found yet for this client."); return; }
+      ensurePdfmake(function(){
+        ensurePreview();
+        var sig={dataUrl:row.signature,name:row.signed_name,title:row.signed_title,date:row.signed_at?new Date(row.signed_at).toLocaleDateString("en-GB"):""};
+        var pdf=pdfMake.createPdf(buildAgreementDoc(row.data,sig));
+        document.getElementById("pv-title").textContent="Signed Agreement — "+(d.clientName||"");
+        document.getElementById("pv-link").style.display="none";
+        pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+        var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+        foot.appendChild(pvBtn("Download Signed PDF",function(){ pdf.download(fname("Cancas-Agreement-SIGNED-"+(d.clientName||"Client"))+".pdf"); },true));
+        var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001; pvEl.style.display="flex";
+      });
+    },function(){ alert("Lookup failed."); });
+  }
+  // "Agreement" button: show the real signed copy (with signature, name, date baked in)
+  // if this client has one on file; otherwise fall back to the blank unsigned template.
+  function showAgreementSmart(){
+    var d=collect(); if(!need(d))return;
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb){ showDoc("agreement"); return; }
+    sb.from('agreements').select('*').eq('status','signed').eq('data->>clientName',d.clientName).order('signed_at',{ascending:false}).limit(1).then(function(res){
+      var row=(res&&res.data||[])[0];
+      if(!row){ showDoc("agreement"); return; }
+      ensurePdfmake(function(){
+        ensurePreview();
+        var sig={dataUrl:row.signature,name:row.signed_name,title:row.signed_title,date:row.signed_at?new Date(row.signed_at).toLocaleDateString("en-GB"):""};
+        var pdf=pdfMake.createPdf(buildAgreementDoc(row.data,sig));
+        document.getElementById("pv-title").textContent="Signed Agreement — "+(d.clientName||"");
+        document.getElementById("pv-link").style.display="none";
+        pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+        var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+        foot.appendChild(pvBtn("Download Signed PDF",function(){ pdf.download(fname("Cancas-Agreement-SIGNED-"+d.clientName)+".pdf"); },true));
+        foot.appendChild(pvBtn("View blank template",function(){ showDoc("agreement"); }));
+        document.getElementById("cancas-pv").style.display="flex";
+      });
+    },function(){ showDoc("agreement"); });
+  }
+  function showSign(){
+    var d=collect(); if(!need(d))return;
+    ensurePdfmake(function(){
+      ensurePreview();
+      var pdf=pdfMake.createPdf(buildAgreementDoc(d,null));
+      document.getElementById("pv-title").textContent="Sign Link — "+(d.clientName||"");
+      var lk=document.getElementById("pv-link"); lk.style.display="block";
+      lk.innerHTML='<div id="pv-lmsg" style="color:#8aa0b2;font-size:12px;margin-bottom:6px;">Creating short signing link…</div>'
+        +'<textarea id="pv-lbox" readonly onclick="this.select()" style="width:100%;height:50px;background:#0b1219;color:#cfe0ea;border:1px solid #24333f;border-radius:8px;padding:8px;font-size:16px;box-sizing:border-box;">…</textarea>';
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      document.getElementById("cancas-pv").style.display="flex";
+      createSignLink(d).then(function(link){
+        var box=document.getElementById("pv-lbox"); if(box) box.value=link;
+        var msg=document.getElementById("pv-lmsg"); if(msg) msg.innerHTML="This is exactly what the client will review &amp; sign. Send them this link:";
+        foot.innerHTML="";
+        foot.appendChild(pvBtn("Copy Link",function(){ copyText(link); },true));
+        var mob=dg(document.getElementById("cf-mobile1")&&document.getElementById("cf-mobile1").value)||dg(document.getElementById("cf-phone")&&document.getElementById("cf-phone").value);
+        foot.appendChild(pvBtn("Send on WhatsApp",function(){ if(!mob){alert("No WhatsApp number on file — use Copy Link.");return;} window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(link),"_blank"); }));
+        foot.appendChild(pvBtn("Open client view",function(){ window.open(link,"_blank"); }));
+        foot.appendChild(pvBtn("View Signed Copy",function(){ getSignedCopy(d); }));
+        try{ if(typeof refreshAgreementStatus==="function") refreshAgreementStatus(); }catch(e){}
+      });
+      // Independently check whether this client already has a SIGNED agreement on file
+      // (a different row than whatever fresh link we just created above) and, if so, offer
+      // to wipe that signature in place so the client can resign using the exact link they
+      // already have — just by refreshing it.
+      var sbCheck=(typeof getSB==="function")?getSB():null;
+      if(sbCheck){
+        sbCheck.from('agreements').select('*').eq('data->>clientName',d.clientName).eq('status','signed').order('signed_at',{ascending:false}).limit(1).then(function(res){
+          var row=(res&&res.data||[])[0];
+          if(!row) return;
+          var box=document.getElementById("pv-link"); if(!box) return;
+          var existingLink=SIGN_BASE+"?id="+row.id;
+          var when=row.signed_at?new Date(row.signed_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):"";
+          var wrap=document.createElement("div");
+          wrap.style.cssText="margin-top:10px;padding:10px;border:1px solid #3a2a1a;background:rgba(232,184,75,.08);border-radius:8px;";
+          wrap.innerHTML='<div style="color:#e8b84b;font-size:12px;margin-bottom:8px;">Already signed by '+(row.signed_name||"—")+(row.signed_title?(" ("+row.signed_title+")"):"")+(when?(" on "+when):"")+'. Their original link:<br><span style="color:#cfe0ea;word-break:break-all;">'+existingLink+'</span></div>';
+          wrap.appendChild(dangerBtn("Reset Signature",function(){
+            if(!confirm("This permanently erases the current signature and lets the client sign again using their original link. This cannot be undone. Continue?")) return;
+            sbCheck.rpc("reset_agreement",{p_id:row.id}).then(function(r){
+              if(r&&r.error){ alert("Reset failed: "+r.error.message); return; }
+              if(r&&r.data==="not-found"){ alert("Could not find that agreement anymore — it may already have been reset."); }
+              else{ alert("Signature wiped. The client can refresh their original link to sign again:\n"+existingLink); }
+              wrap.remove();
+              try{ if(typeof refreshAgreementStatus==="function") refreshAgreementStatus(); }catch(e){}
+            },function(){ alert("Reset failed."); });
+          }));
+          box.appendChild(wrap);
+        });
+      }
+    });
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  // ---- Invoice History: browse every invoice (project + monthly) ever issued to this
+  // client, with a year/month filter, and re-download the exact original PDF on demand. ----
+  var ihRows = [];
+  function ensureInvoiceHistoryModal(){
+    if(document.getElementById("cancas-ih")) return;
+    var m=document.createElement("div"); m.id="cancas-ih";
+    m.style.cssText="position:fixed;inset:0;z-index:100000;background:rgba(6,10,14,.94);display:none;flex-direction:column;padding:16px;font-family:Arial,Helvetica,sans-serif;";
+    m.innerHTML=''
+     +'<div style="max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;flex:1;min-height:0;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;overflow:hidden;">'
+     +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1f2c38;color:#e7eef4;">'
+     +'    <div id="ih-title" style="font-weight:800;font-size:16px;">Invoice History</div>'
+     +'    <button onclick="document.getElementById(\'cancas-ih\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">× Close</button>'
+     +'  </div>'
+     +'  <div style="display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #1f2c38;">'
+     +'    <select id="ih-year" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"><option value="">All years</option></select>'
+     +'    <select id="ih-month" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"><option value="">All months</option>'
+     +'      <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>'
+     +'      <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>'
+     +'      <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>'
+     +'    </select>'
+     +'  </div>'
+     +'  <div id="ih-list" style="flex:1;overflow:auto;padding:8px 16px;color:#e7eef4;font-size:13px;"></div>'
+     +'</div>';
+    document.body.appendChild(m);
+    document.getElementById("ih-year").addEventListener("change", applyInvoiceHistoryFilter);
+    document.getElementById("ih-month").addEventListener("change", applyInvoiceHistoryFilter);
+  }
+  function invoiceHistoryOpen(){ var m=document.getElementById("cancas-ih"); return m && m.style.display==="flex"; }
+  function renderInvoiceHistoryRows(rows){
+    var list=document.getElementById("ih-list"); if(!list) return;
+    if(!rows.length){ list.innerHTML='<div style="color:#8aa0b2;padding:20px 0;text-align:center;">No invoices in this range.</div>'; return; }
+    list.innerHTML = rows.map(function(r,i){
+      var when = r.period_label || (r.created_at ? new Date(r.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "");
+      var kindLabel = r.kind==="monthly" ? "Monthly" : r.kind==="final" ? "Final" : "Project";
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #1f2c38;">'
+        +'<div><div style="font-weight:700;">'+r.invoice_no+'</div>'
+        +'<div style="color:#8aa0b2;font-size:12px;">'+kindLabel+' · '+when+' · AED '+Number(r.amount||0).toLocaleString("en-US",{minimumFractionDigits:2})+'</div></div>'
+        +'<div style="display:flex;gap:8px;flex-shrink:0;">'
+        +'<button data-ih-idx="'+i+'" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer;">PDF</button>'
+        +'<button data-ih-del="'+i+'" title="Delete this invoice record" style="background:#3a1414;color:#ff8080;border:1px solid #5a2020;border-radius:8px;padding:11px 12px;font-weight:800;cursor:pointer;">&times;</button>'
+        +'</div></div>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll("[data-ih-idx]"), function(btn){
+      btn.onclick = function(){ downloadHistoryInvoice(rows[Number(btn.getAttribute("data-ih-idx"))]); };
+    });
+    Array.prototype.forEach.call(list.querySelectorAll("[data-ih-del]"), function(btn){
+      btn.onclick = function(){ deleteHistoryInvoice(rows[Number(btn.getAttribute("data-ih-del"))]); };
+    });
+  }
+  // Removes a permanent invoice record — for cleaning up duplicates or mistakes
+  // (e.g. an invoice created by accident, or one previewed multiple times before
+  // the "preview shouldn't save" fix). Confirms first; this cannot be undone.
+  function deleteHistoryInvoice(row){
+    if(!row || !row.id) return;
+    if(!confirm("Delete invoice "+(row.invoice_no||"")+" (AED "+Number(row.amount||0).toLocaleString("en-US",{minimumFractionDigits:2})+")? This cannot be undone.")) return;
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb) return;
+    sb.from('invoices').delete().eq('id', row.id).then(function(res){
+      if(res && res.error){ alert("Delete failed: "+res.error.message); return; }
+      ihRows = ihRows.filter(function(r){ return r.id!==row.id; });
+      applyInvoiceHistoryFilter();
+      try{ if(typeof calcPending==="function") calcPending(); }catch(e){}
+    });
+  }
+  function downloadHistoryInvoice(row){
+    ensurePdfmake(function(){
+      ensurePreview();
+      var doc = (row.kind==="monthly"||row.kind==="final") ? buildMonthlyInvoiceDoc(row.data) : buildInvoiceDoc(row.data);
+      var pdf = pdfMake.createPdf(doc);
+      document.getElementById("pv-title").textContent="Invoice — "+(row.invoice_no||"");
+      document.getElementById("pv-link").style.display="none";
+      pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+      var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+      foot.appendChild(pvBtn("Download PDF",function(){ pdf.download(fname("Cancas-Invoice-"+row.invoice_no)+".pdf"); },true));
+      var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001; pvEl.style.display="flex";
+    });
+  }
+  function applyInvoiceHistoryFilter(){
+    var yr = document.getElementById("ih-year").value;
+    var mo = document.getElementById("ih-month").value;
+    var filtered = ihRows.filter(function(r){
+      var d = new Date(r.created_at);
+      if(yr && String(d.getFullYear())!==yr) return false;
+      if(mo!=="" && mo!==null && mo!==undefined && String(d.getMonth())!==mo) return false;
+      return true;
+    });
+    renderInvoiceHistoryRows(filtered);
+  }
+  function loadInvoiceHistory(clientName){
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb){ renderInvoiceHistoryRows([]); return; }
+    sb.from('invoices').select('*').eq('client_name', clientName).order('created_at',{ascending:false}).then(function(res){
+      ihRows = (res && res.data) || [];
+      var yearSel = document.getElementById("ih-year");
+      var years = Array.from(new Set(ihRows.map(function(r){ return new Date(r.created_at).getFullYear(); }))).sort(function(a,b){return b-a;});
+      yearSel.innerHTML = '<option value="">All years</option>' + years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join("");
+      applyInvoiceHistoryFilter();
+    }, function(){ renderInvoiceHistoryRows([]); });
+  }
+  function refreshInvoiceHistoryIfOpen(){
+    if(!invoiceHistoryOpen()) return;
+    var d = collect();
+    loadInvoiceHistory(d.clientName);
+  }
+  function showInvoiceHistory(){
+    var d=collect(); if(!need(d))return;
+    ensureInvoiceHistoryModal();
+    document.getElementById("ih-title").textContent = "Invoice History — " + (d.clientName||"");
+    document.getElementById("cancas-ih").style.display = "flex";
+    loadInvoiceHistory(d.clientName);
+  }
 
-  window.addEventListener('hashchange', capture);
+  window.CancasPanel = {
+    invoice:   function(){ showDoc("invoice"); },
+    agreement: function(){ showAgreementSmart(); },
+    signlink:  function(){ showSign(); },
+    getSignedCopy: function(){ var d=collect(); if(!need(d))return; getSignedCopy(d); },
+    invoiceHistory: function(){ showInvoiceHistory(); }
+  };
+})();
+</script>
+
+<!-- ===================== CANCAS EXTRAS: reminders, invoice #, reports, backup ===================== -->
+<script>
+(function(){
+  var STUDIO_WA = "971569016046";
+  function V(id){var el=document.getElementById(id);return el?String(el.value||"").trim():"";}
+  function money(n){return Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function num(n){return Number(String(n||"").replace(/[^0-9.\-]/g,""))||0;}
+  function digits(s){return String(s||"").replace(/[^0-9]/g,"");}
+  function paidOf(c){return (c&&c.payments||[]).reduce(function(s,p){return s+num(p.amount);},0);}
+  function splitOf(){var t=num(V("cf-value")),d=V("cf-deposit")!==""?num(V("cf-deposit")):Math.round(t*50)/100,b=V("cf-balance")!==""?num(V("cf-balance")):(t-d);return{t:t,d:d,b:b};}
+  function clientOpen(){return !!V("cf-biz")||!!V("cf-name");}
+
+  // Invoice numbering is now handled inside showDoc() via the next_invoice_no() database
+  // function — a single permanent sequence, not a scan of the (mutable) client list.
+  if(window.CancasPanel&&CancasPanel.invoice){
+    var _inv=CancasPanel.invoice;
+    CancasPanel.invoice=function(){ if(!clientOpen()){alert("Open a client first.");return;} _inv(); };
+  }
+
+  // ---------- REMINDERS (WhatsApp preferred, email fallback) ----------
+  function sendReminder(kind){
+    if(!clientOpen()){alert("Open a client first.");return;}
+    var s=splitOf(), name=V("cf-name")||V("cf-biz"), inv=V("cf-invoice")||"", who=V("cf-biz")||name;
+    var amount = kind==="deposit" ? s.d : s.b;
+    var line = kind==="deposit"
+      ? "This is a friendly reminder for the 50% advance of AED "+money(s.d)+" to begin your website project"
+      : "Your website is ready. This is a reminder for the remaining balance of AED "+money(s.b)+" before we launch it live";
+    var msg = "Hello "+(name||"")+",\n\n"+line+".\n"+(inv?("Invoice: "+inv+"\n"):"")+"\nFeel free to reach out for any questions. Thank you!\n— Cancas Studio";
+    var mob = digits(V("cf-mobile1"))||digits(V("cf-phone"));
+    if(mob){ window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(msg),"_blank"); return; }
+    var email=V("cf-email"); if(email){ location.href="mailto:"+email+"?subject="+encodeURIComponent("Cancas Studio — "+(kind==="deposit"?"Advance":"Balance")+" Reminder")+"&body="+encodeURIComponent(msg); return; }
+    alert("No WhatsApp number or email on file for this client.");
+  }
+  CancasPanel.depositReminder=function(){ sendReminder("deposit"); };
+  CancasPanel.balanceReminder=function(){ sendReminder("balance"); };
+
+  // ---------- REPORTS ----------
+  function iso(d){return new Date(d).toISOString().slice(0,10);}
+  function statusLabel(s){return ({lead:"Lead",inprogress:"In Progress",active:"Active",revision:"Revision",completed:"Completed",churned:"Churned",paused:"Paused"})[s]||s||"—";}
+
+  function buildReportsModal(){
+    if(document.getElementById("cancas-reports")) return;
+    var m=document.createElement("div");
+    m.id="cancas-reports";
+    m.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(6,10,14,.92);display:none;overflow:auto;padding:24px;";
+    m.innerHTML=''
+    +'<div style="max-width:1000px;margin:0 auto;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;color:#e7eef4;font-family:Arial,Helvetica,sans-serif;">'
+    +'  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1f2c38;">'
+    +'    <div style="font-size:20px;font-weight:800;">Reports</div>'
+    +'    <button onclick="document.getElementById(\'cancas-reports\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;">× Close</button>'
+    +'  </div>'
+    +'  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;padding:16px 20px;border-bottom:1px solid #1f2c38;">'
+    +'    <div><div style="font-size:11px;color:#8aa0b2;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">From</div><input type="date" id="rep-from" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"></div>'
+    +'    <div><div style="font-size:11px;color:#8aa0b2;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">To</div><input type="date" id="rep-to" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"></div>'
+    +'    <button onclick="CancasReports.apply()" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:800;cursor:pointer;">Apply</button>'
+    +'    <button onclick="CancasReports.preset(\'month\')" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">This month</button>'
+    +'    <button onclick="CancasReports.preset(\'year\')" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">This year</button>'
+    +'    <div style="flex:1"></div>'
+    +'    <button onclick="CancasReports.exportPayments()" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">Payments CSV</button>'
+    +'    <button onclick="CancasReports.backup()" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;">Backup all data</button>'
+    +'  </div>'
+    +'  <div id="rep-body" style="padding:18px 20px;"></div>'
+    +'</div>';
+    document.body.appendChild(m);
+  }
+
+  function card(label,val,color){return '<div style="flex:1;min-width:150px;background:#0b1219;border:1px solid #1f2c38;border-radius:10px;padding:14px 16px;">'
+    +'<div style="font-size:11px;color:#8aa0b2;text-transform:uppercase;letter-spacing:.7px;">'+label+'</div>'
+    +'<div style="font-size:24px;font-weight:900;margin-top:4px;color:'+(color||"#e7eef4")+';">'+val+'</div></div>';}
+
+  var STAT=[["all","All"],["active","Active"],["inprogress","In Progress"],["lead","Lead"],["completed","Completed"],["churned","Churned"],["__none","Unassigned"]];
+  function compute(from,to,status){
+    CRM.load(); var cs=(CRM.clients||[]).filter(function(c){ if(!status||status==='all')return true; if(status==='__none')return !(c.status); if(status==='active')return ['active','inprogress','revision'].indexOf(c.status)>=0; return (c.status||'')===status; });
+    var revenue=0, pays=[], pendingNow=0, mrr=0, newC=0, newVal=0, launched=0, byStatus={}, actions=[];
+    cs.forEach(function(c){
+      var val=num(c.value), paid=paidOf(c), pend=Math.max(0,val-paid);
+      pendingNow+=pend;
+      if(['active','inprogress','revision'].indexOf(c.status)>=0) mrr+=num(c.monthly);
+      var created=c.created?iso(c.created):null;
+      if(created&&created>=from&&created<=to){ newC++; newVal+=val; }
+      if(c.launch&&String(c.launch)>=from&&String(c.launch)<=to) launched++;
+      byStatus[c.status]=byStatus[c.status]||{n:0,v:0}; byStatus[c.status].n++; byStatus[c.status].v+=val;
+      if(pend>0) actions.push({name:c.biz||c.name||"—", pend:pend, kind: paid<=0?"Deposit unpaid":"Balance due"});
+      (c.payments||[]).forEach(function(p){ if(p.date&&p.date>=from&&p.date<=to){ revenue+=num(p.amount); pays.push({date:p.date,name:c.biz||c.name||"—",amount:num(p.amount),method:p.method||"",ref:p.ref||""}); } });
+    });
+    return {revenue:revenue,pays:pays,pendingNow:pendingNow,mrr:mrr,newC:newC,newVal:newVal,launched:launched,byStatus:byStatus,actions:actions};
+  }
+
+  var lastPays=[], repFrom="0000-00-00", repTo="9999-99-99", repStatus="all";
+  function render(){
+    var r=compute(repFrom,repTo,repStatus); lastPays=r.pays;
+    var segName=(STAT.filter(function(s){return s[0]===repStatus;})[0]||["","All"])[1];
+    var html='';
+    html+='<div style="font-size:11px;color:#8aa0b2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Segment</div>';
+    html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">'+STAT.map(function(s){var on=s[0]===repStatus;return '<button onclick="CancasReports.status(\''+s[0]+'\')" style="background:'+(on?'#0E7C92':'#1f2c38')+';color:#e7eef4;border:'+(on?'1px solid #22c3e0':'1px solid #24333f')+';border-radius:7px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:13px;">'+s[1]+'</button>';}).join('')+'</div>';
+    html+='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">'
+      +card("Revenue collected","AED "+money(r.revenue),"#00e87a")
+      +card("Outstanding (now)","AED "+money(r.pendingNow),"#ff5050")
+      +card("MRR (active plans)","AED "+money(r.mrr)+"/mo","#00d4ff")
+      +card("New clients","+"+r.newC+" · AED "+money(r.newVal))
+      +card("Launched","+"+r.launched)
+      +'</div>';
+    // pipeline
+    html+='<div style="font-weight:800;margin:6px 0 8px;">Pipeline by status</div><table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:18px;">';
+    html+='<tr style="color:#8aa0b2;text-align:left;"><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;">Status</th><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;">Clients</th><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;text-align:right;">Value (AED)</th></tr>';
+    Object.keys(r.byStatus).forEach(function(k){ html+='<tr><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+statusLabel(k)+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+r.byStatus[k].n+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;text-align:right;">'+money(r.byStatus[k].v)+'</td></tr>'; });
+    if(!Object.keys(r.byStatus).length) html+='<tr><td colspan="3" style="padding:8px;color:#8aa0b2;">No clients yet.</td></tr>';
+    html+='</table>';
+    // action needed
+    html+='<div style="font-weight:800;margin:6px 0 8px;">Needs follow-up ('+r.actions.length+')</div>';
+    if(r.actions.length){ html+='<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:18px;">';
+      r.actions.sort(function(a,b){return b.pend-a.pend;}).forEach(function(a){ html+='<tr><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+a.name+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;color:#e8b84b;">'+a.kind+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;text-align:right;color:#ff5050;">AED '+money(a.pend)+'</td></tr>'; });
+      html+='</table>'; } else { html+='<div style="color:#00e87a;margin-bottom:18px;">All clear — nothing outstanding.</div>'; }
+    // payments log
+    html+='<div style="font-weight:800;margin:6px 0 8px;">Payments in period ('+r.pays.length+') — AED '+money(r.revenue)+'</div>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html+='<tr style="color:#8aa0b2;text-align:left;"><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;">Date</th><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;">Client</th><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;">Method</th><th style="padding:6px 8px;border-bottom:1px solid #1f2c38;text-align:right;">Amount</th></tr>';
+    r.pays.sort(function(a,b){return a.date<b.date?1:-1;}).forEach(function(p){ html+='<tr><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+p.date+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+p.name+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;">'+p.method+'</td><td style="padding:6px 8px;border-bottom:1px solid #141e27;text-align:right;">'+money(p.amount)+'</td></tr>'; });
+    if(!r.pays.length) html+='<tr><td colspan="4" style="padding:8px;color:#8aa0b2;">No payments in this period.</td></tr>';
+    html+='</table>';
+    document.getElementById("rep-body").innerHTML=html;
+  }
+
+  window.CancasReports={
+    open:function(){ buildReportsModal(); repStatus="all"; this.preset("month"); document.getElementById("cancas-reports").style.display="block"; },
+    apply:function(){ repFrom=V("rep-from")||"0000-00-00"; repTo=V("rep-to")||"9999-99-99"; render(); },
+    preset:function(p){ var now=new Date(),f,t=iso(now); if(p==="year"){f=now.getFullYear()+"-01-01";} else {f=iso(new Date(now.getFullYear(),now.getMonth(),1));} var fe=document.getElementById("rep-from"),te=document.getElementById("rep-to"); if(fe)fe.value=f; if(te)te.value=t; repFrom=f; repTo=t; render(); },
+    status:function(s){ repStatus=s; render(); },
+    exportPayments:function(){ var rows=[["Date","Client","Method","Ref","Amount"]].concat(lastPays.map(function(p){return [p.date,p.name,p.method,p.ref||"",p.amount];})); var csv=rows.map(function(r){return r.map(function(x){return '"'+String(x).replace(/"/g,'""')+'"';}).join(",");}).join("\n"); var a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv); a.download="cancas-payments.csv"; a.click(); },
+    backup:function(){ try{CRM.load();}catch(e){} var data=JSON.stringify(window.CRM?CRM.clients:[],null,2); var a=document.createElement("a"); a.href="data:application/json;charset=utf-8,"+encodeURIComponent(data); a.download="cancas-crm-backup-"+iso(new Date())+".json"; a.click(); }
+  };
+
+  // add a Reports tab to the CRM nav bar (once the panel exists)
+  function addReportsTab(){
+    var nav=document.querySelector(".crm-nav");
+    if(nav && !document.getElementById("tab-reports")){
+      var b=document.createElement("button");
+      b.className="crm-tab"; b.id="tab-reports"; b.textContent="Reports";
+      b.onclick=function(){ CancasReports.open(); };
+      nav.appendChild(b);
+    }
+  }
+  window.addEventListener("DOMContentLoaded",function(){ setTimeout(addReportsTab,300); });
+  setTimeout(addReportsTab,1200);
 })();
 </script>
 </body>
