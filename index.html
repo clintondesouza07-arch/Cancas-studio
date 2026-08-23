@@ -2112,7 +2112,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <div class="pkg-price-block">
           <span class="pkg-cur" id="s2-sym-b2">AED</span><span class="pkg-cur" id="s2-sym-b" style="display:none">AED</span>
-          <span class="pkg-big" id="s2-mo">199</span>
+          <span class="pkg-big" id="s2-mo">249</span>
           <span class="pkg-per">/mo</span>
         </div>
         <div class="pkg-sub">per month · billed monthly</div>
@@ -2140,7 +2140,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-big" id="s2-ot">3,499</span>
         </div>
         <div class="pkg-sub">one-time · you own it forever</div>
-        <div class="pkg-save-tag">💰 Save <span id="s2-save">1,277</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
+        <div class="pkg-save-tag">💰 Save <span id="s2-save">2,477</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>Up to 10 pages — premium custom design</li>
@@ -3148,7 +3148,7 @@ PATH 1 — OWN YOUR WEBSITE (one-time payment, you own the code, arrange your ow
 
 PATH 2 — CANCAS MANAGED HOSTING (monthly recurring, we host & maintain everything):
 - Starter managed: AED 149/month — hosting, SSL, 3 content updates/month (no domain)
-- Business managed: AED 199/month — hosting, SSL, domain, 6 updates/month, 48-72hr turnaround
+- Business managed: AED 249/month — hosting, SSL, domain, 6 updates/month, 48-72hr turnaround
 - Premium managed: AED 399/month — hosting, SSL, domain, unlimited edits, VIP support, monthly strategy call
 - All plans have a one-time setup fee (27% off the one-time price)
 - Includes: website hosting, SSL certificate, security monitoring, minor monthly edits
@@ -3272,8 +3272,8 @@ function getFallback(l){
   // Business package
   if(l.match(/business (package|plan|tier)|3499|2932|149.?mo|10 page/))
     return pick('business',[
-      'The Business package at AED 3,499 one-time (or AED 199/month managed) is our most popular. It includes up to 10 pages, an AI chatbot, booking system, advanced SEO, analytics, and 90 days of support with unlimited revisions. What industry are you in?',
-      'Business plan is AED 3,499 one-time — 10 pages, booking system, built-in AI chatbot, full SEO and analytics, 90 days support. On monthly it\'s AED 199/mo — hosting, domain, SSL, and 6 updates per month. Would you like a demo?'
+      'The Business package at AED 3,499 one-time (or AED 249/month managed) is our most popular. It includes up to 10 pages, an AI chatbot, booking system, advanced SEO, analytics, and 90 days of support with unlimited revisions. What industry are you in?',
+      'Business plan is AED 3,499 one-time — 10 pages, booking system, built-in AI chatbot, full SEO and analytics, 90 days support. On monthly it\'s AED 249/mo — hosting, domain, SSL, and 6 updates per month. Would you like a demo?'
     ]);
 
   // Premium package
@@ -3726,8 +3726,8 @@ function SB_deleteReadEnquiries(){
 const PRICES_AED = {
   ot:    [1999,  3499,  5499],  // one-time AED
   build: [1069,  2141,  4016],  // monthly setup AED (27% off)
-  mo:    [ 149,   199,   399],  // monthly hosting fee AED
-  save:  [1577,  1277,  4077]   // savings vs 2-yr monthly AED
+  mo:    [ 149,   249,   399],  // monthly hosting fee AED
+  save:  [1577,  2477,  4077]   // savings vs 2-yr monthly AED
 };
 const SYMS = {AED:'AED',USD:'$',GBP:'£',EUR:'€',INR:'₹'};
 // Fallback rates relative to AED (used if live API is unavailable)
