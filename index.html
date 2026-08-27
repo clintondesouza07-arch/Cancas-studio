@@ -4310,7 +4310,7 @@ async function refreshAttention(){
     try{
       var invRes = await sb.from('invoices').select('client_name,amount');
       ((invRes && invRes.data)||[]).forEach(function(r){
-        var k=r.client_name||''; invoicedByKey[k]=(invoicedByKey[k]||0)+parseFloat(r.amount||0);
+        var k=(r.client_name||'').trim(); invoicedByKey[k]=(invoicedByKey[k]||0)+parseFloat(r.amount||0);
       });
     }catch(e){}
     try{
@@ -4329,7 +4329,7 @@ async function refreshAttention(){
     return !!(s && s > now);
   }
   CRM.clients.forEach(function(c){
-    var key = c.biz || c.name || '';
+    var key = (c.biz || c.name || '').trim();
     var paid = (c.payments||[]).reduce(function(s,p){ return s+parseFloat(p.amount||0); },0);
     var invoiced = invoicedByKey[key] || 0;
     var pending = Math.max(0, invoiced-paid);
@@ -4684,14 +4684,83 @@ async function crmCloudSync(){
       SYNC._hydrated = true;            // trust this device's local data as the source
       SYNC.push(true);
       setTimeout(function(){
-        SYNC.pull(function(){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); });
+        SYNC.pull(function(){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); ensureMonthlyInvoices(); });
       }, 1400);
     } else {
       SYNC.pull(function(ok){
-        if(ok){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); }
+        if(ok){ CRM.load(); renderCrmGrid(); updateKpis(); updateEnquiryBadge(); refreshAttention(); ensureMonthlyInvoices(); }
       });
     }
   } catch(e){ SYNC.status('Offline — local data', false); }
+}
+
+// ---- Automatic monthly billing --------------------------------------------
+// For every ACTIVE client on a monthly plan, ensure an invoice exists for each
+// month that has come due — anchored to the SAME DAY of the month as their Start
+// Date, starting one month after Start Date. Idempotent: only creates the months
+// that are missing, never duplicates. Once a month's invoice exists it counts
+// toward "invoiced", so it shows as Pending, then Overdue if unpaid.
+var _ensuringMonthly = false;
+async function ensureMonthlyInvoices(){
+  if(_ensuringMonthly) return;
+  var sb = (typeof getSB==='function') ? getSB() : null;
+  if(!sb) return;
+  _ensuringMonthly = true;
+  try{
+    CRM.load();
+    var existing = {};
+    var res = await sb.from('invoices').select('client_name,kind,period_label').eq('kind','monthly');
+    ((res && res.data)||[]).forEach(function(r){ existing[(r.client_name||'')+'|'+(r.period_label||'')] = true; });
+    var now = new Date();
+    var todo = [];
+    CRM.clients.forEach(function(c){
+      var monthly = parseFloat(c.monthly||0);
+      var isActive = c.status==='active'||c.status==='inprogress'||c.status==='revision';
+      if(!monthly || !isActive) return;   // only active monthly plans
+      if(c.end) return;                    // contract ended → stop billing
+      if(!c.start) return;                 // needs a Start Date anchor
+      var start = new Date(c.start);
+      if(isNaN(start.getTime())) return;
+      var key = (c.biz || c.name || '').trim();
+      var anchorDay = start.getDate();
+      for(var k=1; k<=240; k++){
+        var d = new Date(start.getFullYear(), start.getMonth()+k, 1);
+        var dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); // days in that month
+        d.setDate(Math.min(anchorDay, dim));   // same day each month, clamped
+        if(d > now) break;                      // don't pre-bill future months
+        var period = d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}); // "August 2026"
+        var ek = key+'|'+period;
+        if(!existing[ek]){ existing[ek]=true; todo.push({c:c,key:key,period:period,when:d,amount:monthly}); }
+      }
+    });
+    for(var i=0;i<todo.length;i++){ await _insertMonthlyInvoice(todo[i]); }
+    if(todo.length){
+      try{ refreshAttention(); }catch(e){}
+      try{ if(typeof calcPending==='function' && CRM.currentId) calcPending(); }catch(e){}
+      try{ if(typeof refreshInvoiceHistoryIfOpen==='function') refreshInvoiceHistoryIfOpen(); }catch(e){}
+    }
+  }catch(e){}
+  _ensuringMonthly = false;
+}
+function _insertMonthlyInvoice(item){
+  return new Promise(function(resolve){
+    var sb=(typeof getSB==='function')?getSB():null; if(!sb){resolve();return;}
+    var c=item.c, name=item.key;
+    function doInsert(invNo){
+      var id=Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+      var data={clientName:name, billingEntity:c.billing||'', clientLocation:c.location||'',
+                monthly:item.amount, invoiceNo:invNo,
+                invoiceDate:item.when.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}),
+                period:item.period};
+      var w=item.when;
+      var createdAt=new Date(Date.UTC(w.getFullYear(), w.getMonth(), w.getDate(), 12, 0, 0)).toISOString();
+      sb.from('invoices').insert({ id:id, invoice_no:invNo, client_name:name, kind:'monthly',
+        period_label:item.period, amount:item.amount, data:data, created_at:createdAt
+      }).then(function(){resolve();},function(){resolve();});
+    }
+    try{ sb.rpc('next_invoice_no').then(function(res){ doInsert((res&&res.data)||('CS-'+String(Date.now()).slice(-6))); }, function(){ doInsert('CS-'+String(Date.now()).slice(-6)); }); }
+    catch(e){ doInsert('CS-'+String(Date.now()).slice(-6)); }
+  });
 }
 
 function openSyncSetup(){
@@ -5065,7 +5134,7 @@ function calcPending(){
   // raised for this client) pulled from Supabase.
   renderPendingUI(total, paid, pending, monthly, cancelled);
 
-  var clientKey = c ? (c.biz || c.name || '') : '';
+  var clientKey = c ? (c.biz || c.name || '').trim() : '';
   var sb = (typeof getSB==='function') ? getSB() : null;
   if(sb && clientKey){
     var myToken = ++_pendingFetchToken;
@@ -5219,7 +5288,7 @@ function saveClient(){
     updated: Date.now(),
     payments: existing ? (existing.payments||[]) : [],
     activeCats: existing ? (existing.activeCats||{}) : {},
-    name: getV('cf-name'), biz: getV('cf-biz'), billing: getV('cf-billing'), email: getV('cf-email'),
+    name: getV('cf-name').trim(), biz: getV('cf-biz').trim(), billing: getV('cf-billing').trim(), email: getV('cf-email'),
     phone: getV('cf-phone'), mobile1: getV('cf-mobile1'), mobile2: getV('cf-mobile2'),
     email2: getV('cf-email2'), industry: getV('cf-industry'),
     industryother: getV('cf-industry-other'), location: getV('cf-location'),
@@ -5980,10 +6049,11 @@ function autoBackupOnSave() {
   function saveInvoiceRecord(d){
     var sb=(typeof getSB==="function")?getSB():null; if(!sb) return;
     var id=Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+    var cn=(d.clientName||'').trim();
     sb.from('invoices').insert({
-      id:id, invoice_no:d.invoiceNo||("CS-"+id), client_name:d.clientName, kind:'project',
+      id:id, invoice_no:d.invoiceNo||("CS-"+id), client_name:cn, kind:'project',
       period_label:null, amount:Number(d.total||0),
-      data:{clientName:d.clientName,billingEntity:d.billingEntity,clientLocation:d.clientLocation,
+      data:{clientName:cn,billingEntity:d.billingEntity,clientLocation:d.clientLocation,
             packageName:d.packageName,scope:d.scope,total:d.total,monthly:d.monthly,
             deposit:d.deposit,balance:d.balance,invoiceNo:d.invoiceNo,invoiceDate:d.invoiceDate}
     }).then(function(){ try{ if(typeof refreshInvoiceHistoryIfOpen==="function") refreshInvoiceHistoryIfOpen(); }catch(e){} });
