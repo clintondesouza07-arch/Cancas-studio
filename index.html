@@ -105,6 +105,11 @@
         "@type": "Offer",
         "itemOffered": { "@type": "Service", "name": "Premium Website Package Dubai", "description": "Unlimited pages, full custom design, AI chatbot, priority support, 90 days support" },
         "price": "5499", "priceCurrency": "AED"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": { "@type": "Service", "name": "Custom / Enterprise Website Package Dubai", "description": "Fully bespoke build for corporates & enterprise — custom integrations, multi-language, multi-branch, dedicated account manager and priority SLA" },
+        "price": "9999", "priceCurrency": "AED"
       }
     ]
   },
@@ -141,7 +146,7 @@
     {
       "@type": "Question",
       "name": "How much does a website cost in Dubai?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Our packages start at AED 1,999 for a one-time build (you own the code) or AED 149/month on a fully-managed plan. Prices vary by scope — contact us for a free quote." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Our packages start at AED 1,999 for a one-time build (you own the code) or AED 199/month on a fully-managed plan. Prices vary by scope — contact us for a free quote." }
     },
     {
       "@type": "Question",
@@ -161,7 +166,7 @@
     {
       "@type": "Question",
       "name": "Can I pay monthly instead of a lump sum?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Our monthly plans start from AED 149/month — we build, host, and look after everything, including a free domain. One-time plans start at AED 1,999 and you get the full code." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Our monthly plans start from AED 199/month — we build, host, and look after everything, including a free domain. One-time plans start at AED 1,999 and you get the full code." }
     },
     {
       "@type": "Question",
@@ -331,6 +336,64 @@ h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,84px);font
   grid-template-columns:repeat(3,1fr);
   gap:28px;
   align-items:start;
+}
+
+/* ── Custom / Enterprise strip ─────────── */
+.pkg-enterprise{
+  margin-top:28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:36px;
+  background:linear-gradient(135deg,#14110a,#0e0e1a 60%);
+  border:1px solid rgba(255,176,32,.35);
+  border-radius:14px;
+  padding:30px 36px;
+  position:relative;
+  overflow:hidden;
+}
+.pkg-enterprise::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(600px 200px at 100% 0%,rgba(255,176,32,.10),transparent 70%);
+}
+.pkg-ent-left{ flex:1 1 auto; min-width:0; position:relative; }
+.pkg-ent-badge{
+  display:inline-block;font-size:12px;font-weight:800;letter-spacing:.12em;
+  color:#ffb020;background:rgba(255,176,32,.10);
+  border:1px solid rgba(255,176,32,.35);border-radius:999px;
+  padding:5px 12px;margin-bottom:12px;
+}
+.pkg-ent-title{ font-size:24px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2; }
+.pkg-ent-desc{ font-size:15px;color:var(--muted);max-width:640px;margin:0 0 14px;line-height:1.55; }
+.pkg-ent-list{ list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px 22px; }
+.pkg-ent-list li{ font-size:14px;color:#cfd2dc;position:relative;padding-left:20px; }
+.pkg-ent-list li::before{ content:"✓";position:absolute;left:0;color:#ffb020;font-weight:800; }
+.pkg-ent-right{ flex:0 0 auto;text-align:center;position:relative; }
+.pkg-ent-from{ font-size:13px;color:var(--muted);margin-bottom:2px; }
+.pkg-ent-price{ display:flex;align-items:baseline;justify-content:center;gap:6px; }
+.pkg-ent-price .pkg-cur{ font-size:16px;color:#ffb020;font-weight:700; }
+.pkg-ent-big{
+  font-size:52px;font-weight:800;line-height:1;
+  background:linear-gradient(135deg,#ffce6b,#ffb020);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.pkg-ent-sub{ font-size:13px;color:var(--muted);margin:6px 0 8px; }
+.pkg-ent-or{ font-size:11px;letter-spacing:.15em;color:rgba(255,255,255,.35);margin:2px 0 6px; }
+.pkg-ent-monthly{ font-size:26px;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:baseline;justify-content:center;gap:5px; }
+.pkg-ent-monthly .pkg-cur{ font-size:14px;color:#ffb020;font-weight:700; }
+.pkg-ent-permo{ font-size:13px;font-weight:600;color:var(--muted); }
+.pkg-ent-cta{
+  display:inline-block;text-decoration:none;font-weight:800;letter-spacing:.04em;font-size:14px;
+  color:#151007;background:linear-gradient(135deg,#ffce6b,#ffb020);
+  padding:13px 26px;border-radius:10px;white-space:nowrap;
+  transition:transform .15s,box-shadow .2s;
+}
+.pkg-ent-cta:hover{ transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,176,32,.28); }
+@media(max-width:860px){
+  .pkg-enterprise{ flex-direction:column;align-items:flex-start;gap:22px;padding:26px 24px; }
+  .pkg-ent-right{ text-align:left;width:100%; }
+  .pkg-ent-price, .pkg-ent-monthly{ justify-content:flex-start; }
+  .pkg-ent-cta{ width:100%;text-align:center; }
 }
 
 /* ── Card shell ─────────────────────── */
@@ -2057,7 +2120,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <div class="pkg-price-block">
           <span class="pkg-cur" id="s1-sym-b2">AED</span><span class="pkg-cur" id="s1-sym-b" style="display:none">AED</span>
-          <span class="pkg-big" id="s1-mo">149</span>
+          <span class="pkg-big" id="s1-mo">199</span>
           <span class="pkg-per">/mo</span>
         </div>
         <div class="pkg-sub">per month · billed monthly</div>
@@ -2083,7 +2146,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-big" id="s1-ot">1,999</span>
         </div>
         <div class="pkg-sub">one-time · you own it forever</div>
-        <div class="pkg-save-tag">💰 Save <span id="s1-save">1,577</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>Up to 5 pages — clean custom design</li>
@@ -2140,7 +2202,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-big" id="s2-ot">3,499</span>
         </div>
         <div class="pkg-sub">one-time · you own it forever</div>
-        <div class="pkg-save-tag">💰 Save <span id="s2-save">2,477</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>Up to 10 pages — premium custom design</li>
@@ -2201,7 +2262,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-big" id="s3-ot" style="background:linear-gradient(135deg,#b464ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">5,499</span>
         </div>
         <div class="pkg-sub">one-time · you own it forever</div>
-        <div class="pkg-save-tag">💰 Save <span id="s3-save">4,077</span> <span class="save-sym">AED</span> vs 2yr monthly</div>
         <div class="pkg-divider-line" style="background:linear-gradient(90deg,#b464ff22,#b464ff,#b464ff22);"></div>
         <ul class="pkg-list">
           <li>Unlimited pages — fully bespoke design</li>
@@ -2230,6 +2290,32 @@ html, body { max-width: 100%; overflow-x: hidden; }
     </div><!-- /fw3 -->
 
   </div><!-- end pkg-grid -->
+
+  <!-- ── Custom / Enterprise tier ───────────────────────────── -->
+  <div class="pkg-enterprise" id="fw4">
+    <div class="pkg-ent-left">
+      <div class="pkg-ent-badge">✦ CUSTOM / ENTERPRISE</div>
+      <div class="pkg-ent-title">Built for corporates &amp; enterprise</div>
+      <p class="pkg-ent-desc">A fully bespoke build for larger organisations — multi-page portals, custom integrations, multiple stakeholders, and dedicated support. Scoped around exactly what your business needs.</p>
+      <ul class="pkg-ent-list">
+        <li>Fully customised design &amp; functionality</li>
+        <li>Custom integrations (CRM, ERP, booking, payments)</li>
+        <li>Multi-language &amp; multi-branch ready</li>
+        <li>Dedicated account manager &amp; priority SLA</li>
+      </ul>
+    </div>
+    <div class="pkg-ent-right">
+      <div class="pkg-ent-from">Starting from</div>
+      <div class="pkg-ent-price">
+        <span class="pkg-cur" id="s4-sym">AED</span>
+        <span class="pkg-ent-big" id="s4-ot">9,999</span>
+      </div>
+      <div class="pkg-ent-sub">one-time · custom-quoted to your scope</div>
+      <div class="pkg-ent-or">— or —</div>
+      <div class="pkg-ent-monthly"><span class="pkg-cur">AED</span> <span id="s4-mo">1,499</span><span class="pkg-ent-permo">/mo managed</span></div>
+      <a href="#contact" class="pkg-ent-cta">BOOK A CONSULTATION</a>
+    </div>
+  </div>
 
   <!-- ── Pricing footer ─────────────────────────────────────── -->
   <div class="pricing-footer">
@@ -2632,16 +2718,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
           <div class="crm-profile-sub" id="prof-sub">—</div>
           <div style="display:flex;align-items:center;gap:20px;margin-top:10px;flex-wrap:wrap;">
-            <div style="display:flex;flex-direction:column;gap:2px;">
-              <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Total</span>
-              <span id="prof-total-val" style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:var(--white);line-height:1;">AED 0</span>
-            </div>
-            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0;"></div>
-            <div style="display:flex;flex-direction:column;gap:2px;">
-              <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Paid</span>
-              <span id="prof-paid-val" style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:#00e87a;line-height:1;">AED 0</span>
-            </div>
-            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0;"></div>
             <div style="display:flex;flex-direction:column;gap:2px;">
               <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Pending</span>
               <span id="prof-pending-val" style="font-family:Barlow Condensed,sans-serif;font-size:26px;font-weight:900;color:#ff5050;line-height:1;">AED 0</span>
@@ -3120,7 +3196,7 @@ function openPkgDemo(key){
     +'<ul style="list-style:none;padding:0;margin:0;">'+featHtml+(missHtml?'<li style="height:8px;"></li>'+missHtml:'')+'</ul>'
     +'<div style="margin-top:24px;padding:16px;background:'+d.ac+'11;border:1px solid '+d.ac+'22;border-radius:6px;text-align:center;">'
     +'<div style="font-size:22px;font-weight:900;color:'+d.ac+';font-family:system-ui;">'+d.label+'</div>'
-    +'<div style="font-size:12px;color:'+d.mg+';margin-top:4px;">or start from AED '+(key==='starter'?'99':key==='business'?'149':'349')+'/mo managed</div>'
+    +'<div style="font-size:12px;color:'+d.mg+';margin-top:4px;">or start from AED '+(key==='starter'?'199':key==='business'?'249':'399')+'/mo managed</div>'
     +'<button onclick="closeDemo();setTimeout(function(){document.getElementById(\'contact\').scrollIntoView({behavior:\'smooth\'});},120);" style="margin-top:12px;background:'+d.ac+';color:#000;border:none;padding:10px 28px;font-weight:700;font-size:11px;letter-spacing:1.5px;cursor:pointer;border-radius:3px;text-transform:uppercase;">GET THIS PACKAGE &#8594;</button>'
     +'</div></div></div>'
     +'</div>';
@@ -3145,11 +3221,13 @@ PATH 1 — OWN YOUR WEBSITE (one-time payment, you own the code, arrange your ow
 - Starter: AED 1,999 one-time — 5-page website, contact form, basic SEO, Google Maps, 30 days support, 2 revisions
 - Business: AED 3,499 one-time — 10 pages, AI chatbot, booking system, advanced SEO + Analytics, 90 days support, unlimited revisions
 - Premium: AED 5,499 one-time — unlimited pages, advanced AI chatbot, CRM integrations, 6 months support, unlimited revisions
+- Custom / Enterprise: from AED 9,999 one-time (custom-quoted) — fully bespoke build for corporates & enterprise, custom integrations, multi-language, multi-branch, dedicated account manager & priority SLA
 
 PATH 2 — CANCAS MANAGED HOSTING (monthly recurring, we host & maintain everything):
-- Starter managed: AED 149/month — hosting, SSL, 3 content updates/month (no domain)
+- Starter managed: AED 199/month — hosting, SSL, 3 content updates/month (no domain)
 - Business managed: AED 249/month — hosting, SSL, domain, 6 updates/month, 48-72hr turnaround
 - Premium managed: AED 399/month — hosting, SSL, domain, unlimited edits, VIP support, monthly strategy call
+- Custom / Enterprise managed: from AED 1,499/month — everything in Premium plus custom integrations, multi-branch, dedicated account manager & priority SLA (custom-quoted)
 - All plans have a one-time setup fee (27% off the one-time price)
 - Includes: website hosting, SSL certificate, security monitoring, minor monthly edits
 - FREE domain included: we find the best available match for your business name
@@ -3257,16 +3335,16 @@ function getFallback(l){
   // Pricing / cost / packages
   if(l.match(/price|cost|how much|pricing|fee|package|plan|rate|charge|quote|affordable|cheap|expensive/))
     return pick('pricing',[
-      'We have two ways to work with us: \n\n1. Own it outright — Starter AED 1,999 | Business AED 3,499 | Premium AED 5,499 (one-time, you keep the code forever)\n\n2. Monthly managed — from AED 149/mo (we host, maintain and update everything, free domain included)\n\nWhich interests you more?',
-      'Our packages start at AED 1,999 for a one-time build or AED 149/month on a managed plan. The main difference: one-time means you own the code outright, monthly means we handle everything including hosting, SSL and edits. What type of business are you building for?',
-      'Great question on pricing! Starter is AED 1,999 (5 pages), Business is AED 3,499 (10 pages + AI chatbot + booking system), and Premium is AED 5,499 (unlimited pages, advanced features). All include full custom design. Monthly plans start at AED 149/mo. Want a specific quote?'
+      'We have two ways to work with us: \n\n1. Own it outright — Starter AED 1,999 | Business AED 3,499 | Premium AED 5,499 (one-time, you keep the code forever)\n\n2. Monthly managed — from AED 199/mo (we host, maintain and update everything, free domain included)\n\nWhich interests you more?',
+      'Our packages start at AED 1,999 for a one-time build or AED 199/month on a managed plan. The main difference: one-time means you own the code outright, monthly means we handle everything including hosting, SSL and edits. What type of business are you building for?',
+      'Great question on pricing! Starter is AED 1,999 (5 pages), Business is AED 3,499 (10 pages + AI chatbot + booking system), and Premium is AED 5,499 (unlimited pages, advanced features). All include full custom design. Monthly plans start at AED 199/mo. Want a specific quote?'
     ]);
 
   // Starter package
   if(l.match(/starter|basic|simple|small|1999|1499|1464|99.?mo|99 a month/))
     return pick('starter',[
-      'The Starter package is AED 1,999 one-time or AED 149/month managed. It includes a 5-page website, contact form, basic SEO, Google Maps, and 30 days of support. Perfect for small businesses just getting online. Want to get started?',
-      'Our Starter plan gives you a clean, professional 5-page website for AED 1,999 one-time. On the monthly plan it\'s AED 149/mo — we handle hosting, SSL, and 3 content updates per month. Is this for a new business or an existing one?'
+      'The Starter package is AED 1,999 one-time or AED 199/month managed. It includes a 5-page website, contact form, basic SEO, Google Maps, and 30 days of support. Perfect for small businesses just getting online. Want to get started?',
+      'Our Starter plan gives you a clean, professional 5-page website for AED 1,999 one-time. On the monthly plan it\'s AED 199/mo — we handle hosting, SSL, and 3 content updates per month. Is this for a new business or an existing one?'
     ]);
 
   // Business package
@@ -3480,10 +3558,10 @@ function getFallback(l){
 
   // Catchall — give real helpful info then invite follow-up
   var catchalls = [
-    "Hi! I'm Nex, the AI assistant for CANCAS STUDIO — a web design agency in Dubai. We build custom websites for restaurants, salons, real estate, gyms, tech companies and more. Prices start from AED 1,999 one-time or AED 149/month managed. What can I help you with?",
+    "Hi! I'm Nex, the AI assistant for CANCAS STUDIO — a web design agency in Dubai. We build custom websites for restaurants, salons, real estate, gyms, tech companies and more. Prices start from AED 1,999 one-time or AED 199/month managed. What can I help you with?",
     "CANCAS STUDIO builds premium websites for Dubai businesses — restaurants, salons, real estate, fitness studios and more. Websites launch in 7–14 days, starting from AED 1,999. Ask me about pricing, our portfolio, timelines, or anything else!",
     "Great to have you here! CANCAS STUDIO is a Dubai web design studio. Whether you need a simple 5-page site or a full AI-powered platform, we have packages to match. I'm Nex — ask me anything about our services, pricing, or how we work.",
-    "I'm Nex, your AI guide for CANCAS STUDIO. We create custom websites for businesses across every industry in Dubai and worldwide. Starter from AED 1,999 · Business from AED 3,499 · Premium from AED 5,499. Monthly plans from AED 149/mo. What would you like to know?",
+    "I'm Nex, your AI guide for CANCAS STUDIO. We create custom websites for businesses across every industry in Dubai and worldwide. Starter from AED 1,999 · Business from AED 3,499 · Premium from AED 5,499 · Enterprise from AED 9,999. Monthly plans from AED 199/mo. What would you like to know?",
     "Happy to help! CANCAS STUDIO is a premium web design agency based in Dubai. We specialise in fast, custom, mobile-first websites with AI chatbots, booking systems, SEO and more — delivered in as little as 7 days. What kind of website are you looking for?"
   ];
   return pick('catchall', catchalls);
@@ -3724,9 +3802,9 @@ function SB_deleteReadEnquiries(){
 // Base prices in USD (AED / 3.67)
 // ── Prices stored in AED, converted live ────────────────────────────────
 const PRICES_AED = {
-  ot:    [1999,  3499,  5499],  // one-time AED
+  ot:    [1999,  3499,  5499,  9999],  // one-time AED (s4 = Enterprise "from")
   build: [1069,  2141,  4016],  // monthly setup AED (27% off)
-  mo:    [ 149,   249,   399],  // monthly hosting fee AED
+  mo:    [ 199,   249,   399,  1499],  // monthly hosting fee AED (s4 = Enterprise)
   save:  [1577,  2477,  4077]   // savings vs 2-yr monthly AED
 };
 const SYMS = {AED:'AED',USD:'$',GBP:'£',EUR:'€',INR:'₹'};
@@ -3887,7 +3965,7 @@ window.flipCard = function(cardId, showSide){
 
 function renderAllPrices(){
   var sym = SYMS[CUR];
-  ['s1','s2','s3'].forEach(function(id,i){
+  ['s1','s2','s3','s4'].forEach(function(id,i){
     var g = function(s){ return document.getElementById(id+s); };
     if(g('-sym'))    g('-sym').textContent    = sym;
     if(g('-sym-b'))  g('-sym-b').textContent  = sym;
@@ -4979,6 +5057,9 @@ function onCrmSortChange(){
 function openNewClient(){
   CRM.currentId = null;
   clearProfileForm();
+  // New client: Contract Value & Monthly Fee are editable until first saved.
+  (function(){ var v=document.getElementById('cf-value'), m=document.getElementById('cf-monthly');
+    [v,m].forEach(function(el){ if(el){ el.readOnly=false; el.style.opacity=''; el.style.cursor=''; el.title=''; } }); })();
   document.getElementById('prof-name').textContent='New Client';
   document.getElementById('prof-sub').textContent='Fill in the details below';
   document.getElementById('prof-avatar').textContent='?';
@@ -5037,6 +5118,15 @@ function openClientProfile(id){
   // Switch to info tab by default
   var infoBtn = document.querySelector('.crm-prof-tab');
   if(infoBtn) switchProfTab('info', infoBtn);
+  // Total Contract Value & Monthly Fee are fixed contract terms: once a client has
+  // them saved, lock the fields so they can't be edited/changed afterward.
+  (function(){
+    var vEl=document.getElementById('cf-value'), mEl=document.getElementById('cf-monthly');
+    var hasV = !!(c && c.value!==undefined && c.value!==null && String(c.value).trim()!=='');
+    var hasM = !!(c && c.monthly!==undefined && c.monthly!==null && String(c.monthly).trim()!=='');
+    if(vEl){ vEl.readOnly=hasV; vEl.style.opacity=hasV?'0.6':''; vEl.style.cursor=hasV?'not-allowed':''; vEl.title=hasV?'Fixed contract value — locked after saving':''; }
+    if(mEl){ mEl.readOnly=hasM; mEl.style.opacity=hasM?'0.6':''; mEl.style.cursor=hasM?'not-allowed':''; mEl.title=hasM?'Fixed monthly fee — locked after saving':''; }
+  })();
   refreshAgreementStatus();
 }
 
