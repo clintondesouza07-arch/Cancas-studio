@@ -399,23 +399,52 @@ h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,84px);font
 .nexq-opt:hover{ background:rgba(0,212,255,.18); border-color:rgba(0,212,255,.55); }
 .nexq-opt:disabled{ opacity:.5; cursor:default; }
 
-/* ── Nex teaser bubble (attract-to-open) ─────────── */
-#nexq-teaser{ position:fixed; right:32px; bottom:100px; z-index:801; max-width:250px;
-  display:flex; align-items:flex-start; gap:9px; background:var(--bg2); color:var(--text);
-  border:1px solid var(--border); border-radius:14px; padding:12px 30px 12px 12px;
-  box-shadow:0 14px 40px rgba(0,0,0,.45); cursor:pointer;
-  opacity:0; transform:translateY(12px) scale(.96); pointer-events:none;
-  transition:opacity .35s ease, transform .35s ease; }
-#nexq-teaser.show{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; animation:nexqBob 3.2s ease-in-out 1s infinite; }
-@keyframes nexqBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
-.nexq-teaser-av{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:var(--cyan); display:flex; align-items:center; justify-content:center; }
-.nexq-teaser-av svg{ width:16px; height:16px; stroke:#001018; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-.nexq-teaser-txt{ font-size:13.5px; line-height:1.4; font-weight:600; }
-#nexq-teaser-x{ position:absolute; top:5px; right:7px; background:none; border:none; color:var(--muted); font-size:16px; line-height:1; cursor:pointer; padding:2px; }
-#nexq-teaser-x:hover{ color:var(--text); }
+/* ── Amaya launcher (cute face, soft colours) ─────────── */
+body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
+  background:transparent; border:none; box-shadow:none;
+  animation:amayaFloat 2.8s ease-in-out infinite; }
+#chat-trigger .amaya-face{ font-size:52px; line-height:1; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+#chat-trigger .amaya-face.face-pop{ animation:amayaFacePop .32s ease; }
+@keyframes amayaFacePop{ 0%{ transform:scale(.6); } 55%{ transform:scale(1.18); } 100%{ transform:scale(1); } }
+#chat-trigger::before{ display:none; }
+#chat-trigger.amaya-bounce{ animation:amayaDrop .85s cubic-bezier(.3,.7,.4,1); }
+#chat-trigger .chat-pulse{ top:auto; bottom:4px; right:4px; }
+@keyframes amayaFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+/* ball dropping on the floor: fall → squash on impact → bounce lower → settle */
+@keyframes amayaDrop{
+  0%{ transform:translateY(-26px) scaleY(1.06) scaleX(.95); }
+  22%{ transform:translateY(0) scaleY(.78) scaleX(1.18); }
+  40%{ transform:translateY(-15px) scaleY(1.06) scaleX(.96); }
+  56%{ transform:translateY(0) scaleY(.87) scaleX(1.11); }
+  70%{ transform:translateY(-7px) scaleY(1.02) scaleX(.99); }
+  84%{ transform:translateY(0) scaleY(.95) scaleX(1.05); }
+  100%{ transform:translateY(0) scaleY(1) scaleX(1); }
+}
+@keyframes amayaRing{ 0%{ transform:scale(.85); opacity:.5; } 70%{ transform:scale(1.3); opacity:0; } 100%{ opacity:0; } }
+/* clean red notification dot */
+#chat-badge{ position:absolute; top:-2px; right:-2px; width:15px; height:15px; border-radius:50%;
+  background:#ff3b30; border:2.5px solid var(--bg); display:none; z-index:3; }
+#chat-badge.show{ display:block; animation:amayaDotPop .35s ease, amayaDotPulse 2s ease-out .4s infinite; }
+@keyframes amayaDotPop{ 0%{ transform:scale(0); } 60%{ transform:scale(1.25); } 100%{ transform:scale(1); } }
+@keyframes amayaDotPulse{ 0%{ box-shadow:0 0 0 0 rgba(255,59,48,.55); } 70%{ box-shadow:0 0 0 7px rgba(255,59,48,0); } 100%{ box-shadow:0 0 0 0 rgba(255,59,48,0); } }
+
+/* ── Amaya messages (iPhone iMessage style) ─────────── */
+#amaya-stack{ position:fixed; right:32px; bottom:108px; z-index:801; display:flex; flex-direction:column; gap:5px; max-width:288px; align-items:flex-start; }
+#amaya-stack-x{ display:none; align-self:flex-end; background:var(--bg2); color:var(--muted); border:1px solid var(--border); border-radius:12px; font-size:11px; font-weight:600; line-height:1; padding:5px 9px; cursor:pointer; margin-bottom:2px; }
+#amaya-stack.has #amaya-stack-x{ display:block; }
+#amaya-stack-x:hover{ color:var(--text); }
+.amaya-msg{ display:flex; align-items:flex-end; gap:7px; cursor:pointer; opacity:0; transform:translateY(16px) scale(.92); animation:amayaMsgIn .45s cubic-bezier(.22,.9,.34,1) forwards; }
+.amaya-msg.out{ animation:amayaMsgOut .38s ease forwards; }
+.amaya-av{ flex:0 0 auto; width:24px; height:24px; background:transparent; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.amaya-av svg{ width:16px; height:16px; stroke:none; fill:none; }
+.amaya-bub{ position:relative; background:#3a3a3c; color:#fff; border-radius:19px 19px 19px 6px; padding:9px 14px; font-size:14px; line-height:1.35; font-weight:400; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+.amaya-bub b{ color:#8fe6ff; font-weight:700; }
+@keyframes amayaMsgIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+@keyframes amayaMsgOut{ to{ opacity:0; transform:translateY(-8px) scale(.96); } }
 @media(max-width:768px){
-  #nexq-teaser{ right:16px; bottom:92px; max-width:min(255px, calc(100vw - 84px)); padding:11px 28px 11px 11px; }
-  .nexq-teaser-txt{ font-size:13px; }
+  body #chat-trigger{ width:58px; height:58px; }
+  #amaya-stack{ right:14px; bottom:96px; max-width:min(280px, calc(100vw - 78px)); }
+  .amaya-bub{ font-size:13.5px; }
 }
 @media(max-width:860px){
   .pkg-enterprise{ flex-direction:column;align-items:flex-start;gap:22px;padding:26px 24px; }
@@ -2558,29 +2587,27 @@ html, body { max-width: 100%; overflow-x: hidden; }
 </footer>
 
 <!-- CHAT TRIGGER -->
-<button id="chat-trigger" onclick="toggleChat()" title="Chat with our AI assistant" style="position:fixed;">
-  <div class="chat-pulse"></div>
-  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+<button id="chat-trigger" onclick="toggleChat()" title="Chat with Amaya" style="position:fixed;">
+  <span id="chat-badge" aria-hidden="true"></span>
+  <span class="amaya-face" id="amaya-face">🙂</span>
 </button>
 
-<!-- CHAT TEASER (attract-to-open) -->
-<div id="nexq-teaser" role="button" tabindex="0" aria-label="Open chat for a free quote" onclick="nexqTeaserOpen()" onkeypress="if(event.key==='Enter')nexqTeaserOpen()">
-  <button id="nexq-teaser-x" type="button" aria-label="Dismiss" onclick="event.stopPropagation();nexqTeaserDismiss()">×</button>
-  <div class="nexq-teaser-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 116.93 19.07"/></svg></div>
-  <div class="nexq-teaser-txt" id="nexq-teaser-txt">👋 Free website quote in 60 seconds — tap here</div>
+<!-- AMAYA PROACTIVE MESSENGER (stacked pop-ups) -->
+<div id="amaya-stack" aria-live="polite" aria-label="Messages from Amaya">
+  <button id="amaya-stack-x" type="button" aria-label="Dismiss messages" onclick="amayaStop()">Dismiss ✕</button>
 </div>
 
 <!-- CHAT BOX -->
 <div id="chat-box">
   <div class="chat-head">
     <div class="chat-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 116.93 19.07M12 2v2M12 20v2"/></svg></div>
-    <div class="chat-head-info"><strong>Cancas AI Assistant</strong><span>Online — Powered by Claude</span></div>
+    <div class="chat-head-info"><strong>Amaya · Cancas AI</strong><span>Online — Powered by Claude</span></div>
     <button class="close-chat" onclick="toggleChat()" aria-label="Close chat">×</button>
   </div>
   <div id="chat-msgs">
     <div class="msg ai">
       <div class="msg-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 116.93 19.07"/></svg></div>
-      <div class="msg-bub">Hello. I'm Cancas' AI assistant. I can answer any question about our web design services, pricing, timelines, or your project. What can I help you with?</div>
+      <div class="msg-bub">Hi! I'm Amaya 👋 your AI assistant here at Cancas Studio. Ask me anything about our packages, features or pricing — or I can put together a free quote &amp; demo for your business. What can I help you with?</div>
     </div>
   </div>
   <div id="nexq-cta">
@@ -3244,7 +3271,7 @@ function openPkgDemo(key){
 function toggleChat(){document.getElementById('chat-box').classList.toggle('open');}
 function openTC(e){ if(e) e.preventDefault(); document.getElementById('tc-modal').classList.add('open'); }
 
-const CHAT_SYSTEM = `You are Nex, the friendly and highly intelligent AI assistant for CANCAS STUDIO — a premium web design and development agency based in Dubai, UAE.
+const CHAT_SYSTEM = `You are Amaya, the friendly and highly intelligent AI assistant for CANCAS STUDIO — a premium web design and development agency based in Dubai, UAE.
 
 COMPANY FACTS:
 - We build custom websites in 7–14 days
@@ -3303,6 +3330,7 @@ async function sendChat(){
   addChatMsg(msg, 'user');
   // If the guided lead qualifier is running, route this input to it (not the AI).
   if(window.NEXQ && window.NEXQ.active){ window.nexqText(msg); return; }
+  if(window.amayaFace) window.amayaFace('🤔');
   showTyping();
   chatHistory.push({role:'user', content: msg});
 
@@ -3324,6 +3352,7 @@ async function sendChat(){
       chatHistory.push({role:'assistant', content: reply});
       removeTyping();
       addChatMsg(reply, 'ai');
+      if(window.amayaFace) window.amayaFace('😊');
     } else {
       throw new Error('no reply');
     }
@@ -3332,6 +3361,7 @@ async function sendChat(){
     const fallback = getFallback(msg.toLowerCase());
     chatHistory.push({role:'assistant', content: fallback});
     addChatMsg(fallback, 'ai');
+    if(window.amayaFace) window.amayaFace('😊');
   }
 }
 
@@ -3351,17 +3381,17 @@ function getFallback(l){
   // Greetings
   if(l.match(/^(hi|hello|hey|good morning|good evening|good afternoon|sup|yo|hiya|howdy|salaam|salam|namaste|hola|bonjour|ciao|marhaba)[\s!.,?]*$/))
     return pick('greet',[
-      'Hey! Welcome to CANCAS STUDIO. I\'m Nex, your AI guide. Are you looking to build a new website, or do you have a question about our services?',
-      'Hello! Great to have you here. I\'m Nex — I can help you with pricing, services, timelines, or anything else about CANCAS STUDIO. What\'s on your mind?',
-      'Hi there! I\'m Nex. Whether you\'re a new client exploring options or an existing client with a question, I\'m here to help. What can I do for you today?'
+      'Hey! Welcome to CANCAS STUDIO. I\'m Amaya, your AI guide. Are you looking to build a new website, or do you have a question about our services?',
+      'Hello! Great to have you here. I\'m Amaya — I can help you with pricing, services, timelines, or anything else about CANCAS STUDIO. What\'s on your mind?',
+      'Hi there! I\'m Amaya. Whether you\'re a new client exploring options or an existing client with a question, I\'m here to help. What can I do for you today?'
     ]);
 
   // Who is this / who are you / what is this / what is nex
   if(l.match(/who (is|are) (this|you|nex)|what (is|are) (this|you|nex)|your name|are you (a )?bot|are you (an )?ai|are you human|are you real|introduce yourself|what can you do|what do you know|^who\??$|^what\??$|^nex\??$|who made (you|this)|who built (this|you)|who created (you|this)|who owns (this|cancas)|who runs (this|cancas)|tell me about yourself/))
     return pick('whoami',[
-      'I\'m Nex — the AI assistant built for CANCAS STUDIO, a premium web design agency based in Dubai. I can help you with pricing, timelines, package details, demos, and anything else about our services. What would you like to know?',
-      'Hey! I\'m Nex, the AI guide for CANCAS STUDIO. Think of me as your 24/7 web design consultant — I know everything about our packages, demos, process, and pricing. Ask me anything!',
-      'I\'m Nex — an AI assistant created specifically for CANCAS STUDIO. I\'m here to help you explore our web design services, pricing, and portfolio. I can answer questions instantly at any hour. What can I help you with today?'
+      'I\'m Amaya — the AI assistant built for CANCAS STUDIO, a premium web design agency based in Dubai. I can help you with pricing, timelines, package details, demos, and anything else about our services. What would you like to know?',
+      'Hey! I\'m Amaya, the AI guide for CANCAS STUDIO. Think of me as your 24/7 web design consultant — I know everything about our packages, demos, process, and pricing. Ask me anything!',
+      'I\'m Amaya — an AI assistant created specifically for CANCAS STUDIO. I\'m here to help you explore our web design services, pricing, and portfolio. I can answer questions instantly at any hour. What can I help you with today?'
     ]);
 
   // About the company — catch more variations
@@ -3598,10 +3628,10 @@ function getFallback(l){
 
   // Catchall — give real helpful info then invite follow-up
   var catchalls = [
-    "Hi! I'm Nex, the AI assistant for CANCAS STUDIO — a web design agency in Dubai. We build custom websites for restaurants, salons, real estate, gyms, tech companies and more. Prices start from AED 1,999 one-time or AED 199/month managed. What can I help you with?",
+    "Hi! I'm Amaya, the AI assistant for CANCAS STUDIO — a web design agency in Dubai. We build custom websites for restaurants, salons, real estate, gyms, tech companies and more. Prices start from AED 1,999 one-time or AED 199/month managed. What can I help you with?",
     "CANCAS STUDIO builds premium websites for Dubai businesses — restaurants, salons, real estate, fitness studios and more. Websites launch in 7–14 days, starting from AED 1,999. Ask me about pricing, our portfolio, timelines, or anything else!",
-    "Great to have you here! CANCAS STUDIO is a Dubai web design studio. Whether you need a simple 5-page site or a full AI-powered platform, we have packages to match. I'm Nex — ask me anything about our services, pricing, or how we work.",
-    "I'm Nex, your AI guide for CANCAS STUDIO. We create custom websites for businesses across every industry in Dubai and worldwide. Starter from AED 1,999 · Business from AED 3,499 · Premium from AED 5,499 · Enterprise from AED 9,999. Monthly plans from AED 199/mo. What would you like to know?",
+    "Great to have you here! CANCAS STUDIO is a Dubai web design studio. Whether you need a simple 5-page site or a full AI-powered platform, we have packages to match. I'm Amaya — ask me anything about our services, pricing, or how we work.",
+    "I'm Amaya, your AI guide for CANCAS STUDIO. We create custom websites for businesses across every industry in Dubai and worldwide. Starter from AED 1,999 · Business from AED 3,499 · Premium from AED 5,499 · Enterprise from AED 9,999. Monthly plans from AED 199/mo. What would you like to know?",
     "Happy to help! CANCAS STUDIO is a premium web design agency based in Dubai. We specialise in fast, custom, mobile-first websites with AI chatbots, booking systems, SEO and more — delivered in as little as 7 days. What kind of website are you looking for?"
   ];
   return pick('catchall', catchalls);
@@ -3781,52 +3811,86 @@ function nexqFinish(){
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// CHAT TEASER — attract visitors to open the chat (behaviour-triggered)
-// Triggers (first to fire): 8s delay · scroll past hero/pricing · 25s idle
-// · desktop exit-intent. Dismissible + remembered. Mobile-safe (no exit-
-// intent on touch; teaser is size-capped so it never covers the screen).
+// AMAYA — proactive smart messenger (stacked pop-ups, sales-active)
+// Intro burst in the first ~14s, then context-aware nudges based on which
+// section the visitor lingers on, plus idle + desktop exit-intent. Messages
+// pile up (max 3 visible, oldest fades), the launcher bounces + shows a red
+// unread badge on each new message. Mobile-safe (no exit-intent on touch).
 // ══════════════════════════════════════════════════════════════════════
 (function(){
-  var OFF_KEY='nexq_teaser_off';
-  var state={ shown:false, exitUsed:false, dead:false, autohide:null, idle:null };
-  function isOff(){ try{ return localStorage.getItem(OFF_KEY)==='1'; }catch(e){ return false; } }
-  function retire(){ hide(); state.dead=true; try{ localStorage.setItem(OFF_KEY,'1'); }catch(e){} }
-  function chatOpen(){ var b=document.getElementById('chat-box'); return !!(b && b.classList.contains('open')); }
-  function el(){ return document.getElementById('nexq-teaser'); }
-  function inView(id){ var s=document.getElementById(id); if(!s) return false; var r=s.getBoundingClientRect(); return r.top < (window.innerHeight*0.8) && r.bottom > 0; }
-  function hide(){ var e=el(); if(e) e.classList.remove('show'); }
-  function show(kind){
-    if(state.dead || isOff() || chatOpen()) return;
-    if(kind==='exit'){ if(state.exitUsed) return; }
-    else if(state.shown){ return; }
-    var e=el(); if(!e) return;
-    var txt='👋 Free website quote in 60 seconds — tap here';
-    if(kind==='exit') txt='Leaving? Grab your free quote first 👉';
-    else if(inView('pricing')) txt='Not sure which plan? Get a free quote 👉';
-    var t=document.getElementById('nexq-teaser-txt'); if(t) t.textContent=txt;
-    e.classList.add('show');
-    state.shown=true;
-    if(kind==='exit') state.exitUsed=true;
-    clearTimeout(state.autohide);
-    state.autohide=setTimeout(hide, kind==='exit'?9000:14000);
+  var OFF='amaya_off';
+  var A={ dead:false, sent:0, unread:0, introDone:false, lastAt:0, sectionsDone:{}, idleFired:false, exitFired:false, dwell:{}, lastSec:'' };
+  var MAX_VISIBLE=3, MAX_TOTAL=8, GAP=15000;
+  var Q=[], pumping=false;
+  var AV='<div class="amaya-av"><svg viewBox="0 0 40 40"><circle cx="15" cy="18" r="2.5" fill="#fff"/><circle cx="25" cy="18" r="2.5" fill="#fff"/><path d="M14.5 24 Q20 28.5 25.5 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></div>';
+
+  function offNow(){ try{ return sessionStorage.getItem(OFF)==='1'; }catch(e){ return false; } }
+  function chatOpen(){ var b=document.getElementById('chat-box'); return !!(b&&b.classList.contains('open')); }
+  function stack(){ return document.getElementById('amaya-stack'); }
+  function bounce(){ var t=document.getElementById('chat-trigger'); if(!t) return; t.classList.remove('amaya-bounce'); void t.offsetWidth; t.classList.add('amaya-bounce'); setTimeout(function(){ t.classList.remove('amaya-bounce'); },750); }
+  function badge(){ var b=document.getElementById('chat-badge'); if(!b) return; if(A.unread>0){ b.classList.add('show'); b.style.display='block'; } else { b.classList.remove('show'); b.style.display='none'; } }
+  function setFace(e){ var f=document.getElementById('amaya-face'); if(!f||!e) return; f.textContent=e; f.classList.remove('face-pop'); void f.offsetWidth; f.classList.add('face-pop'); }
+  function clearStack(){ var s=stack(); if(s){ s.classList.remove('has'); s.querySelectorAll('.amaya-msg').forEach(function(n){ n.remove(); }); } }
+
+  function render(m){
+    var s=stack(); if(!s) return;
+    var div=document.createElement('div'); div.className='amaya-msg';
+    var face=m.emoji||'🙂';
+    div.innerHTML='<div class="amaya-av">'+face+'</div><div class="amaya-bub">'+m.text+'</div>';
+    setFace(face);
+    div.addEventListener('click', function(){ window.amayaOpen(m.cta); });
+    s.appendChild(div); s.classList.add('has');
+    var msgs=s.querySelectorAll('.amaya-msg');
+    for(var k=0; k < msgs.length - MAX_VISIBLE; k++){
+      (function(old){ if(old.classList.contains('out')) return; old.classList.add('out'); setTimeout(function(){ if(old&&old.parentNode) old.parentNode.removeChild(old); },360); })(msgs[k]);
+    }
+    A.sent++; A.unread++; A.lastAt=Date.now(); bounce(); badge();
   }
-  window.nexqTeaserDismiss=function(){ retire(); };
-  window.nexqTeaserOpen=function(){ retire(); if(window.startNexQualifier) window.startNexQualifier(); };
+  function canSend(kind){ if(A.dead||offNow()||chatOpen()) return false; if(kind!=='exit' && A.sent>=MAX_TOTAL) return false; return true; }
+  function pump(){ if(pumping||!Q.length) return; if(!canSend(Q[0].kind)){ Q.shift(); return pump(); } var wait=Math.max(0,GAP-(Date.now()-A.lastAt)); pumping=true; setTimeout(function(){ pumping=false; var m=Q.shift(); if(m&&canSend(m.kind)) render(m); pump(); }, wait); }
+  function say(text,opts){ opts=opts||{}; Q.push({text:text,cta:!!opts.cta,kind:opts.kind||'ctx',emoji:opts.emoji}); pump(); }
+  function sayNow(text,opts){ opts=opts||{}; if(canSend(opts.kind||'intro')) render({text:text,cta:!!opts.cta,kind:opts.kind||'intro',emoji:opts.emoji}); }
+
+  window.amayaSay=say;
+  window.amayaFace=setFace;
+  window.amayaStop=function(){ A.dead=true; try{ sessionStorage.setItem(OFF,'1'); }catch(e){} clearStack(); };
+  window.amayaOpen=function(cta){ clearStack(); A.unread=0; badge(); setFace('😊'); A.dead=true;
+    if(cta && window.startNexQualifier){ window.startNexQualifier(); }
+    else { var b=document.getElementById('chat-box'); if(b && !b.classList.contains('open')) b.classList.add('open'); } };
+
+  var SEC={
+    services:{t:"Curious what's included in each package? Ask me anything 🙂", e:'🙂'},
+    portfolio:{t:"Love these designs? I can create one tailored to your business ✨", e:'😍'},
+    showcase:{t:"These are real industries we build for — want one for yours?", e:'😃'},
+    pricing:{t:"Not sure which plan fits you best? I'll help you choose the right one 💬", e:'🤔'},
+    process:{t:"Wondering how we work? I can walk you through our simple process.", e:'🙂'},
+    contact:{t:"Prefer I prepare a quick <b>free quote</b> for you right now? 👉", cta:true, e:'😃'}
+  };
+  function currentSection(){ var ids=['contact','process','pricing','showcase','portfolio','services','hero']; var mid=window.innerHeight/2; for(var i=0;i<ids.length;i++){ var s=document.getElementById(ids[i]); if(!s) continue; var r=s.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid) return ids[i]; } return ''; }
 
   function init(){
-    if(isOff() || !el()) return;
-    var trig=document.getElementById('chat-trigger');
-    if(trig) trig.addEventListener('click', retire);           // manual open retires the teaser
-    setTimeout(function(){ show('time'); }, 8000);              // 1) time delay
-    function onScroll(){ if(window.scrollY>700){ show('scroll'); window.removeEventListener('scroll', onScroll); } }
-    window.addEventListener('scroll', onScroll, {passive:true});// 2) scroll past hero
-    function resetIdle(){ clearTimeout(state.idle); state.idle=setTimeout(function(){ show('idle'); }, 25000); }
-    ['mousemove','scroll','keydown','touchstart','click'].forEach(function(ev){ window.addEventListener(ev, resetIdle, {passive:true}); });
-    resetIdle();                                               // 3) idle nudge
-    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints>0) || !(window.matchMedia && window.matchMedia('(pointer:fine)').matches);
-    if(!isTouch){                                              // 4) exit-intent (desktop only)
-      document.addEventListener('mouseout', function(e){ if(!e.relatedTarget && e.clientY<=2){ show('exit'); } });
-    }
+    if(offNow() || !stack()) return;
+    var t=document.getElementById('chat-trigger');
+    if(t) t.addEventListener('click', function(){ A.unread=0; badge(); window.amayaStop(); });
+    // 1) intro burst
+    setTimeout(function(){ sayNow("Hi, I'm <b>Amaya</b> 👋", {kind:'intro', emoji:'😊'}); }, 4000);
+    setTimeout(function(){ sayNow("I'll be assisting you today 💬 Ask me anything about our packages, features or pricing.", {kind:'intro', emoji:'🙂'}); }, 8500);
+    setTimeout(function(){ sayNow("Would you like a <b>free demo</b> for your business? ✨", {kind:'intro', cta:true, emoji:'🤩'}); A.introDone=true; }, 13500);
+    // 2) context-aware: nudge about whatever section they linger on
+    setInterval(function(){
+      if(!A.introDone || A.dead) return;
+      var sec=currentSection();
+      if(!sec || sec==='hero'){ A.lastSec=sec; return; }
+      if(sec===A.lastSec){ A.dwell[sec]=(A.dwell[sec]||0)+1; } else { A.lastSec=sec; A.dwell[sec]=1; }
+      if(A.dwell[sec]>=2 && !A.sectionsDone[sec] && SEC[sec]){ A.sectionsDone[sec]=true; say(SEC[sec].t,{cta:SEC[sec].cta,kind:'ctx',emoji:SEC[sec].e}); }
+    }, 3000);
+    // 3) idle nudge
+    var idle; function resetIdle(){ clearTimeout(idle); idle=setTimeout(function(){ if(A.introDone && !A.idleFired){ A.idleFired=true; say("Still there? 😊 I'm here whenever you have a question.", {kind:'idle', emoji:'🙂'}); } }, 30000); }
+    ['mousemove','scroll','keydown','touchstart','click'].forEach(function(ev){ window.addEventListener(ev,resetIdle,{passive:true}); });
+    resetIdle();
+    // 4) exit-intent (desktop / non-touch only)
+    var touch=('ontouchstart' in window)||(navigator.maxTouchPoints>0)||!(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);
+    if(!touch){ document.addEventListener('mouseout', function(e){ if(!e.relatedTarget && e.clientY<=2 && !A.exitFired){ A.exitFired=true; sayNow("Before you go — did you find everything you were looking for? 🤔", {kind:'exit', emoji:'😕'}); } }); }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
