@@ -403,8 +403,13 @@ h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,84px);font
 body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
   background:transparent; border:none; box-shadow:none;
   animation:amayaFloat 2.8s ease-in-out infinite; }
-#chat-trigger .amaya-face{ font-size:52px; line-height:1; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+#chat-trigger .amaya-face{ width:60px; height:60px; display:block; overflow:visible; filter:drop-shadow(0 5px 10px rgba(0,0,0,.45)); }
 #chat-trigger .amaya-face.face-pop{ animation:amayaFacePop .32s ease; }
+#amaya-face .rb-eyes{ transform-box:fill-box; transform-origin:center; animation:rbBlink 4.2s ease-in-out infinite; }
+#amaya-face .rb-ant{ animation:rbPulse 1.8s ease-in-out infinite; }
+@keyframes rbBlink{ 0%,90%,100%{ transform:scaleY(1); } 94%{ transform:scaleY(.12); } }
+@keyframes rbPulse{ 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+.amaya-robot{ background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+PGxpbmUgeDE9JzMyJyB5MT0nMTInIHgyPSczMicgeTI9JzE4JyBzdHJva2U9JyM5YWE0YjInIHN0cm9rZS13aWR0aD0nMicvPjxjaXJjbGUgY3g9JzMyJyBjeT0nOScgcj0nMycgZmlsbD0nIzAwZDRmZicvPjxyZWN0IHg9JzEyJyB5PScxNycgd2lkdGg9JzQwJyBoZWlnaHQ9JzM0JyByeD0nMTMnIGZpbGw9JyNlZWYxZjcnLz48cmVjdCB4PSc2JyB5PSczMCcgd2lkdGg9JzUnIGhlaWdodD0nMTQnIHJ4PScyLjUnIGZpbGw9JyNkZmU0ZWUnLz48cmVjdCB4PSc1MycgeT0nMzAnIHdpZHRoPSc1JyBoZWlnaHQ9JzE0JyByeD0nMi41JyBmaWxsPScjZGZlNGVlJy8+PHJlY3QgeD0nMTcnIHk9JzIyJyB3aWR0aD0nMzAnIGhlaWdodD0nMjQnIHJ4PSc5JyBmaWxsPScjMWUyNDMwJy8+PHJlY3QgeD0nMjMnIHk9JzMwJyB3aWR0aD0nNScgaGVpZ2h0PSc4JyByeD0nMi41JyBmaWxsPScjMDBlMGZmJy8+PHJlY3QgeD0nMzYnIHk9JzMwJyB3aWR0aD0nNScgaGVpZ2h0PSc4JyByeD0nMi41JyBmaWxsPScjMDBlMGZmJy8+PHBhdGggZD0nTTI3IDQxIFEzMiA0NCAzNyA0MScgc3Ryb2tlPScjMDBlMGZmJyBzdHJva2Utd2lkdGg9JzInIGZpbGw9J25vbmUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcvPjwvc3ZnPgo="); background-size:contain; background-position:center; background-repeat:no-repeat; }
 @keyframes amayaFacePop{ 0%{ transform:scale(.6); } 55%{ transform:scale(1.18); } 100%{ transform:scale(1); } }
 #chat-trigger::before{ display:none; }
 #chat-trigger.amaya-bounce{ animation:amayaDrop .85s cubic-bezier(.3,.7,.4,1); }
@@ -422,9 +427,13 @@ body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
 }
 @keyframes amayaRing{ 0%{ transform:scale(.85); opacity:.5; } 70%{ transform:scale(1.3); opacity:0; } 100%{ opacity:0; } }
 /* clean red notification dot */
-#chat-badge{ position:absolute; top:-2px; right:-2px; width:15px; height:15px; border-radius:50%;
-  background:#ff3b30; border:2.5px solid var(--bg); display:none; z-index:3; }
-#chat-badge.show{ display:block; animation:amayaDotPop .35s ease, amayaDotPulse 2s ease-out .4s infinite; }
+#chat-badge{ position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 5px; border-radius:10px;
+  background:#ff3b30; color:#fff; font-size:12px; font-weight:800; line-height:20px; text-align:center;
+  border:2px solid var(--bg); box-shadow:0 2px 8px rgba(255,45,85,.55); display:none; z-index:3; }
+#chat-badge.show{ display:block; animation:amayaDotPop .35s ease, amayaBeat 1.3s ease-in-out .35s infinite; }
+@keyframes amayaBeat{ 0%{ transform:scale(1); } 14%{ transform:scale(1.28); } 28%{ transform:scale(1); } 42%{ transform:scale(1.28); } 70%,100%{ transform:scale(1); } }
+#chat-trigger.amaya-wiggle{ animation:amayaWiggle .78s ease; }
+@keyframes amayaWiggle{ 0%,100%{ transform:rotate(0); } 18%{ transform:rotate(-9deg); } 40%{ transform:rotate(7deg); } 62%{ transform:rotate(-5deg); } 82%{ transform:rotate(3deg); } }
 @keyframes amayaDotPop{ 0%{ transform:scale(0); } 60%{ transform:scale(1.25); } 100%{ transform:scale(1); } }
 @keyframes amayaDotPulse{ 0%{ box-shadow:0 0 0 0 rgba(255,59,48,.55); } 70%{ box-shadow:0 0 0 7px rgba(255,59,48,0); } 100%{ box-shadow:0 0 0 0 rgba(255,59,48,0); } }
 
@@ -435,7 +444,7 @@ body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
 #amaya-stack-x:hover{ color:var(--text); }
 .amaya-msg{ display:flex; align-items:flex-end; gap:7px; cursor:pointer; opacity:0; transform:translateY(16px) scale(.92); animation:amayaMsgIn .45s cubic-bezier(.22,.9,.34,1) forwards; }
 .amaya-msg.out{ animation:amayaMsgOut .38s ease forwards; }
-.amaya-av{ flex:0 0 auto; width:24px; height:24px; background:transparent; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.amaya-av{ flex:0 0 auto; width:26px; height:26px; background-size:contain; background-position:center; background-repeat:no-repeat; }
 .amaya-av svg{ width:16px; height:16px; stroke:none; fill:none; }
 .amaya-bub{ position:relative; background:#3a3a3c; color:#fff; border-radius:19px 19px 19px 6px; padding:9px 14px; font-size:14px; line-height:1.35; font-weight:400; box-shadow:0 6px 18px rgba(0,0,0,.35); }
 .amaya-bub b{ color:#8fe6ff; font-weight:700; }
@@ -2589,19 +2598,29 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- CHAT TRIGGER -->
 <button id="chat-trigger" onclick="toggleChat()" title="Chat with Amaya" style="position:fixed;">
   <span id="chat-badge" aria-hidden="true"></span>
-  <span class="amaya-face" id="amaya-face">🙂</span>
+  <svg class="amaya-face" id="amaya-face" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <ellipse class="rb-shadow" cx="32" cy="57" rx="15" ry="3" fill="rgba(0,0,0,.28)"/>
+    <line x1="32" y1="12" x2="32" y2="18" stroke="#9aa4b2" stroke-width="2"/>
+    <circle class="rb-ant" cx="32" cy="9" r="3" fill="#00d4ff"/>
+    <rect x="12" y="17" width="40" height="34" rx="13" fill="#eef1f7" stroke="#d3d9e6" stroke-width="1"/>
+    <rect x="6" y="30" width="5" height="14" rx="2.5" fill="#dfe4ee"/>
+    <rect x="53" y="30" width="5" height="14" rx="2.5" fill="#dfe4ee"/>
+    <rect x="17" y="22" width="30" height="24" rx="9" fill="#1e2430"/>
+    <g class="rb-eyes" fill="#00e0ff"><rect x="23" y="30" width="5" height="8" rx="2.5"/><rect x="36" y="30" width="5" height="8" rx="2.5"/></g>
+    <path d="M27 41 Q32 44 37 41" stroke="#00e0ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>
 </button>
 
 <!-- AMAYA PROACTIVE MESSENGER (stacked pop-ups) -->
 <div id="amaya-stack" aria-live="polite" aria-label="Messages from Amaya">
-  <button id="amaya-stack-x" type="button" aria-label="Dismiss messages" onclick="amayaStop()">Dismiss ✕</button>
+  <button id="amaya-stack-x" type="button" aria-label="Dismiss messages" onclick="amayaDismiss()">Dismiss ✕</button>
 </div>
 
 <!-- CHAT BOX -->
 <div id="chat-box">
   <div class="chat-head">
     <div class="chat-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 116.93 19.07M12 2v2M12 20v2"/></svg></div>
-    <div class="chat-head-info"><strong>Amaya · Cancas AI</strong><span>Online — Powered by Claude</span></div>
+    <div class="chat-head-info"><strong>Amaya · Cancas AI</strong><span>Online now · replies in seconds</span></div>
     <button class="close-chat" onclick="toggleChat()" aria-label="Close chat">×</button>
   </div>
   <div id="chat-msgs">
@@ -3819,25 +3838,23 @@ function nexqFinish(){
 // ══════════════════════════════════════════════════════════════════════
 (function(){
   var OFF='amaya_off';
-  var A={ dead:false, sent:0, unread:0, introDone:false, lastAt:0, sectionsDone:{}, idleFired:false, exitFired:false, dwell:{}, lastSec:'' };
-  var MAX_VISIBLE=3, MAX_TOTAL=8, GAP=15000;
+  var A={ dead:false, sent:0, unread:0, introDone:false, lastAt:0, sectionsDone:{}, idleFired:false, exitFired:false, dwell:{}, lastSec:'', dismissCount:0 };
+  var MAX_VISIBLE=3, MAX_TOTAL=8, GAP=15000, CTX_GAP=9000;
   var Q=[], pumping=false;
   var AV='<div class="amaya-av"><svg viewBox="0 0 40 40"><circle cx="15" cy="18" r="2.5" fill="#fff"/><circle cx="25" cy="18" r="2.5" fill="#fff"/><path d="M14.5 24 Q20 28.5 25.5 24" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></div>';
 
-  function offNow(){ try{ return sessionStorage.getItem(OFF)==='1'; }catch(e){ return false; } }
+  function offNow(){ return false; }  /* greet on every page load; dismissal only lasts the current view */
   function chatOpen(){ var b=document.getElementById('chat-box'); return !!(b&&b.classList.contains('open')); }
   function stack(){ return document.getElementById('amaya-stack'); }
   function bounce(){ var t=document.getElementById('chat-trigger'); if(!t) return; t.classList.remove('amaya-bounce'); void t.offsetWidth; t.classList.add('amaya-bounce'); setTimeout(function(){ t.classList.remove('amaya-bounce'); },750); }
-  function badge(){ var b=document.getElementById('chat-badge'); if(!b) return; if(A.unread>0){ b.classList.add('show'); b.style.display='block'; } else { b.classList.remove('show'); b.style.display='none'; } }
-  function setFace(e){ var f=document.getElementById('amaya-face'); if(!f||!e) return; f.textContent=e; f.classList.remove('face-pop'); void f.offsetWidth; f.classList.add('face-pop'); }
+  function badge(){ var b=document.getElementById('chat-badge'); if(!b) return; if(A.unread>0){ b.textContent=A.unread; b.classList.add('show'); b.style.display='block'; } else { b.classList.remove('show'); b.style.display='none'; } }
+  function setFace(){}  /* mood emojis removed — icon is now the robot image */
   function clearStack(){ var s=stack(); if(s){ s.classList.remove('has'); s.querySelectorAll('.amaya-msg').forEach(function(n){ n.remove(); }); } }
 
   function render(m){
     var s=stack(); if(!s) return;
     var div=document.createElement('div'); div.className='amaya-msg';
-    var face=m.emoji||'🙂';
-    div.innerHTML='<div class="amaya-av">'+face+'</div><div class="amaya-bub">'+m.text+'</div>';
-    setFace(face);
+    div.innerHTML='<div class="amaya-av amaya-robot"></div><div class="amaya-bub">'+m.text+'</div>';
     div.addEventListener('click', function(){ window.amayaOpen(m.cta); });
     s.appendChild(div); s.classList.add('has');
     var msgs=s.querySelectorAll('.amaya-msg');
@@ -3846,17 +3863,41 @@ function nexqFinish(){
     }
     A.sent++; A.unread++; A.lastAt=Date.now(); bounce(); badge();
   }
-  function canSend(kind){ if(A.dead||offNow()||chatOpen()) return false; if(kind!=='exit' && A.sent>=MAX_TOTAL) return false; return true; }
+  function canSend(kind){ if(A.dead||offNow()||chatOpen()) return false; if(kind!=='exit' && kind!=='reengage' && A.sent>=MAX_TOTAL) return false; return true; }
   function pump(){ if(pumping||!Q.length) return; if(!canSend(Q[0].kind)){ Q.shift(); return pump(); } var wait=Math.max(0,GAP-(Date.now()-A.lastAt)); pumping=true; setTimeout(function(){ pumping=false; var m=Q.shift(); if(m&&canSend(m.kind)) render(m); pump(); }, wait); }
   function say(text,opts){ opts=opts||{}; Q.push({text:text,cta:!!opts.cta,kind:opts.kind||'ctx',emoji:opts.emoji}); pump(); }
   function sayNow(text,opts){ opts=opts||{}; if(canSend(opts.kind||'intro')) render({text:text,cta:!!opts.cta,kind:opts.kind||'intro',emoji:opts.emoji}); }
+  // Fire a section message immediately, but ONLY if the visitor is still on that
+  // section right now (no queue delay). If it's too soon after the last message,
+  // skip and let the dwell scan retry next tick — so it always matches the page.
+  function sayCtx(sec){
+    if(A.dead || offNow() || chatOpen()) return;
+    if(A.sent>=MAX_TOTAL) return;
+    if(Date.now()-A.lastAt < CTX_GAP) return;
+    if(currentSection()!==sec || !SEC[sec]) return;
+    A.sectionsDone[sec]=true;
+    render({text:SEC[sec].t, cta:SEC[sec].cta, kind:'ctx', emoji:SEC[sec].e});
+  }
 
   window.amayaSay=say;
   window.amayaFace=setFace;
-  window.amayaStop=function(){ A.dead=true; try{ sessionStorage.setItem(OFF,'1'); }catch(e){} clearStack(); };
+  window.amayaStop=function(){ A.dead=true; clearStack(); };
   window.amayaOpen=function(cta){ clearStack(); A.unread=0; badge(); setFace('😊'); A.dead=true;
     if(cta && window.startNexQualifier){ window.startNexQualifier(); }
     else { var b=document.getElementById('chat-box'); if(b && !b.classList.contains('open')) b.classList.add('open'); } };
+  // Dismiss (× button): 1st dismiss → come back once with a friendly re-ask; 2nd → stay quiet.
+  window.amayaDismiss=function(){
+    A.dismissCount=(A.dismissCount||0)+1;
+    clearStack(); A.unread=0; badge();
+    if(A.dismissCount>=2){ A.dead=true; return; }
+    A.dead=true;                                  // pause all other prompts
+    setTimeout(function(){
+      if(A.dismissCount>=2 || chatOpen()) return; // already stopped / engaged
+      A.dead=false;
+      sayNow("Ask me anything, how can I help today? 🙂", {kind:'reengage'});
+      A.dead=true;
+    }, 22000);
+  };
 
   var SEC={
     services:{t:"Curious what's included in each package? Ask me anything 🙂", e:'🙂'},
@@ -3882,12 +3923,19 @@ function nexqFinish(){
       var sec=currentSection();
       if(!sec || sec==='hero'){ A.lastSec=sec; return; }
       if(sec===A.lastSec){ A.dwell[sec]=(A.dwell[sec]||0)+1; } else { A.lastSec=sec; A.dwell[sec]=1; }
-      if(A.dwell[sec]>=2 && !A.sectionsDone[sec] && SEC[sec]){ A.sectionsDone[sec]=true; say(SEC[sec].t,{cta:SEC[sec].cta,kind:'ctx',emoji:SEC[sec].e}); }
+      if(A.dwell[sec]>=2 && !A.sectionsDone[sec] && SEC[sec]){ sayCtx(sec); }
     }, 3000);
     // 3) idle nudge
     var idle; function resetIdle(){ clearTimeout(idle); idle=setTimeout(function(){ if(A.introDone && !A.idleFired){ A.idleFired=true; say("Still there? 😊 I'm here whenever you have a question.", {kind:'idle', emoji:'🙂'}); } }, 30000); }
     ['mousemove','scroll','keydown','touchstart','click'].forEach(function(ev){ window.addEventListener(ev,resetIdle,{passive:true}); });
     resetIdle();
+    // Periodic attention wiggle while a message is waiting (draws the click)
+    setInterval(function(){
+      if(A.unread>0 && !A.dead && !chatOpen()){
+        var t=document.getElementById('chat-trigger');
+        if(t){ t.classList.add('amaya-wiggle'); setTimeout(function(){ t.classList.remove('amaya-wiggle'); }, 800); }
+      }
+    }, 11000);
     // 4) exit-intent (desktop / non-touch only)
     var touch=('ontouchstart' in window)||(navigator.maxTouchPoints>0)||!(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);
     if(!touch){ document.addEventListener('mouseout', function(e){ if(!e.relatedTarget && e.clientY<=2 && !A.exitFired){ A.exitFired=true; sayNow("Before you go — did you find everything you were looking for? 🤔", {kind:'exit', emoji:'😕'}); } }); }
