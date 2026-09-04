@@ -389,6 +389,15 @@ h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,84px);font
   transition:transform .15s,box-shadow .2s;
 }
 .pkg-ent-cta:hover{ transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,176,32,.28); }
+
+/* ── Nex inbound lead qualifier ─────────── */
+#nexq-cta{ padding:8px 12px; border-top:1px solid var(--border); background:var(--bg2); }
+#nexq-cta button{ width:100%; background:linear-gradient(135deg,#00d4ff,#0093ff); color:#001018; border:none; border-radius:8px; padding:10px; font-weight:800; font-size:13px; cursor:pointer; letter-spacing:.02em; transition:filter .15s; }
+#nexq-cta button:hover{ filter:brightness(1.08); }
+.nexq-opts{ display:flex; flex-direction:column; gap:6px; margin-top:9px; }
+.nexq-opt{ text-align:left; background:rgba(0,212,255,.08); border:1px solid rgba(0,212,255,.30); color:#d8f6ff; border-radius:8px; padding:8px 12px; font-size:13px; line-height:1.35; cursor:pointer; transition:background .15s,border-color .15s; }
+.nexq-opt:hover{ background:rgba(0,212,255,.18); border-color:rgba(0,212,255,.55); }
+.nexq-opt:disabled{ opacity:.5; cursor:default; }
 @media(max-width:860px){
   .pkg-enterprise{ flex-direction:column;align-items:flex-start;gap:22px;padding:26px 24px; }
   .pkg-ent-right{ text-align:left;width:100%; }
@@ -2548,6 +2557,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <div class="msg-bub">Hello. I'm Cancas' AI assistant. I can answer any question about our web design services, pricing, timelines, or your project. What can I help you with?</div>
     </div>
   </div>
+  <div id="nexq-cta">
+    <button type="button" onclick="startNexQualifier()">✨ Get my free quote &amp; website plan</button>
+  </div>
   <div class="chat-foot">
     <input type="text" id="chat-inp" placeholder="Ask a question..." onkeypress="if(event.key==='Enter')sendChat()">
     <button id="chat-send-btn" onclick="sendChat()" aria-label="Send message"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
@@ -3263,6 +3275,8 @@ async function sendChat(){
   if(!msg) return;
   inp.value = '';
   addChatMsg(msg, 'user');
+  // If the guided lead qualifier is running, route this input to it (not the AI).
+  if(window.NEXQ && window.NEXQ.active){ window.nexqText(msg); return; }
   showTyping();
   chatHistory.push({role:'user', content: msg});
 
@@ -3578,6 +3592,167 @@ function addChatMsg(text,type){
 let typEl=null;
 function showTyping(){const box=document.getElementById('chat-msgs');typEl=document.createElement('div');typEl.className='msg ai';typEl.id='ti';typEl.innerHTML=`<div class="msg-av"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" width="11" height="11"><circle cx="12" cy="12" r="3"/></svg></div><div class="msg-bub"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;box.appendChild(typEl);box.scrollTop=box.scrollHeight;}
 function removeTyping(){const t=document.getElementById('ti');if(t)t.remove();}
+
+// ══════════════════════════════════════════════════════════════════════
+// INBOUND AI LEAD QUALIFIER (Nex) — guided capture + scoring
+// Asks a short set of questions, scores the lead HOT/WARM/COLD, saves it
+// to the admin panel (localStorage + Supabase 'enquiries'), and emails a
+// hot-lead alert via Web3Forms. Budget is inferred from package interest.
+// ══════════════════════════════════════════════════════════════════════
+window.NEXQ = { active:false, step:0, data:{}, score:0, pkg:'' };
+
+var NEXQ_STEPS = [
+  { key:'business', type:'choice',
+    q:"Perfect — let's put together your free quote. First, what type of business is this for?",
+    opts:[['Restaurant / Café','Restaurant / Café'],['Salon / Beauty','Salon / Beauty'],['Real Estate','Real Estate'],['Retail / Shop','Retail / Shop'],['Clinic / Medical','Clinic / Medical'],['Services / Trade','Services / Trade'],['Corporate / Enterprise','Corporate / Enterprise'],['Something else','Other']] },
+  { key:'site', type:'choice',
+    q:"Got it. Do you already have a website?",
+    opts:[['No — starting fresh','No','2'],['Yes, but it needs a redesign','Needs redesign','2'],['Yes, just need updates','Needs updates','1']] },
+  { key:'goal', type:'choice',
+    q:"What are you looking for?",
+    opts:[['A simple site to get online','Starter','1'],['Site + SEO + booking / AI chatbot','Business','2'],['Full custom site, advanced features','Premium','3'],['Enterprise / multi-branch / integrations','Enterprise','4']] },
+  { key:'timeline', type:'choice',
+    q:"How soon are you looking to start?",
+    opts:[['As soon as possible','ASAP','3'],['In 2–4 weeks','2–4 weeks','3'],['In 1–3 months','1–3 months','2'],['Just exploring for now','Just exploring','0']] },
+  { key:'name', type:'text', q:"Great. And your name?" },
+  { key:'whatsapp', type:'text', q:"Thanks {name}! What's the best WhatsApp number to reach you on?", validate:'phone' },
+  { key:'email', type:'text', q:"Perfect. And your email? (so we can send your quote &amp; website plan)", validate:'email' }
+];
+
+window.startNexQualifier = function(){
+  if(window.NEXQ.active) return;
+  var box = document.getElementById('chat-box');
+  if(box && !box.classList.contains('open')) box.classList.add('open');
+  window.NEXQ = { active:true, step:0, data:{}, score:0, pkg:'' };
+  nexqAsk();
+};
+
+function nexqInterp(s){ return s.replace('{name}', (window.NEXQ.data.name||'').split(' ')[0] || 'there'); }
+
+function nexqAsk(){
+  var st = NEXQ_STEPS[window.NEXQ.step];
+  if(!st){ nexqFinish(); return; }
+  var html = nexqInterp(st.q);
+  if(st.type === 'choice'){
+    html += '<div class="nexq-opts">';
+    for(var i=0;i<st.opts.length;i++){
+      html += '<button type="button" class="nexq-opt" onclick="nexqPick('+i+')">'+st.opts[i][0]+'</button>';
+    }
+    html += '</div>';
+  }
+  showTyping();
+  setTimeout(function(){ removeTyping(); addChatMsg(html,'ai'); }, 350);
+}
+
+window.nexqPick = function(i){
+  var st = NEXQ_STEPS[window.NEXQ.step];
+  if(!st || st.type!=='choice') return;
+  var opt = st.opts[i];
+  // disable the buttons that were just answered
+  var msgs = document.querySelectorAll('#chat-msgs .nexq-opt');
+  msgs.forEach(function(b){ b.disabled = true; });
+  addChatMsg(opt[0], 'user');
+  window.NEXQ.data[st.key] = opt[1];
+  if(opt[2] !== undefined) window.NEXQ.score += parseInt(opt[2],10) || 0;
+  if(st.key === 'goal') window.NEXQ.pkg = opt[1];
+  window.NEXQ.step++;
+  nexqAsk();
+};
+
+window.nexqText = function(msg){
+  var st = NEXQ_STEPS[window.NEXQ.step];
+  if(!st) return;
+  if(st.type !== 'text'){
+    setTimeout(function(){ addChatMsg("Just tap one of the options above and we'll keep going 🙂",'ai'); }, 250);
+    return;
+  }
+  if(st.validate === 'phone'){
+    var digits = (msg||'').replace(/\D/g,'');
+    if(digits.length < 7 || digits.length > 15){
+      setTimeout(function(){ addChatMsg("That doesn't look like a full number — please share a valid WhatsApp number (with country code if possible).",'ai'); }, 250);
+      return;
+    }
+  }
+  if(st.validate === 'email'){
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(msg||'')){
+      setTimeout(function(){ addChatMsg("Hmm, that email doesn't look right — could you re-enter it?",'ai'); }, 250);
+      return;
+    }
+  }
+  window.NEXQ.data[st.key] = msg.trim();
+  window.NEXQ.step++;
+  nexqAsk();
+};
+
+function nexqTier(){
+  var s = window.NEXQ.score;
+  if(s >= 6) return {word:'HOT', emoji:'🔥'};
+  if(s >= 3) return {word:'WARM', emoji:'🟠'};
+  return {word:'COLD', emoji:'🔵'};
+}
+
+function nexqFinish(){
+  var d = window.NEXQ.data, tier = nexqTier();
+  var pkg = window.NEXQ.pkg ? window.NEXQ.pkg + ' (inferred)' : 'Not specified';
+  var detail =
+      'AI QUALIFIER LEAD — ' + tier.emoji + ' ' + tier.word + ' (score ' + window.NEXQ.score + '/9)\n'
+    + 'Business type: ' + (d.business||'-') + '\n'
+    + 'Has website: ' + (d.site||'-') + '\n'
+    + 'Looking for: ' + (d.goal||'-') + '\n'
+    + 'Timeline: ' + (d.timeline||'-') + '\n'
+    + 'WhatsApp: ' + (d.whatsapp||'-') + '\n'
+    + 'Inferred package/budget: ' + pkg;
+
+  // 1) Save to in-page CRM (admin's device)
+  try {
+    var enq = JSON.parse(localStorage.getItem('crm_enquiries')||'[]');
+    enq.unshift({ id:Date.now(), name:d.name||'', email:d.email||'', phone:d.whatsapp||'',
+      biz:d.business||'', pkg:pkg, detail:detail, source:'AI Qualifier', score:tier.word,
+      date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+      status:'new', read:false });
+    localStorage.setItem('crm_enquiries', JSON.stringify(enq));
+    setTimeout(function(){ try{ SYNC.push(true); }catch(e){} }, 200);
+    try{ updateEnquiryBadge(); }catch(e){}
+  } catch(e){}
+
+  // 2) Save to cloud CRM (Supabase enquiries) — same columns as the contact form
+  try {
+    var sbc = (typeof getSB==='function') ? getSB() : null;
+    if(sbc){
+      sbc.from('enquiries').insert({ name:d.name||'', email:d.email||'', phone:d.whatsapp||'',
+        business:d.business||'', package:pkg, detail:detail })
+        .then(function(r){ if(r && r.error) console.warn('Cloud qualifier save failed:', r.error.message); });
+    }
+  } catch(e){}
+
+  // 3) Email alert via Web3Forms (reuses your existing key)
+  try {
+    var keyOK = (typeof WEB3FORMS_KEY==='string') && WEB3FORMS_KEY && WEB3FORMS_KEY.indexOf('PASTE_YOUR')!==0;
+    if(keyOK){
+      fetch('https://api.web3forms.com/submit', {
+        method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: tier.emoji+' '+tier.word+' LEAD ('+(window.NEXQ.pkg||'?')+') — '+(d.name||'New lead')+' via AI Qualifier',
+          from_name: 'CANCAS STUDIO — AI Qualifier',
+          name: d.name||'', email: d.email||'', phone: d.whatsapp||'Not provided',
+          business_type: d.business||'-', package_interest: pkg, message: detail, botcheck:''
+        })
+      }).catch(function(){});
+    }
+  } catch(e){}
+
+  if(typeof gtag==='function'){ try{ gtag('event','generate_lead',{method:'ai_qualifier'}); }catch(e){} }
+
+  // 4) Thank-you message (tailored to how hot the lead is)
+  var thanks = (tier.word==='HOT')
+    ? "You're all set, " + ((d.name||'').split(' ')[0]||'') + "! 🎉 Based on what you've told me you're a great fit — I've sent your details straight to our team and they'll message you on WhatsApp very shortly with your quote and a plan. Talk soon!"
+    : "Thanks " + ((d.name||'').split(' ')[0]||'') + "! 🙌 I've passed your details to our team — they'll be in touch with your quote and website plan. In the meantime, feel free to ask me anything else about our packages.";
+  showTyping();
+  setTimeout(function(){ removeTyping(); addChatMsg(thanks,'ai'); }, 450);
+
+  window.NEXQ.active = false;
+}
 
 // CUSTOM CURSOR & MAGNETIC TRAIL
 (function(){
