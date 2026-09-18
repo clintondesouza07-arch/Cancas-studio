@@ -24,11 +24,9 @@
 <link rel="canonical" href="https://cancasstudio.com/">
 <link rel="alternate" hreflang="en" href="https://cancasstudio.com/">
 <link rel="alternate" hreflang="x-default" href="https://cancasstudio.com/">
-<!-- Geo tags for local SEO -->
+<!-- Geo tags for local SEO (market/region only — Cancas Studio is an online, service-area business with no public premises, so no coordinates are declared) -->
 <meta name="geo.region" content="AE-DU">
 <meta name="geo.placename" content="Dubai">
-<meta name="geo.position" content="25.2048;55.2708">
-<meta name="ICBM" content="25.2048, 55.2708">
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cancasstudio.com/">
@@ -54,7 +52,6 @@
   "url": "https://cancasstudio.com",
   "logo": "https://cancasstudio.com/logo.png",
   "image": "https://cancasstudio.com/og-image.jpg",
-  "hasMap": "https://maps.google.com/?q=Dubai,UAE",
   "description": "Professional web design & development studio in Dubai, UAE. Custom websites for restaurants, salons, real estate, fitness & more. Mobile-friendly, SEO-ready. Live in 14 days. From AED 1,999.",
   "telephone": "+971569016046",
   "email": "hello@cancasstudio.com",
@@ -62,15 +59,9 @@
   "paymentAccepted": "Cash, Bank Transfer, Credit Card",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "Dubai",
     "addressLocality": "Dubai",
     "addressCountry": "AE",
     "addressRegion": "Dubai"
-  },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": 25.2048,
-    "longitude": 55.2708
   },
   "openingHoursSpecification": [
     {
@@ -98,7 +89,7 @@
       },
       {
         "@type": "Offer",
-        "itemOffered": { "@type": "Service", "name": "Professional Website Package Dubai", "description": "10-page custom website, advanced SEO, blog, analytics, 60 days support" },
+        "itemOffered": { "@type": "Service", "name": "Business Website Package Dubai", "description": "10-page custom website, advanced SEO, blog, analytics, 60 days support" },
         "price": "3499", "priceCurrency": "AED"
       },
       {
@@ -114,6 +105,7 @@
     ]
   },
   "sameAs": [
+    "https://maps.google.com/?cid=1521374620025480861",
     "https://www.linkedin.com/company/cancasstudio",
     "https://www.instagram.com/cancasstudio",
     "https://wa.me/971569016046"
@@ -951,7 +943,7 @@ body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
 .faq-icon{font-size:22px;color:var(--cyan);line-height:1;flex-shrink:0;transition:transform .25s;}
 .faq-item.open .faq-icon{transform:rotate(45deg);}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s;font-size:14px;color:var(--muted);line-height:1.8;padding:0 22px;background:rgba(0,212,255,.02);}
-.faq-item.open .faq-a{max-height:200px;padding:14px 22px 20px;}
+.faq-item.open .faq-a{max-height:600px;padding:14px 22px 20px;}
 /* Trust row */
 .trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px;max-width:780px;}
 .trust-card{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px 20px;transition:border-color .2s;}
@@ -1897,6 +1889,21 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 
 
+/* ── REDUCED MOTION ──────────────────────────────────────────────────────
+   Honours the operating system "reduce motion" accessibility setting.
+   Animations are collapsed to their final state (they all use fill-mode
+   forwards), so nothing stays hidden and no layout or colour changes. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:1ms!important;
+    animation-delay:0ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:1ms!important;
+    transition-delay:0ms!important;
+  }
+  html{scroll-behavior:auto!important;}
+  #cursor-outer,#cursor-inner,.trail-dot{display:none!important;}
+}
 </style>
 </head>
 <body>
@@ -1964,42 +1971,42 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <div id="industries">
   <div class="ind-strip">
     <div class="ind-item" onclick="window.goToCategory('cafe')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80" width="400" height="280" alt="Cafe">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80" width="400" height="280" alt="Café interior">
       <div class="ind-overlay"><div class="ind-label">Cafe &amp; Coffee</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('restaurant')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" width="400" height="280" alt="Restaurant">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" width="400" height="280" alt="Restaurant dining room">
       <div class="ind-overlay"><div class="ind-label">Restaurants</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('salon')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&q=80" width="400" height="280" alt="Salon">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&q=80" width="400" height="280" alt="Hair salon interior">
       <div class="ind-overlay"><div class="ind-label">Salon &amp; Beauty</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('realestate')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=80" width="400" height="280" alt="Real Estate">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=80" width="400" height="280" alt="Modern residential property">
       <div class="ind-overlay"><div class="ind-label">Real Estate</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('fitness')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" width="400" height="280" alt="Fitness">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" width="400" height="280" alt="Fitness studio">
       <div class="ind-overlay"><div class="ind-label">Fitness</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('tech')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80" width="400" height="280" alt="Tech">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80" width="400" height="280" alt="Technology workspace">
       <div class="ind-overlay"><div class="ind-label">Tech &amp; SaaS</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('retail')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400&q=80" width="400" height="280" alt="Retail">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400&q=80" width="400" height="280" alt="Retail store interior">
       <div class="ind-overlay"><div class="ind-label">Retail &amp; Shop</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
     <div class="ind-item" onclick="window.goToCategory('healthcare')">
-      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80" width="400" height="280" alt="Healthcare">
+      <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80" width="400" height="280" alt="Healthcare clinic reception">
       <div class="ind-overlay"><div class="ind-label">Healthcare</div><div class="ind-count">3 demos</div></div>
       <div class="ind-arrow">→</div>
     </div>
@@ -2013,7 +2020,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   <p class="s-sub">Everything your business needs to dominate online — from pixel-perfect design to powerful AI integrations.</p>
   <div class="svc-grid reveal">
     <div class="svc-card">
-      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=600&q=80" alt="Web design">
+      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=600&q=80" alt="Designer working on a website layout">
       <div class="svc-card-body">
         <div class="svc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
         <h3>Custom Web Design</h3>
@@ -2021,7 +2028,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       </div>
     </div>
     <div class="svc-card">
-      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80" alt="Development">
+      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80" alt="Website code on a developer screen">
       <div class="svc-card-body">
         <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
         <h3>High-Performance Dev</h3>
@@ -2029,7 +2036,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       </div>
     </div>
     <div class="svc-card">
-      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80" alt="Edits & Maintenance">
+      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80" alt="Laptop used for website updates and maintenance">
       <div class="svc-card-body">
         <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
         <h3>Edits &amp; Maintenance</h3>
@@ -2037,7 +2044,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       </div>
     </div>
     <div class="svc-card">
-      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80" alt="AI Integration">
+      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80" alt="Abstract visual representing artificial intelligence">
       <div class="svc-card-body">
         <div class="svc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 116.93 19.07"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42"/></svg></div>
         <h3>AI Integration</h3>
@@ -2045,7 +2052,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       </div>
     </div>
     <div class="svc-card">
-      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80" alt="Mobile design">
+      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80" alt="Website shown on a mobile phone screen">
       <div class="svc-card-body">
         <div class="svc-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
         <h3>Mobile-First Design</h3>
@@ -2053,7 +2060,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       </div>
     </div>
     <div class="svc-card">
-      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="SEO analytics">
+      <img loading="lazy" decoding="async" class="svc-card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="Analytics dashboard showing website traffic">
       <div class="svc-card-body">
         <div class="svc-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
         <h3>SEO &amp; Growth</h3>
@@ -2066,7 +2073,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 <!-- PORTFOLIO -->
 <section id="portfolio">
   <div class="s-eye">Our Work</div>
-  <h2>EXPLORE OUR<br>PORTFOLIO</h2>
+  <h2>EXPLORE OUR<br>DEMO BUILDS</h2>
   <p class="s-sub">Browse our template showcase across 8 industries. Click any card to preview the full demo site.</p>
   <div class="p-tabs reveal">
     <button class="tab-btn active" onclick="window.showCat('cafe',this)">Cafe &amp; Coffee</button>
@@ -2522,6 +2529,43 @@ html, body { max-width: 100%; overflow-x: hidden; }
   </div>
 </section>
 
+<!-- FAQ (visible content matching the FAQPage structured data in <head>) -->
+<section id="faq">
+  <div class="s-eye">Common Questions</div>
+  <h2>FREQUENTLY<br>ASKED QUESTIONS</h2>
+  <p class="s-sub">Straight answers on cost, timelines, and what's included when you build with Cancas Studio.</p>
+  <div class="faq-list" style="max-width:860px;">
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>How long does it take to build a website in Dubai?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>Most projects go live in as little as 14 days. Simple 5-page sites can be ready in 7 days; larger custom builds take 2–4 weeks depending on complexity.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>How much does a website cost in Dubai?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>Our packages start at AED 1,999 for a one-time build (you own the code) or AED 199/month on a fully-managed plan. Prices vary by scope — <a href="#contact" style="color:var(--cyan);">contact us for a free quote</a>.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>Do you build websites for restaurants and cafes in Dubai?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>Yes. We specialise in restaurant and cafe websites with menus, online ordering, reservations, and WhatsApp integration, optimised for local Dubai searches.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>Do you offer SEO with the website?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>All our sites are built with SEO best practices: fast load times, proper meta tags, schema markup, Google Maps integration, and sitemap submission. Business and Premium packages include advanced <a href="/services/" style="color:var(--cyan);">SEO and Google Analytics setup</a>.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>Will my website work on mobile?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>Absolutely. Every website we build is fully mobile-responsive and tested across phones, tablets, and desktops. Mobile performance is a priority for both user experience and Google rankings.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>Can I pay monthly instead of a lump sum?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>Yes. Our monthly plans start from AED 199/month — we build, host, and look after everything, including a free domain. One-time plans start at AED 1,999 and you get the full code.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false"><span>Do you build real estate websites in the UAE?</span><span class="faq-icon" aria-hidden="true">+</span></button>
+      <div class="faq-a"><p>Yes, real estate is one of our strongest areas. We build full listing portals, agent profile pages, enquiry systems, and WhatsApp lead integration tailored for the Dubai property market.</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="s-eye">Get In Touch</div>
@@ -2529,21 +2573,21 @@ html, body { max-width: 100%; overflow-x: hidden; }
   <div class="contact-grid reveal">
     <div class="contact-form">
       <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
-        <div class="fg"><label>Full Name</label><input type="text" name="fullname" placeholder="Your full name" autocomplete="name"></div>
-        <div class="fg"><label>Email Address</label><input type="email" name="email" id="contact-email" placeholder="john@company.com" autocomplete="email" oninput="clearEmailError(this)"></div>
-        <div class="fg"><label>Phone / WhatsApp</label><input type="tel" name="phone" id="contact-phone" placeholder="Phone number (with country code)" autocomplete="tel" inputmode="tel" oninput="sanitizePhone(this)"></div>
+        <div class="fg"><label for="cf-fullname">Full Name</label><input type="text" id="cf-fullname" name="fullname" placeholder="Your full name" autocomplete="name"></div>
+        <div class="fg"><label for="contact-email">Email Address</label><input type="email" name="email" id="contact-email" placeholder="john@company.com" autocomplete="email" oninput="clearEmailError(this)"></div>
+        <div class="fg"><label for="contact-phone">Phone / WhatsApp</label><input type="tel" name="phone" id="contact-phone" placeholder="Phone number (with country code)" autocomplete="tel" inputmode="tel" oninput="sanitizePhone(this)"></div>
       </div>
       <div class="form-row">
-        <div class="fg"><label>Business Type</label><select><option value="">Select your industry</option><option>Restaurant / Café</option><option>Salon / Beauty</option><option>Real Estate</option><option>Fitness &amp; Wellness</option><option>Retail &amp; Fashion</option><option>Tech / SaaS</option><option>Healthcare</option><option>Other</option></select></div>
-        <div class="fg"><label>Package Interest</label><select><option value="">Select a package</option><option>Starter — one-time or managed monthly</option><option>Business — one-time or managed monthly</option><option>Premium — one-time or managed monthly</option><option>Custom Build — let's scope it together</option><option>Not sure — let's talk</option></select></div>
+        <div class="fg"><label for="contact-industry">Business Type</label><select id="contact-industry" name="industry"><option value="">Select your industry</option><option>Restaurant / Café</option><option>Salon / Beauty</option><option>Real Estate</option><option>Fitness &amp; Wellness</option><option>Retail &amp; Fashion</option><option>Tech / SaaS</option><option>Healthcare</option><option>Other</option></select></div>
+        <div class="fg"><label for="contact-package">Package Interest</label><select id="contact-package" name="package"><option value="">Select a package</option><option>Starter — one-time or managed monthly</option><option>Business — one-time or managed monthly</option><option>Premium — one-time or managed monthly</option><option>Custom Build — let's scope it together</option><option>Not sure — let's talk</option></select></div>
       </div>
-      <div class="fg"><label>Project Details</label><textarea name="details" placeholder="Tell us about your business and what you need..."></textarea></div>
+      <div class="fg"><label for="cf-details">Project Details</label><textarea id="cf-details" name="details" placeholder="Tell us about your business and what you need..."></textarea></div>
       <button class="btn-primary" onclick="submitContactForm(this)">Send Message <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
     <div class="ci-col">
       <h3>LET'S BUILD SOMETHING GREAT</h3>
       <p>We respond to every enquiry within 24 hours and can have your new website live in as little as 14 days. Based in Dubai, serving clients worldwide.</p>
-      <a href="/cdn-cgi/l/email-protection#721a171e1e1d545144464911131c111301010607161b1d5c111d1f" class="ci-row ci-row--email" style="text-decoration:none;" aria-label="Email us">
+      <a href="mailto:hello@cancasstudio.com" class="ci-row ci-row--email" style="text-decoration:none;" aria-label="Email us">
         <div class="ci-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -2588,9 +2632,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="nav-wordmark-sub" style="font-size:9px;letter-spacing:5px;">Studio</span>
         </div>
       </a><p style="margin-top:16px;">Premium web design &amp; development studio crafting stunning digital experiences for businesses across every industry. Powered by AI, built for growth.</p></div>
-    <div class="footer-col"><h4>Services</h4><ul><li><a href="#services">Custom Web Design</a></li><li><a href="#services">Website Edits &amp; Maintenance</a></li><li><a href="#services">AI Integration</a></li><li><a href="#services">SEO &amp; Growth</a></li><li><a href="#services">Mobile-First Dev</a></li></ul></div>
+    <div class="footer-col"><h4>Services</h4><ul><li><a href="/services/#custom-web-design">Custom Web Design</a></li><li><a href="/services/#maintenance">Website Edits &amp; Maintenance</a></li><li><a href="/services/#ai-integration">AI Integration</a></li><li><a href="/services/#seo">SEO &amp; Growth</a></li><li><a href="/services/#mobile-first">Mobile-First Dev</a></li></ul></div>
     <div class="footer-col"><h4>Industries</h4><ul><li><a href="#portfolio">Restaurants &amp; Cafés</a></li><li><a href="#portfolio">Salons &amp; Beauty</a></li><li><a href="#portfolio">Real Estate</a></li><li><a href="#portfolio">Fitness &amp; Wellness</a></li><li><a href="#portfolio">Healthcare</a></li></ul></div>
-    <div class="footer-col"><h4>Company</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="#process">Our Process</a></li><li><a href="#contact">Contact</a></li><li><a href="#" onclick="openTC(event)">Terms &amp; Conditions</a></li><li><a href="#" onclick="openAdmin(event)">Admin Login</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="/about/">About Cancas Studio</a></li><li><a href="/services/">Web Design Services</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#process">Our Process</a></li><li><a href="#contact">Contact</a></li><li><a href="#" onclick="openTC(event)">Terms &amp; Conditions</a></li><li><a href="#" onclick="openAdmin(event)">Admin Login</a></li></ul></div>
   </div>
   <div class="footer-bottom"><p>© 2026 CANCAS STUDIO. All rights reserved.</p><p>Built with AI · <a href="#" onclick="openTC(event)" style="color:var(--muted);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--muted)'">Terms &amp; Conditions</a> · <a href="#" onclick="openAdmin(event)">Admin</a></p></div>
 </footer>
@@ -2612,7 +2656,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 </button>
 
 <!-- AMAYA PROACTIVE MESSENGER (stacked pop-ups) -->
-<div id="amaya-stack" aria-live="polite" aria-label="Messages from Amaya">
+<div id="amaya-stack" role="log" aria-live="polite" aria-label="Messages from Amaya">
   <button id="amaya-stack-x" type="button" aria-label="Dismiss messages" onclick="amayaDismiss()">Dismiss ✕</button>
 </div>
 
@@ -3195,7 +3239,12 @@ document.getElementById('demo-modal').addEventListener('click',function(e){if(e.
 // ADMIN
 function openAdmin(e){if(e)e.preventDefault();document.getElementById('admin-modal').classList.add('open');}
 // Discreet admin access: visit the site with #admin in the URL (e.g. cancasstudio.com/#admin)
-function _checkAdminHash(){ if((location.hash||'').toLowerCase()==='#admin'){ openAdmin(); } }
+function _checkAdminHash(){
+  var h = (location.hash||'').toLowerCase();
+  if(h==='#admin'){ openAdmin(); }
+  // Allows Terms & Conditions to be linked from other pages, e.g. /about/ -> /#terms
+  if(h==='#terms'){ try{ openTC(); }catch(e){} }
+}
 window.addEventListener('hashchange', _checkAdminHash);
 window.addEventListener('DOMContentLoaded', _checkAdminHash);
 _checkAdminHash();
@@ -4034,7 +4083,7 @@ window.addEventListener('scroll',()=>{
 
     <h2>2. Payment Plans</h2>
     <div class="tc-highlight"><p><strong>One-Time Purchase:</strong> You pay the full package price once. Upon receipt of final payment, you own the complete website source code and all associated assets created for your project. You are responsible for arranging and paying for your own domain and hosting. We provide guidance on setup at no extra charge.</p></div>
-    <div class="tc-highlight"><p><strong>Managed Monthly Plan:</strong> You pay a recurring monthly fee (the applicable rate confirmed at the time of engagement and varies by package tier). This covers website hosting, SSL certificate, security monitoring, basic maintenance, and a set allowance of minor monthly edits as specified in your package. Monthly fees vary — higher-tier packages carry higher monthly rates. This plan may be cancelled at any time with 30 days written notice sent to <a href="/cdn-cgi/l/email-protection#afc7cac3c3c0898c999b94cccec1cccedcdcdbdacbc6c081ccc0c2" style="color:var(--cyan)">hello&#64;cancasstudio&#46;com</a>. Hosting and all managed services (including domain forwarding) will cease at the end of the final paid billing period following cancellation.</p></div>
+    <div class="tc-highlight"><p><strong>Managed Monthly Plan:</strong> You pay a recurring monthly fee (the applicable rate confirmed at the time of engagement and varies by package tier). This covers website hosting, SSL certificate, security monitoring, basic maintenance, and a set allowance of minor monthly edits as specified in your package. Monthly fees vary — higher-tier packages carry higher monthly rates. This plan may be cancelled at any time with 30 days written notice sent to <a href="mailto:hello@cancasstudio.com" style="color:var(--cyan)">hello&#64;cancasstudio&#46;com</a>. Hosting and all managed services (including domain forwarding) will cease at the end of the final paid billing period following cancellation.</p></div>
     <p>A non-refundable deposit of 50% of the agreed project cost (or the equivalent of the first month's fee for managed plans) is required to begin work. The remaining balance is due upon project completion, before the website goes live. All payments are final once work has commenced.</p>
 
     <h2>3. Website File Transfer on Cancellation</h2>
@@ -4090,9 +4139,9 @@ window.addEventListener('scroll',()=>{
     <p>CANCAS STUDIO reserves the right to update these Terms at any time. Updated terms will be posted on our website. Continued use of our services following an update constitutes acceptance of the revised terms.</p>
 
     <h2>16. Contact</h2>
-    <p>For questions regarding these Terms, contact us at <strong style="color:var(--cyan)"><a href="/cdn-cgi/l/email-protection#c2aaa7aeaeade4e1f4f6f9a1a3aca1a3b1b1b6b7a6abadeca1adaf" style="color:var(--cyan)">hello&#64;cancasstudio&#46;com</a></strong> or WhatsApp <strong style="color:var(--cyan)">+971 56 901 6046</strong>. We respond within 24 hours.</p>
+    <p>For questions regarding these Terms, contact us at <strong style="color:var(--cyan)"><a href="mailto:hello@cancasstudio.com" style="color:var(--cyan)">hello&#64;cancasstudio&#46;com</a></strong> or WhatsApp <strong style="color:var(--cyan)">+971 56 901 6046</strong>. We respond within 24 hours.</p>
 
-    <div style="margin-top:48px;padding-top:28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:gap">
+    <div style="margin-top:48px;padding-top:28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
       <p style="font-size:12px;color:var(--muted);">© 2026 CANCAS STUDIO. All rights reserved.</p>
       <button onclick="document.getElementById('tc-modal').classList.remove('open')" class="btn-primary" style="font-size:11px;padding:11px 28px;">Close ×</button>
     </div>
@@ -4365,8 +4414,11 @@ window.doFlip = function(cardId){
 window.toggleFaq = function toggleFaq(btn){
   const item = btn.closest('.faq-item');
   const wasOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
-  if(!wasOpen) item.classList.add('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>{
+    i.classList.remove('open');
+    const b = i.querySelector('.faq-q'); if(b) b.setAttribute('aria-expanded','false');
+  });
+  if(!wasOpen){ item.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
 }
 
 // Industry strip navigation
