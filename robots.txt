@@ -1,4 +1,36 @@
 User-agent: *
+# Internal working documents — not part of the public site. Safety net in case
+# the /docs/ folder is ever uploaded alongside the site. Listed before Allow so
+# that first-match parsers honour it as well as longest-match parsers.
+Disallow: /docs/
 Allow: /
 
-Sitemap: https://www.cancasstudio.com/sitemap.xml
+# AI / LLM crawlers — explicitly allowed so Cancas Studio can be cited in AI answers
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://cancasstudio.com/sitemap.xml
