@@ -564,8 +564,14 @@ body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
 .pkg-flip{perspective:1600px;-webkit-perspective:1600px;}
 .pkg-flip-inner{display:grid;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .8s cubic-bezier(.45,.05,.25,1);}
 .pkg-card.turned .pkg-flip-inner{transform:rotateY(180deg);}
-.pkg-face{grid-area:1/1;display:flex;flex-direction:column;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
-.pkg-face--back{transform:rotateY(180deg);}
+.pkg-face{grid-area:1/1;display:flex;flex-direction:column;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:visibility 0s linear .4s;}
+.pkg-face *{-webkit-backface-visibility:hidden;backface-visibility:hidden;}
+.pkg-face--front{transform:rotateY(0deg);-webkit-transform:rotateY(0deg);visibility:visible;}
+.pkg-face--back{transform:rotateY(180deg);-webkit-transform:rotateY(180deg);visibility:hidden;}
+/* Safari fix: the hidden side is switched off at the halfway point of the turn,
+   so it can never show through (Safari ignores backface-visibility on animated list items) */
+.pkg-card.turned .pkg-face--front{visibility:hidden;}
+.pkg-card.turned .pkg-face--back{visibility:visible;}
 .pkg-mode-tab--host{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.25);color:var(--cyan);}
 .pkg-per{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--muted);padding-bottom:8px;margin-left:2px;}
 .pkg-back-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);padding:0 22px 6px;}
