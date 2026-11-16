@@ -560,21 +560,20 @@ body #chat-trigger{ width:64px; height:64px; transform-origin:center bottom;
   margin:10px 22px 16px;
 }
 
-/* ── After-launch hosting choice (pricing cards) ── */
-.pkg-host{ margin:4px 22px 16px; border:1px solid rgba(255,255,255,.08); border-radius:10px; overflow:hidden; }
-.pkg-host-title{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:9px 12px; background:rgba(255,255,255,.03); border-bottom:1px solid rgba(255,255,255,.06); }
-.pkg-host-opt{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 10px; padding:10px 12px; font-size:12.5px; }
-.pkg-host-opt + .pkg-host-opt{ border-top:1px solid rgba(255,255,255,.06); }
-.pkg-host-opt strong{ color:var(--white); font-weight:700; }
-.pkg-host-opt span{ color:var(--muted); }
-.pkg-host-opt--mo{ background:rgba(0,212,255,.05); }
-.pkg-host-price{ color:var(--cyan)!important; font-weight:800; font-size:15px; }
-.pkg-host-price .pkg-cur{ font-size:11px; padding:0; color:var(--cyan); }
-.pkg-host-price span:not(.pkg-cur){ color:inherit!important; }
-.pkg-host-opt small{ flex-basis:100%; font-size:11px; line-height:1.5; color:rgba(255,255,255,.45); }
-.pkg-host--premium .pkg-host-opt--mo{ background:rgba(180,100,255,.07); }
-.pkg-host--premium .pkg-host-price, .pkg-host--premium .pkg-host-price .pkg-cur{ color:#b464ff!important; }
-@media(max-width:767px){ .pkg-host{ margin:4px 18px 16px; } }
+/* ── 3D flip pricing cards (front: website build · back: hosting plan) ── */
+.pkg-flip{perspective:1600px;-webkit-perspective:1600px;}
+.pkg-flip-inner{display:grid;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .8s cubic-bezier(.45,.05,.25,1);}
+.pkg-card.turned .pkg-flip-inner{transform:rotateY(180deg);}
+.pkg-face{grid-area:1/1;display:flex;flex-direction:column;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+.pkg-face--back{transform:rotateY(180deg);}
+.pkg-mode-tab--host{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.25);color:var(--cyan);}
+.pkg-per{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--muted);padding-bottom:8px;margin-left:2px;}
+.pkg-back-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);padding:0 22px 6px;}
+.pkg-card--premium .pkg-back-title{color:#b464ff;}
+.pkg-self{font-size:12px;line-height:1.55;color:var(--muted);padding:0 22px 14px;}
+.pkg-turn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px 22px;background:transparent;border:none;border-top:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.45);font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:color .2s,background .2s;min-height:44px;}
+.pkg-turn:hover{color:var(--cyan);background:rgba(0,212,255,.04);}
+.pkg-turn svg{opacity:.7;}
 
 /* ── Feature list ───────────────────── */
 .pkg-list{
@@ -2157,9 +2156,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
   <div class="pkg-grid" id="pricing-grid">
 
-    <!-- CARD 1: STARTER — one-time build + optional hosting -->
+    <!-- CARD 1: STARTER — front: website build · back (turn over): hosting plan -->
     <div class="pkg-card" id="fw1">
-      <div class="pkg-view pkg-ot active" id="fw1-ot">
+      
+      <div class="pkg-flip"><div class="pkg-flip-inner">
+      <div class="pkg-face pkg-face--front" id="fw1-ot">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Starter</div>
           <div class="pkg-mode-tab pkg-mode-tab--ot">💳 One-Time Build</div>
@@ -2168,7 +2169,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-cur" id="s1-sym">AED</span>
           <span class="pkg-big" id="s1-ot">1,999</span>
         </div>
-        <div class="pkg-sub">one-time website build</div>
+        <div class="pkg-sub">one-time website build · host it yourself or with us</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>Up to 5 pages — clean custom design</li>
@@ -2181,20 +2182,41 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <li>30 days support included</li>
           <li>2 rounds of revisions</li>
         </ul>
-        <div class="pkg-host">
-          <div class="pkg-host-title">After launch — your choice</div>
-          <div class="pkg-host-opt"><strong>Host it yourself</strong><span>Full code + free setup guidance</span></div>
-          <div class="pkg-host-opt pkg-host-opt--mo"><strong>We host &amp; manage it</strong><span class="pkg-host-price"><span class="pkg-cur">AED</span> <span id="s1-mo">199</span>/mo</span>
-            <small>Starts 30 days after your first payment · hosting, SSL, uptime monitoring, 3 content updates/month, 48–72hr turnaround</small></div>
-        </div>
         <a href="#contact" class="pkg-cta-btn">GET STARTED</a>
+        <button type="button" class="pkg-turn" onclick="turnCard('fw1')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE HOSTING PLAN</button>
       </div>
+      <div class="pkg-face pkg-face--back" id="fw1-mo" aria-hidden="true" inert>
+        <div class="pkg-card-head">
+          <div class="pkg-plan-name">Starter</div>
+          <div class="pkg-mode-tab pkg-mode-tab--host">☁️ Hosting Plan</div>
+        </div>
+        <div class="pkg-price-block">
+          <span class="pkg-cur">AED</span>
+          <span class="pkg-big" id="s1-mo">199</span>
+          <span class="pkg-per">/mo</span>
+        </div>
+        <div class="pkg-sub">on top of your website build · starts 30 days after your first payment</div>
+        <div class="pkg-divider-line"></div>
+        <div class="pkg-back-title">We host &amp; manage it</div>
+        <ul class="pkg-list">
+          <li>Website hosting included</li>
+          <li>SSL certificate managed</li>
+          <li>Basic uptime monitoring</li>
+          <li>3 content updates/month (text, images, prices)</li>
+          <li>48–72hr turnaround on all updates</li>
+        </ul>
+        <div class="pkg-self">Prefer to host it yourself? You get the full code + free setup guidance.</div>
+        <a href="#contact" class="pkg-cta-btn">GET STARTED</a>
+        <button type="button" class="pkg-turn" onclick="turnCard('fw1')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> BACK TO WEBSITE BUILD</button>
+      </div>
+      </div></div>
     </div><!-- /fw1 -->
 
-    <!-- CARD 2: BUSINESS (POPULAR) -->
+    <!-- CARD 2: BUSINESS — front: website build · back (turn over): hosting plan -->
     <div class="pkg-card pkg-card--popular" id="fw2">
       <div class="pkg-popular-ribbon">MOST POPULAR</div>
-      <div class="pkg-view pkg-ot active" id="fw2-ot">
+      <div class="pkg-flip"><div class="pkg-flip-inner">
+      <div class="pkg-face pkg-face--front" id="fw2-ot">
         <div class="pkg-card-head">
           <div class="pkg-plan-name">Business</div>
           <div class="pkg-mode-tab pkg-mode-tab--ot">💳 One-Time Build</div>
@@ -2203,7 +2225,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-cur" id="s2-sym">AED</span>
           <span class="pkg-big" id="s2-ot">3,499</span>
         </div>
-        <div class="pkg-sub">one-time website build</div>
+        <div class="pkg-sub">one-time website build · host it yourself or with us</div>
         <div class="pkg-divider-line"></div>
         <ul class="pkg-list">
           <li>Up to 10 pages — premium custom design</li>
@@ -2220,20 +2242,43 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <li>Basic troubleshooting — 90 days support</li>
           <li>Unlimited revisions during build</li>
         </ul>
-        <div class="pkg-host">
-          <div class="pkg-host-title">After launch — your choice</div>
-          <div class="pkg-host-opt"><strong>Host it yourself</strong><span>Full code + free setup guidance</span></div>
-          <div class="pkg-host-opt pkg-host-opt--mo"><strong>We host &amp; manage it</strong><span class="pkg-host-price"><span class="pkg-cur">AED</span> <span id="s2-mo">249</span>/mo</span>
-            <small>Starts 30 days after your first payment · hosting, domain included, SSL, uptime &amp; performance monitoring, 6 updates/month (content + minor design), bug fixes, 48–72hr turnaround</small></div>
-        </div>
         <a href="#contact" class="pkg-cta-btn pkg-cta-btn--pop">GET STARTED</a>
+        <button type="button" class="pkg-turn" onclick="turnCard('fw2')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE HOSTING PLAN</button>
       </div>
+      <div class="pkg-face pkg-face--back" id="fw2-mo" aria-hidden="true" inert>
+        <div class="pkg-card-head">
+          <div class="pkg-plan-name">Business</div>
+          <div class="pkg-mode-tab pkg-mode-tab--host">☁️ Hosting Plan</div>
+        </div>
+        <div class="pkg-price-block">
+          <span class="pkg-cur">AED</span>
+          <span class="pkg-big" id="s2-mo">249</span>
+          <span class="pkg-per">/mo</span>
+        </div>
+        <div class="pkg-sub">on top of your website build · starts 30 days after your first payment</div>
+        <div class="pkg-divider-line"></div>
+        <div class="pkg-back-title">We host &amp; manage it</div>
+        <ul class="pkg-list">
+          <li>Website hosting included</li>
+          <li>Domain included</li>
+          <li>SSL certificate managed</li>
+          <li>Uptime &amp; performance monitoring</li>
+          <li>6 updates/month (content + minor design changes)</li>
+          <li>Basic troubleshooting &amp; bug fixes</li>
+          <li>48–72hr turnaround on all updates</li>
+        </ul>
+        <div class="pkg-self">Prefer to host it yourself? You get the full code + free setup guidance.</div>
+        <a href="#contact" class="pkg-cta-btn pkg-cta-btn--pop">GET STARTED</a>
+        <button type="button" class="pkg-turn" onclick="turnCard('fw2')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> BACK TO WEBSITE BUILD</button>
+      </div>
+      </div></div>
     </div><!-- /fw2 -->
 
-    <!-- CARD 3: PREMIUM -->
+    <!-- CARD 3: PREMIUM — front: website build · back (turn over): hosting plan -->
     <div class="pkg-card pkg-card--premium" id="fw3">
       <div class="pkg-popular-ribbon" style="background:linear-gradient(135deg,#b464ff,#7c3aed);">⭐ PREMIUM</div>
-      <div class="pkg-view pkg-ot active" id="fw3-ot">
+      <div class="pkg-flip"><div class="pkg-flip-inner">
+      <div class="pkg-face pkg-face--front" id="fw3-ot">
         <div class="pkg-card-head">
           <div class="pkg-plan-name" style="background:linear-gradient(135deg,#b464ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Premium</div>
           <div class="pkg-mode-tab pkg-mode-tab--ot">💳 One-Time Build</div>
@@ -2242,7 +2287,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span class="pkg-cur" id="s3-sym">AED</span>
           <span class="pkg-big" id="s3-ot" style="background:linear-gradient(135deg,#b464ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">5,499</span>
         </div>
-        <div class="pkg-sub">one-time website build</div>
+        <div class="pkg-sub">one-time website build · host it yourself or with us</div>
         <div class="pkg-divider-line" style="background:linear-gradient(90deg,#b464ff22,#b464ff,#b464ff22);"></div>
         <ul class="pkg-list">
           <li>Unlimited pages — fully bespoke design</li>
@@ -2265,14 +2310,36 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <li>Unlimited revisions — launch only when you love it</li>
           <li>6 months priority support &amp; bug fixes included</li>
         </ul>
-        <div class="pkg-host pkg-host--premium">
-          <div class="pkg-host-title">After launch — your choice</div>
-          <div class="pkg-host-opt"><strong>Host it yourself</strong><span>Full code + free setup guidance</span></div>
-          <div class="pkg-host-opt pkg-host-opt--mo"><strong>We host &amp; manage it</strong><span class="pkg-host-price"><span class="pkg-cur">AED</span> <span id="s3-mo">399</span>/mo</span>
-            <small>Starts 30 days after your first payment · hosting, domain included, SSL, full monitoring + downtime alerts, unlimited updates (content, design &amp; new sections), 48–72hr turnaround, priority WhatsApp support</small></div>
-        </div>
         <a href="#contact" class="pkg-cta-btn" style="background:linear-gradient(135deg,#b464ff,#7c3aed);color:#fff;">GET STARTED</a>
+        <button type="button" class="pkg-turn" onclick="turnCard('fw3')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> SEE HOSTING PLAN</button>
       </div>
+      <div class="pkg-face pkg-face--back" id="fw3-mo" aria-hidden="true" inert>
+        <div class="pkg-card-head">
+          <div class="pkg-plan-name" style="background:linear-gradient(135deg,#b464ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Premium</div>
+          <div class="pkg-mode-tab pkg-mode-tab--host">☁️ Hosting Plan</div>
+        </div>
+        <div class="pkg-price-block">
+          <span class="pkg-cur">AED</span>
+          <span class="pkg-big" id="s3-mo" style="background:linear-gradient(135deg,#b464ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">399</span>
+          <span class="pkg-per">/mo</span>
+        </div>
+        <div class="pkg-sub">on top of your website build · starts 30 days after your first payment</div>
+        <div class="pkg-divider-line" style="background:linear-gradient(90deg,#b464ff22,#b464ff,#b464ff22);"></div>
+        <div class="pkg-back-title">We host &amp; manage it</div>
+        <ul class="pkg-list">
+          <li>Website hosting included</li>
+          <li>Domain included</li>
+          <li>SSL certificate managed</li>
+          <li>Full monitoring + downtime alerts</li>
+          <li>Unlimited updates (content, design &amp; new sections)</li>
+          <li>48–72hr turnaround on all updates</li>
+          <li>Priority WhatsApp support</li>
+        </ul>
+        <div class="pkg-self">Prefer to host it yourself? You get the full code + free setup guidance.</div>
+        <a href="#contact" class="pkg-cta-btn" style="background:linear-gradient(135deg,#b464ff,#7c3aed);color:#fff;">GET STARTED</a>
+        <button type="button" class="pkg-turn" onclick="turnCard('fw3')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg> BACK TO WEBSITE BUILD</button>
+      </div>
+      </div></div>
     </div><!-- /fw3 -->
 
   </div><!-- end pkg-grid -->
@@ -4319,6 +4386,22 @@ function renderAllPrices(){
   document.querySelectorAll('.save-sym').forEach(function(el){ el.textContent = sym; });
 }
 window.renderAllPrices = renderAllPrices;
+
+// Pricing cards: turn over in 3D between the website build (front) and the hosting plan (back).
+// The hidden side is made inert so keyboard / screen-reader users only reach the visible side.
+window.turnCard = function(id){
+  var card = document.getElementById(id); if(!card) return;
+  var on = !card.classList.contains('turned');
+  card.classList.toggle('turned', on);
+  var front = document.getElementById(id+'-ot'), back = document.getElementById(id+'-mo');
+  [[front, !on], [back, on]].forEach(function(p){
+    if(!p[0]) return;
+    if(p[1]){ p[0].removeAttribute('inert'); p[0].removeAttribute('aria-hidden'); }
+    else { p[0].setAttribute('inert',''); p[0].setAttribute('aria-hidden','true'); }
+  });
+  var shown = on ? back : front;
+  setTimeout(function(){ var b = shown && shown.querySelector('.pkg-turn'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }, 400);
+};
 
 // FAQ accordion
 window.toggleFaq = function toggleFaq(btn){
