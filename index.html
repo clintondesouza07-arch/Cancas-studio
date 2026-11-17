@@ -2738,6 +2738,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div id="notif-list"></div>
         </div>
       </div>
+      <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" id="admin-settings-btn" onclick="CancasOps.openSettings()" title="Business details, prices, access & archived clients">Settings</button>
       <button class="btn-secondary" style="padding:9px 16px;font-size:11px;" onclick="openSyncSetup()" title="Cloud Sync Settings">Sync</button>
       <button class="btn-secondary" style="padding:9px 20px;font-size:11px" onclick="closeAdmin()">Exit Admin</button>
     </div>
@@ -2852,7 +2853,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div class="crm-profile-actions">
           <button class="crm-btn sec" onclick="saveClient()">Save</button>
           <button class="crm-btn sec" onclick="closeCrmProfile()">× Close</button>
-          <button class="crm-btn red" id="prof-del-btn" onclick="deleteClient()" style="display:none;">Delete</button>
+          <button class="crm-btn sec" id="prof-del-btn" onclick="archiveClient()" style="display:none;" title="Hide this client from your lists — all data is kept and can be restored from Settings">Archive</button>
         </div>
       </div>
 
@@ -4770,10 +4771,12 @@ async function refreshAttention(){
   var now = Date.now();
   var invoicedByKey = {};
   var invoicedById = {};
+  var allInvRows = [];
   var signedSet = {};
   if(sb){
     try{
-      var invRes = await sb.from('invoices').select('client_id,client_name,amount');
+      var invRes = await sb.from('invoices').select('id,invoice_no,client_id,client_name,kind,period_label,amount,data,created_at');
+      allInvRows = (invRes && invRes.data) || [];
       ((invRes && invRes.data)||[]).forEach(function(r){
         var amt = parseFloat(r.amount||0);
         if(r.client_id){ invoicedById[r.client_id]=(invoicedById[r.client_id]||0)+amt; }
@@ -4796,10 +4799,13 @@ async function refreshAttention(){
     return !!(s && s > now);
   }
   CRM.clients.forEach(function(c){
+    if(c.archived) return;   // archived clients never raise alerts
     var key = (c.biz || c.name || '').trim();
     var paid = (c.payments||[]).reduce(function(s,p){ return s+parseFloat(p.amount||0); },0);
     var invoiced = (invoicedById[c.id] || 0) + (invoicedByKey[key] || 0);
     var pending = Math.max(0, invoiced-paid);
+    // Same calculation as the statement: only what is due NOW (not a balance due later at launch)
+    if(window.CancasLedger && typeof allInvRows!=='undefined'){ try{ pending = CancasLedger.buildLedger(c, allInvRows).dueNow; }catch(e){} }
     var isActiveish = c.status==='active'||c.status==='inprogress'||c.status==='revision';
     var lastTouch = c.updated || c.created || 0;
     var daysSinceTouch = lastTouch ? Math.floor((now-lastTouch)/86400000) : null;
@@ -5277,6 +5283,7 @@ function renderCrmGrid(){
 
   var tagFilter = CRM.currentTagFilter || '';
   var clients = CRM.clients.filter(function(c){
+    if(c.archived) return false;
     if(tab==='active_all'){
       if(c.status!=='active' && c.status!=='inprogress' && c.status!=='revision') return false;
     } else if(tab==='due_week'){
@@ -5376,11 +5383,12 @@ function renderCrmGrid(){
 
 function updateKpis(){
   CRM.load();
-  var total = CRM.clients.length;
-  var activeClients = CRM.clients.filter(function(c){ return c.status==='active'||c.status==='inprogress'||c.status==='revision'; });
+  var live = CRM.clients.filter(function(c){ return !c.archived; });
+  var total = live.length;
+  var activeClients = live.filter(function(c){ return c.status==='active'||c.status==='inprogress'||c.status==='revision'; });
   var active = activeClients.length;
-  var leads = CRM.clients.filter(function(c){ return c.status==='lead'; }).length;
-  var done = CRM.clients.filter(function(c){ return c.status==='completed'; }).length;
+  var leads = live.filter(function(c){ return c.status==='lead'; }).length;
+  var done = live.filter(function(c){ return c.status==='completed'; }).length;
   // Only count monthly revenue from clients actually in the active/in-progress/revision
   // bucket — previously this summed every client's monthly fee regardless of status,
   // including leads, completed, churned, and test entries, inflating the figure.
@@ -5454,7 +5462,7 @@ function openClientProfile(id){
     'status','package','project','pages','start','due','launch','end','live',
     'value','monthly','deposit','balance','payment','renewal','invoice',
     'domain','registrar','hosting','domain-exp','admin-email','cpanel','tech',
-    'brief','notes','eos',
+    'brief','eos',
     'contact2-name','contact2-role','contact2-phone','contact2-email','contact2-time','contact2-pref'];
   fields.forEach(function(f){
     var el = document.getElementById('cf-'+f);
@@ -5463,7 +5471,8 @@ function openClientProfile(id){
     if(el) el.value = v;
   });
   // Internal Notes textarea (cf-notes) is stored as c.internalNotes — c.notes is the activity thread
-  if(document.getElementById('cf-notes')) document.getElementById('cf-notes').value = c.internalNotes||'';
+  // (an old bug wrote '[object Object],…' into this box — never show or re-save that)
+  if(document.getElementById('cf-notes')) document.getElementById('cf-notes').value = (typeof c.internalNotes==='string' && !/^(\[object Object\],?)+$/.test(c.internalNotes)) ? c.internalNotes : '';
   // Fix hyphenated field names
   if(document.getElementById('cf-domain-exp')) document.getElementById('cf-domain-exp').value = c.domainexp||'';
   if(document.getElementById('cf-admin-email')) document.getElementById('cf-admin-email').value = c.adminemail||'';
@@ -5604,6 +5613,13 @@ function calcPending(){
   var sb = (typeof getSB==='function') ? getSB() : null;
   if(sb && clientKey){
     var myToken = ++_pendingFetchToken;
+    if(window.CancasLedger){
+      CancasLedger.allInvoices(true).then(function(rows){
+        if(myToken !== _pendingFetchToken) return;
+        var L = CancasLedger.buildLedger(c, rows);
+        renderPendingUI(L.charged, L.paid, L.outstanding, monthly, cancelled);
+      }).catch(function(){});
+    } else
     fetchClientInvoices(sb, c.id, clientKey, 'id,amount').then(function(rows){
       if(myToken !== _pendingFetchToken) return; // a newer call superseded this one
       if(rows && rows.length){
@@ -5687,6 +5703,7 @@ function addPayment(){
   });
   CRM.save();
   renderNoteThread(c);
+  try{ refreshAttention(); }catch(e){}
 }
 
 function renderPaymentsList(){
@@ -5724,6 +5741,7 @@ function deletePayment(pid){
   CRM.save();
   renderPaymentsList();
   calcPending();
+  try{ refreshAttention(); }catch(e){}
 }
 
 function clearProfileForm(){
@@ -5772,7 +5790,7 @@ function saveClient(){
     domainexp: getV('cf-domain-exp'), adminemail: getV('cf-admin-email'),
     cpanel: getV('cf-cpanel'), tech: getV('cf-tech'), brief: getV('cf-brief'),
     notes: CRM.currentId ? ((CRM.get(CRM.currentId)||{}).notes||[]) : [],
-    internalNotes: getV('cf-notes'), eos: getV('cf-eos'),
+    internalNotes: (function(v){ return /^(\[object Object\],?)+$/.test(v)?'':v; })(getV('cf-notes')), eos: getV('cf-eos'),
     followupdate: getV('cf-followup-date'), followupnote: getV('cf-followup-note'),
     tags: (function(){ var t=[]; document.querySelectorAll('#client-tags-row .crm-tag.sel').forEach(function(el){ t.push(el.dataset.tag); }); return t; })(),
     // Snoozes are set from the attention chips (snoozeAttention()), not from this form —
@@ -5822,18 +5840,48 @@ function saveClient(){
   if(btn){ var orig=btn.textContent; btn.textContent='Saved!'; btn.style.color='#00e87a'; setTimeout(function(){ btn.textContent=orig; btn.style.color=''; },1500); }
 }
 
-function deleteClient(){
+// Archive = hide from every list, count and alert. Nothing is deleted.
+function archiveClient(){
   if(!CRM.currentId) return;
+  CRM.load();
   var c = CRM.get(CRM.currentId);
-  if(!confirm('Delete '+(c?c.name||c.biz:'this client')+'? This cannot be undone.')) return;
-  var delId = CRM.currentId;
-  CRM.clients = CRM.clients.filter(function(x){ return x.id!==delId; });
+  if(!c) return;
+  var nm = c.biz || c.name || 'this client';
+  if(!confirm('Archive "'+nm+'"?\n\nIt will be hidden from your client lists, dashboard and alerts. All data, invoices and payments are kept, and you can restore it any time from Settings → Archived clients.\n\nNote: archiving does not stop monthly billing. To stop billing, set an End Date on the client first.')) return;
+  c.archived = true;
+  c.archivedAt = new Date().toISOString();
+  c.updated = Date.now();
   CRM.save();
-  SYNC.remove(delId);
   CRM.currentId = null;
   closeCrmProfile();
   renderCrmGrid();
+  try{ refreshAttention(); }catch(e){}
 }
+function restoreClient(id){
+  CRM.load();
+  var c = CRM.get(id); if(!c) return;
+  delete c.archived; delete c.archivedAt; c.updated = Date.now();
+  CRM.save(); renderCrmGrid();
+  try{ refreshAttention(); }catch(e){}
+}
+// Permanent delete — only from Settings → Archived clients, and only after typing the name.
+function permanentDeleteClient(id){
+  CRM.load();
+  var c = CRM.get(id); if(!c) return false;
+  var nm = String(c.biz || c.name || '').trim();
+  var typed = prompt('PERMANENTLY delete "'+nm+'" and all of its data from the cloud?\nThis cannot be undone.\n\nType the client name exactly to confirm:');
+  if(typed === null) return false;
+  if(typed.trim() !== nm){ alert('The name did not match — nothing was deleted.'); return false; }
+  CRM.clients = CRM.clients.filter(function(x){ return x.id!==id; });
+  CRM.save();
+  SYNC.remove(id);
+  if(String(CRM.currentId)===String(id)){ CRM.currentId=null; closeCrmProfile(); }
+  renderCrmGrid();
+  try{ refreshAttention(); }catch(e){}
+  return true;
+}
+// Kept for safety: any old call now goes through the typed-name check.
+function deleteClient(){ if(CRM.currentId) permanentDeleteClient(CRM.currentId); }
 
 function closeCrmProfile(){
   document.getElementById('crm-profile-modal').classList.remove('open');
@@ -6732,29 +6780,32 @@ function autoBackupOnSave() {
      +'    <div id="ih-title" style="font-weight:800;font-size:16px;">Invoice History</div>'
      +'    <button onclick="document.getElementById(\'cancas-ih\').style.display=\'none\'" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;">× Close</button>'
      +'  </div>'
-     +'  <div style="display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #1f2c38;">'
-     +'    <select id="ih-year" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"><option value="">All years</option></select>'
-     +'    <select id="ih-month" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;"><option value="">All months</option>'
-     +'      <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>'
-     +'      <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>'
-     +'      <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>'
-     +'    </select>'
+     +'  <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #1f2c38;color:#8aa0b2;font-size:11px;">'
+     +'    <label>FROM<br><input type="month" id="ih-from" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;color-scheme:dark;"></label>'
+     +'    <label>TO<br><input type="month" id="ih-to" style="background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:8px 10px;color-scheme:dark;"></label>'
+     +'    <button id="ih-clear" style="background:#1f2c38;color:#e7eef4;border:none;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer;">Show all</button>'
+     +'    <button id="ih-combine" style="margin-left:auto;background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer;">Combine into one PDF</button>'
+     +'    <div id="ih-count" style="width:100%;color:#8aa0b2;font-size:12px;"></div>'
      +'  </div>'
      +'  <div id="ih-list" style="flex:1;overflow:auto;padding:8px 16px;color:#e7eef4;font-size:13px;"></div>'
      +'</div>';
     document.body.appendChild(m);
-    document.getElementById("ih-year").addEventListener("change", applyInvoiceHistoryFilter);
-    document.getElementById("ih-month").addEventListener("change", applyInvoiceHistoryFilter);
+    document.getElementById("ih-from").addEventListener("change", applyInvoiceHistoryFilter);
+    document.getElementById("ih-to").addEventListener("change", applyInvoiceHistoryFilter);
+    document.getElementById("ih-clear").onclick=function(){ document.getElementById("ih-from").value=""; document.getElementById("ih-to").value=""; applyInvoiceHistoryFilter(); };
+    document.getElementById("ih-combine").onclick=function(){ if(!ihFiltered.length){ alert("No invoices in this range."); return; } showCombined(CRM.currentId, ihFiltered, document.getElementById("ih-from").value, document.getElementById("ih-to").value); };
   }
   function invoiceHistoryOpen(){ var m=document.getElementById("cancas-ih"); return m && m.style.display==="flex"; }
   function renderInvoiceHistoryRows(rows){
     var list=document.getElementById("ih-list"); if(!list) return;
     if(!rows.length){ list.innerHTML='<div style="color:#8aa0b2;padding:20px 0;text-align:center;">No invoices in this range.</div>'; return; }
+    var stat={}; try{ var cc=CRM.get(CRM.currentId); if(cc && _invCache.rows){ buildLedger(cc,_invCache.rows).charges.forEach(function(ch){ if(ch.ref) ch.ref.split(", ").forEach(function(rf){ var o=stat[rf]||{due:0}; o.due+=ch.due; stat[rf]=o; }); }); } }catch(e){}
     list.innerHTML = rows.map(function(r,i){
+      var st=stat[r.invoice_no], chip = st ? (st.due<=0.004 ? '<span style="background:rgba(0,232,122,.12);color:#00e87a;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px;">PAID</span>' : '<span style="background:rgba(255,80,80,.12);color:#ff6b6b;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px;">DUE AED '+money(st.due)+'</span>') : '';
       var when = r.period_label || (r.created_at ? new Date(r.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "");
       var kindLabel = r.kind==="monthly" ? "Monthly" : r.kind==="final" ? "Final" : "Project";
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #1f2c38;">'
-        +'<div><div style="font-weight:700;">'+escHTML(r.invoice_no)+'</div>'
+        +'<div><div style="font-weight:700;">'+escHTML(r.invoice_no)+chip+'</div>'
         +'<div style="color:#8aa0b2;font-size:12px;">'+kindLabel+' · '+when+' · AED '+Number(r.amount||0).toLocaleString("en-US",{minimumFractionDigits:2})+'</div></div>'
         +'<div style="display:flex;gap:8px;flex-shrink:0;">'
         +'<button data-ih-idx="'+i+'" style="background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer;">PDF</button>'
@@ -6796,25 +6847,27 @@ function autoBackupOnSave() {
       var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001; pvEl.style.display="flex";
     });
   }
+  var ihFiltered = [];
   function applyInvoiceHistoryFilter(){
-    var yr = document.getElementById("ih-year").value;
-    var mo = document.getElementById("ih-month").value;
-    var filtered = ihRows.filter(function(r){
-      var d = new Date(r.created_at);
-      if(yr && String(d.getFullYear())!==yr) return false;
-      if(mo!=="" && mo!==null && mo!==undefined && String(d.getMonth())!==mo) return false;
+    var from = document.getElementById("ih-from").value, to = document.getElementById("ih-to").value;
+    if(from && to && from>to){ var t=from; from=to; to=t; }
+    ihFiltered = ihRows.filter(function(r){
+      var m = monthKey(new Date(r.created_at));
+      if(from && m<from) return false;
+      if(to && m>to) return false;
       return true;
     });
-    renderInvoiceHistoryRows(filtered);
+    var total = ihFiltered.reduce(function(s,r){ return s+lnum(r.amount); },0);
+    var cnt=document.getElementById("ih-count");
+    if(cnt) cnt.textContent = ihFiltered.length+" invoice"+(ihFiltered.length===1?"":"s")+" · total AED "+money(total)+((from||to)?"":" · pick a From–To range to combine just those months");
+    renderInvoiceHistoryRows(ihFiltered);
   }
   function loadInvoiceHistory(clientName){
     var sb=(typeof getSB==="function")?getSB():null;
     if(!sb){ renderInvoiceHistoryRows([]); return; }
-    fetchClientInvoices(sb, (window.CRM&&CRM.currentId)?CRM.currentId:null, clientName, '*').then(function(rows){
+    Promise.all([allInvoices(true).catch(function(){ return []; }), fetchClientInvoices(sb, (window.CRM&&CRM.currentId)?CRM.currentId:null, clientName, '*')]).then(function(res){
+      var rows = res[1];
       ihRows = (rows || []).sort(function(a,b){ return new Date(b.created_at) - new Date(a.created_at); });
-      var yearSel = document.getElementById("ih-year");
-      var years = Array.from(new Set(ihRows.map(function(r){ return new Date(r.created_at).getFullYear(); }))).sort(function(a,b){return b-a;});
-      yearSel.innerHTML = '<option value="">All years</option>' + years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join("");
       applyInvoiceHistoryFilter();
     }, function(){ renderInvoiceHistoryRows([]); });
   }
@@ -6831,8 +6884,215 @@ function autoBackupOnSave() {
     loadInvoiceHistory(d.clientName);
   }
 
+  // ================= ACCOUNT LEDGER · STATEMENT · COMBINED INVOICE (Nov 2026) =================
+  // One calculation of "what is owed" used everywhere (profile Pending, Needs Attention,
+  // dashboard, statement, combined invoice). Payments are applied oldest-charge-first.
+  function lnum(v){ return Number(String(v==null?"":v).replace(/[^0-9.\-]/g,""))||0; }
+  function r2(n){ return Math.round(n*100)/100; }
+  function clientKeyOf(c){ return String((c&&(c.biz||c.name))||"").trim(); }
+  function invDate(r){ return r && r.created_at ? new Date(r.created_at) : new Date(0); }
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function fmtD(d){ return (d && !isNaN(d)) ? (String(d.getDate()).padStart(2,"0")+" "+MON[d.getMonth()]+" "+d.getFullYear()) : "—"; }
+  function fmtISO(s){ if(!s) return "—"; var d=new Date(s); return isNaN(d)?String(s):fmtD(d); }
+  var _invCache={t:0,rows:null};
+  function allInvoices(force){
+    var sb=(typeof getSB==="function")?getSB():null;
+    if(!sb) return Promise.resolve(_invCache.rows||[]);
+    if(!force && _invCache.rows && (Date.now()-_invCache.t)<30000) return Promise.resolve(_invCache.rows);
+    return Promise.resolve(sb.from('invoices').select('id,invoice_no,client_id,client_name,kind,period_label,amount,data,created_at')).then(function(res){
+      if(res && res.error) throw res.error;
+      _invCache={t:Date.now(),rows:(res&&res.data)||[]};
+      return _invCache.rows;
+    });
+  }
+  function invoicesFor(c, rows){
+    var key=clientKeyOf(c);
+    return (rows||[]).filter(function(r){
+      return (r.client_id && String(r.client_id)===String(c.id)) || (!r.client_id && String(r.client_name||"").trim()===key);
+    });
+  }
+  function buildLedger(c, rows){
+    var inv=invoicesFor(c, rows), charges=[], today=new Date();
+    var project=inv.filter(function(r){ return r.kind==="project"; });
+    // A lead with no invoice and no payment doesn't owe anything yet — it's only a quote.
+    var quoteOnly = !project.length && !(c.payments&&c.payments.length) && (!c.status || c.status==="lead");
+    var buildTotal = project.length ? project.reduce(function(s,r){ return s+lnum(r.amount); },0) : (quoteOnly ? 0 : lnum(c.value));
+    var buildRef = project.map(function(r){ return r.invoice_no; }).filter(Boolean).join(", ");
+    var buildDate = project.length ? invDate(project[0]) : new Date(c.start || c.created || Date.now());
+    if(buildTotal>0){
+      var dep = (c.deposit!==undefined && c.deposit!==null && c.deposit!=="") ? lnum(c.deposit) : r2(buildTotal*0.5);
+      if(dep>buildTotal) dep=buildTotal;
+      var bal = r2(buildTotal-dep);
+      var liveDate = c.live || c.launch;
+      var isLive = c.status==="active" || c.status==="completed" || c.status==="churned" || (liveDate && new Date(liveDate)<=today);
+      var pkg = c.package || "Website";
+      charges.push({date:buildDate, label:"Website build — "+pkg+" · 50% advance", ref:buildRef, amount:dep, upcoming:false, kind:"build"});
+      if(bal>0) charges.push({date:buildDate, label:"Website build — "+pkg+" · 50% balance"+(isLive?"":" (due before launch)"), ref:buildRef, amount:bal, upcoming:!isLive, kind:"build"});
+    }
+    inv.filter(function(r){ return r.kind!=="project"; }).forEach(function(r){
+      var d=invDate(r);
+      var lbl = r.kind==="final" ? "Final invoice — closing balance" : ("Hosting & management — "+(r.period_label||fmtD(d)));
+      charges.push({date:d, label:lbl, short:(r.kind==="final"?"Final invoice":(r.period_label||fmtD(d))+" hosting"), ref:r.invoice_no||"", amount:lnum(r.amount), upcoming:d>today, kind:r.kind, row:r});
+    });
+    charges.forEach(function(ch,i){ ch.i=i; if(!ch.short) ch.short=ch.label.replace(/^Website build — [^·]*· /,"Build "); });
+    charges.sort(function(a,b){ return (a.date-b.date) || (a.i-b.i); });
+    var pays=(c.payments||[]).slice().sort(function(a,b){ return String(a.date||"").localeCompare(String(b.date||"")); });
+    var totalPaid=r2(pays.reduce(function(s,p){ return s+lnum(p.amount); },0)), pool=totalPaid;
+    charges.forEach(function(ch){
+      var a=Math.min(pool, ch.amount); ch.paid=r2(a); pool=r2(pool-a); ch.due=r2(ch.amount-ch.paid);
+      ch.status = ch.due<=0.004 ? "Paid" : (ch.paid>0 ? "Part-paid" : (ch.upcoming ? "Not yet due" : "Due"));
+    });
+    var charged=r2(charges.reduce(function(s,ch){ return s+ch.amount; },0));
+    var dueNowLines=charges.filter(function(ch){ return ch.due>0.004 && !ch.upcoming; });
+    var upcomingLines=charges.filter(function(ch){ return ch.due>0.004 && ch.upcoming; });
+    return {
+      charges:charges, payments:pays, charged:charged, paid:totalPaid,
+      outstanding:Math.max(0,r2(charged-totalPaid)), credit:Math.max(0,r2(totalPaid-charged)),
+      dueNow:r2(dueNowLines.reduce(function(s,ch){ return s+ch.due; },0)), dueNowLines:dueNowLines, upcomingLines:upcomingLines
+    };
+  }
+  function studio(){ try{ return (window.CancasSettings && CancasSettings.get()) || {}; }catch(e){ return {}; } }
+  function paymentDetails(ref){
+    var st=studio(), rows=[];
+    if(st.bankName) rows.push(kv("Bank", st.bankName));
+    if(st.accountName) rows.push(kv("Account name", st.accountName));
+    if(st.accountNo) rows.push(kv("Account no.", st.accountNo));
+    if(st.iban) rows.push(kv("IBAN", st.iban));
+    if(st.swift) rows.push(kv("SWIFT / BIC", st.swift));
+    var out=[{text:"Payment",color:TEAL,bold:true,fontSize:11,margin:[0,16,0,4]}];
+    if(rows.length) out.push({table:{widths:[110,"*"],body:rows},layout:grid(),margin:[0,0,0,6]});
+    out.push({text:(st.payNote?st.payNote+" ":"")+"Please reference "+ref+" with your payment. Questions? "+(st.phone||"+971 56 901 6046")+" · "+(st.email||"hello@cancasstudio.com"),color:GREY,fontSize:9});
+    if(st.trn) out.push({text:"TRN: "+st.trn,color:GREY,fontSize:8,margin:[0,4,0,0]});
+    return out;
+  }
+  function docHead(title, rightLines, c){
+    var st=studio();
+    return [
+      brandHeader(title),
+      {text:(st.tagline||"Web Design & Development · Dubai, UAE"),color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,10]},
+      {canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.4,lineColor:TEAL}],margin:[0,0,0,14]},
+      {columns:[
+        [{text:"BILL TO",color:TEAL,bold:true,fontSize:8,margin:[0,0,0,2]},{text:c.billing||c.biz||c.name||"[Client]",bold:true},{text:c.location||"United Arab Emirates",color:GREY}],
+        rightLines.map(function(l){ return {text:[{text:l[0]+":  ",bold:true},String(l[1]||"—")],alignment:"right"}; })
+      ]},
+      {text:"",margin:[0,14,0,0]}
+    ];
+  }
+  function th(t,right){ return {text:t,fillColor:TEAL,color:"#fff",bold:true,fontSize:9,alignment:right?"right":"left"}; }
+  function statusCell(ch){
+    if(ch.status==="Paid") return {text:"PAID",color:"#0a8f3c",bold:true,alignment:"right",fontSize:9};
+    return {stack:[{text:money(ch.due),bold:true,color:ch.upcoming?GREY:"#b00020",alignment:"right"},{text:ch.status,fontSize:7.5,color:GREY,alignment:"right"}]};
+  }
+  function buildStatementDoc(c, L){
+    var body=[[th("DATE"),th("DESCRIPTION"),th("INVOICE"),th("AMOUNT",1),th("PAID",1),th("BALANCE",1)]];
+    L.charges.forEach(function(ch){
+      body.push([{text:fmtD(ch.date),fontSize:9},{text:ch.label,fontSize:9},{text:ch.ref||"—",fontSize:8.5,color:GREY},{text:money(ch.amount),alignment:"right",fontSize:9},{text:money(ch.paid),alignment:"right",fontSize:9},statusCell(ch)]);
+    });
+    if(L.charges.length===0) body.push([{text:"No charges on this account yet.",colSpan:6,color:GREY},"","","","",""]);
+    var dueList = L.dueNowLines.map(function(ch){ return ch.short+(ch.ref?" ("+ch.ref+")":"")+" — AED "+money(ch.due); });
+    var content = docHead("STATEMENT", [["Statement date",fmtD(new Date())],["Account no.",c.svcnum||"—"],["Package",c.package||"—"]], c).concat([
+      {text:"Account summary",color:TEAL,bold:true,fontSize:11,margin:[0,0,0,6]},
+      {table:{headerRows:1,widths:[54,"*",62,54,54,62],body:body},layout:grid()},
+      {columns:[{text:""},{width:220,table:{widths:["*",90],body:[
+        [{text:"Total billed",bold:true},{text:"AED "+money(L.charged),alignment:"right"}],
+        [{text:"Total paid",bold:true},{text:"AED "+money(L.paid),alignment:"right",color:"#0a8f3c"}],
+        [{text:"Outstanding",bold:true,fillColor:LIGHT},{text:"AED "+money(L.outstanding),alignment:"right",bold:true,fillColor:LIGHT}]
+      ]},layout:grid()}],margin:[0,10,0,0]},
+      {text:"",margin:[0,12,0,0]},
+      {table:{widths:["*",150],body:[[{text:"TOTAL DUE NOW",fillColor:TEAL,color:"#fff",bold:true,fontSize:13},{text:"AED "+money(L.dueNow),fillColor:TEAL,color:"#fff",bold:true,fontSize:13,alignment:"right"}]]},layout:{defaultBorder:false,paddingLeft:function(){return 10;},paddingRight:function(){return 10;},paddingTop:function(){return 9;},paddingBottom:function(){return 9;}}},
+      dueList.length ? {stack:[{text:"This covers:",bold:true,fontSize:9,margin:[0,6,0,2]},{ul:dueList,fontSize:9}]} : {text:L.credit>0?("Your account is in credit by AED "+money(L.credit)+". Thank you!"):"Nothing is due right now — thank you!",fontSize:9,color:"#0a8f3c",margin:[0,6,0,0]},
+      L.upcomingLines.length ? {text:"Not yet due: "+L.upcomingLines.map(function(ch){ return ch.short+" — AED "+money(ch.due); }).join("; ")+".",fontSize:8.5,color:GREY,margin:[0,4,0,0]} : {text:""}
+    ]);
+    if(L.payments.length){
+      var pb=[[th("DATE"),th("METHOD"),th("NOTE"),th("AMOUNT",1)]];
+      L.payments.forEach(function(p){ pb.push([{text:fmtISO(p.date),fontSize:9},{text:p.method||"—",fontSize:9},{text:[p.ref?("Ref "+p.ref):"",p.note||""].filter(Boolean).join(" · ")||"—",fontSize:8.5,color:GREY},{text:money(lnum(p.amount)),alignment:"right",fontSize:9}]); });
+      content.push({text:"Payments received",color:TEAL,bold:true,fontSize:11,margin:[0,16,0,6]});
+      content.push({table:{headerRows:1,widths:[70,90,"*",80],body:pb},layout:grid()});
+    }
+    content=content.concat(paymentDetails(c.svcnum?("account no. "+c.svcnum):"your business name"));
+    return {pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.15},footer:footer(),content:content};
+  }
+  function monthKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+  function buildCombinedDoc(c, L, rows, fromM, toM){
+    rows = rows.slice().sort(function(a,b){ return invDate(a)-invDate(b); });
+    var refs={}; L.charges.forEach(function(ch){ if(!ch.ref) return; ch.ref.split(", ").forEach(function(r){ refs[r]=refs[r]||{paid:0,amount:0}; refs[r].paid+=ch.paid; refs[r].amount+=ch.amount; }); });
+    var body=[[th("INVOICE"),th("DESCRIPTION"),th("DATE"),th("AMOUNT",1),th("PAID",1),th("BALANCE",1)]], tot=0, paid=0;
+    rows.slice().sort(function(a,b){ return invDate(a)-invDate(b); }).forEach(function(r){
+      var amt=lnum(r.amount), p=refs[r.invoice_no]?Math.min(amt, r2(refs[r.invoice_no].paid)):0, due=r2(amt-p);
+      var desc = r.kind==="monthly" ? ("Hosting & management — "+(r.period_label||"")) : r.kind==="final" ? "Final invoice — closing balance" : ("Website build — "+((r.data&&r.data.packageName)||c.package||""));
+      tot+=amt; paid+=p;
+      body.push([{text:r.invoice_no||"—",fontSize:9},{text:desc,fontSize:9},{text:fmtD(invDate(r)),fontSize:9},{text:money(amt),alignment:"right",fontSize:9},{text:money(p),alignment:"right",fontSize:9},due<=0.004?{text:"PAID",color:"#0a8f3c",bold:true,alignment:"right",fontSize:9}:{text:money(due),bold:true,color:"#b00020",alignment:"right",fontSize:9}]);
+    });
+    tot=r2(tot); paid=r2(paid); var bal=r2(tot-paid);
+    function mLabel(m){ if(!m) return ""; var p=m.split("-"); return new Date(+p[0],+p[1]-1,1).toLocaleDateString("en-GB",{month:"long",year:"numeric"}); }
+    var periodTxt = (fromM||toM) ? ((mLabel(fromM)||"Start")+" – "+(mLabel(toM)||"Today")) : "All invoices";
+    var first=rows.length?rows[0].invoice_no:"", nos=rows.map(function(r){return r.invoice_no;}).filter(Boolean);
+    var content = docHead("INVOICE", [["Combined invoice",nos.length>1?(nos[0]+" – "+nos[nos.length-1]):(nos[0]||"—")],["Period",periodTxt],["Date",fmtD(new Date())]], c).concat([
+      {text:"This invoice combines "+rows.length+" invoice"+(rows.length===1?"":"s")+" for the period above.",fontSize:9,color:GREY,margin:[0,0,0,6]},
+      {table:{headerRows:1,widths:[66,"*",62,56,56,62],body:body},layout:grid()},
+      {columns:[{text:""},{width:220,table:{widths:["*",90],body:[
+        [{text:"Total",bold:true},{text:"AED "+money(tot),alignment:"right"}],
+        [{text:"Paid",bold:true},{text:"AED "+money(paid),alignment:"right",color:"#0a8f3c"}]
+      ]},layout:grid()}],margin:[0,10,0,0]},
+      {text:"",margin:[0,12,0,0]},
+      {table:{widths:["*",150],body:[[{text:"AMOUNT DUE",fillColor:TEAL,color:"#fff",bold:true,fontSize:13},{text:"AED "+money(bal),fillColor:TEAL,color:"#fff",bold:true,fontSize:13,alignment:"right"}]]},layout:{defaultBorder:false,paddingLeft:function(){return 10;},paddingRight:function(){return 10;},paddingTop:function(){return 9;},paddingBottom:function(){return 9;}}}
+    ]).concat(paymentDetails(nos.length?("invoice "+nos[0]+(nos.length>1?" – "+nos[nos.length-1]:"")):"your business name"));
+    return {pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.15},footer:footer(),content:content};
+  }
+  function reminderText(c, L){
+    var name=c.name||c.biz||"";
+    var lines=L.dueNowLines.map(function(ch){ return "• "+ch.short+(ch.ref?" ("+ch.ref+")":"")+": AED "+money(ch.due); });
+    return "Hello "+name+",\n\nHere's a quick summary of your Cancas Studio account:\n"+lines.join("\n")+"\n\nTotal due now: AED "+money(L.dueNow)+(c.svcnum?"\nAccount no.: "+c.svcnum:"")+"\n\nThank you!\n— Cancas Studio";
+  }
+  function getClient(id){ try{ CRM.load(); }catch(e){} return CRM.get(id); }
+  function showStatement(clientId){
+    var c=getClient(clientId||CRM.currentId);
+    if(!c){ alert("Open a client first."); return; }
+    ensurePdfmake(function(){
+      ensurePreview();
+      var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001;
+      document.getElementById("pv-title").textContent="Statement — "+(c.biz||c.name||"");
+      document.getElementById("pv-link").style.display="none";
+      var foot=document.getElementById("pv-foot"); foot.innerHTML='<span style="color:#8aa0b2;font-size:13px;">Loading account…</span>';
+      pvEl.style.display="flex";
+      allInvoices(true).then(function(rows){
+        var L=buildLedger(c, rows), pdf=pdfMake.createPdf(buildStatementDoc(c, L));
+        pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+        foot.innerHTML="";
+        foot.appendChild(pvBtn("Download Statement",function(){ pdf.download(fname("Cancas-Statement-"+(c.biz||c.name)+"-"+new Date().toISOString().slice(0,10))+".pdf"); },true));
+        if(L.dueNow>0) foot.appendChild(pvBtn("Send reminder on WhatsApp",function(){ sendLedgerReminder(c, L); }));
+        foot.appendChild(pvBtn("New-client deposit invoice",function(){ pvEl.style.display="none"; if(String(CRM.currentId)===String(c.id)) showDoc("invoice"); else alert("Open this client's profile to create a deposit invoice."); }));
+      }).catch(function(e){ foot.innerHTML='<span style="color:#ff6b6b;">Could not load invoices: '+escHTML((e&&e.message)||"offline")+'</span>'; });
+    });
+  }
+  function sendLedgerReminder(c, L){
+    var msg=reminderText(c, L);
+    var mob=dg(c.mobile1)||dg(c.phone);
+    if(mob){ window.open("https://wa.me/"+mob+"?text="+encodeURIComponent(msg),"_blank"); return; }
+    if(c.email){ location.href="mailto:"+c.email+"?subject="+encodeURIComponent("Cancas Studio — Account summary")+"&body="+encodeURIComponent(msg); return; }
+    alert("No WhatsApp number or email on file for this client.");
+  }
+  function showCombined(clientId, rows, fromM, toM){
+    var c=getClient(clientId||CRM.currentId); if(!c || !rows.length) return;
+    ensurePdfmake(function(){
+      ensurePreview();
+      allInvoices(true).then(function(all){
+        var L=buildLedger(c, all), pdf=pdfMake.createPdf(buildCombinedDoc(c, L, rows, fromM, toM));
+        document.getElementById("pv-title").textContent="Combined invoice — "+(c.biz||c.name||"");
+        document.getElementById("pv-link").style.display="none";
+        pdf.getDataUrl(function(url){ document.getElementById("pv-frame").src=url; });
+        var foot=document.getElementById("pv-foot"); foot.innerHTML="";
+        foot.appendChild(pvBtn("Download PDF",function(){ pdf.download(fname("Cancas-Invoice-"+(c.biz||c.name)+"-"+(fromM||"start")+"-to-"+(toM||"now"))+".pdf"); },true));
+        var pvEl=document.getElementById("cancas-pv"); pvEl.style.zIndex=100001; pvEl.style.display="flex";
+      });
+    });
+  }
+  window.CancasLedger = { allInvoices:allInvoices, buildLedger:buildLedger, showStatement:showStatement, reminderText:reminderText, sendReminder:sendLedgerReminder, monthKey:monthKey, invDate:invDate };
+
   window.CancasPanel = {
-    invoice:   function(){ showDoc("invoice"); },
+    invoice:   function(){ showStatement(); },
+    depositInvoice: function(){ showDoc("invoice"); },
+    statement: function(id){ showStatement(id); },
     agreement: function(){ showAgreementSmart(); },
     signlink:  function(){ showSign(); },
     getSignedCopy: function(){ var d=collect(); if(!need(d))return; getSignedCopy(d); },
@@ -6913,7 +7173,7 @@ function autoBackupOnSave() {
 
   var STAT=[["all","All"],["active","Active"],["inprogress","In Progress"],["lead","Lead"],["completed","Completed"],["churned","Churned"],["__none","Unassigned"]];
   function compute(from,to,status){
-    CRM.load(); var cs=(CRM.clients||[]).filter(function(c){ if(!status||status==='all')return true; if(status==='__none')return !(c.status); if(status==='active')return ['active','inprogress','revision'].indexOf(c.status)>=0; return (c.status||'')===status; });
+    CRM.load(); var cs=(CRM.clients||[]).filter(function(c){ if(c.archived)return false; if(!status||status==='all')return true; if(status==='__none')return !(c.status); if(status==='active')return ['active','inprogress','revision'].indexOf(c.status)>=0; return (c.status||'')===status; });
     var revenue=0, pays=[], pendingNow=0, mrr=0, newC=0, newVal=0, launched=0, byStatus={}, actions=[];
     cs.forEach(function(c){
       var val=num(c.value), paid=paidOf(c), pend=Math.max(0,val-paid);
@@ -7142,5 +7402,334 @@ function autoBackupOnSave() {
   window.addEventListener('hashchange', capture);
 })();
 </script>
+<!-- ===================== CANCAS OPERATIONS DASHBOARD + SETTINGS (Nov 2026) ===================== -->
+<style>
+#crm-kpis.admin-kpis{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px;}
+#crm-kpis .kpi-val small{font-size:14px;font-weight:700;margin-right:3px;opacity:.8;}
+#crm-kpis .kpi{padding:12px 14px;border-radius:8px;min-height:0;}
+#crm-kpis .kpi:hover{background:var(--bg3);}
+#crm-kpis .kpi-val{font-size:28px;}
+#crm-kpis .kpi-lbl{font-size:11px;margin-top:4px;letter-spacing:.4px;}
+#crm-kpis .kpi-live{font-size:10px;margin-top:2px;}
+#ops-panel{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:14px;margin-bottom:26px;align-items:start;}
+.ops-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:0;}
+.ops-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.ops-t{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);}
+.ops-sub{font-size:11px;color:var(--muted);}
+.ops-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--border);font-size:13px;}
+.ops-row:first-of-type{border-top:none;}
+.ops-name{font-weight:700;color:var(--white);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ops-name:hover{color:var(--cyan);}
+.ops-items{font-size:11px;color:var(--muted);line-height:1.45;}
+.ops-amt{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#ff5050;white-space:nowrap;text-align:right;}
+.ops-btns{display:flex;gap:6px;}
+.ops-b{background:var(--bg3);border:1px solid var(--border);color:var(--white);border-radius:6px;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.ops-b:hover{border-color:var(--cyan);color:var(--cyan);}
+.ops-b.pri{background:var(--cyan);color:#000;border-color:var(--cyan);}
+.ops-qa{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ops-qa button{background:var(--bg3);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;text-align:left;}
+.ops-qa button:hover{border-color:var(--cyan);color:var(--cyan);}
+.ops-up{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12px;}
+.ops-up:first-child{border-top:none;}
+.ops-up b{color:var(--white);font-weight:700;}
+.ops-tag{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-right:6px;}
+.ops-empty{color:var(--muted);font-size:12px;padding:10px 0;}
+.cs-modal{position:fixed;inset:0;z-index:100002;background:rgba(6,10,14,.92);display:none;overflow:auto;padding:24px;font-family:Arial,Helvetica,sans-serif;}
+.cs-shell{max-width:860px;margin:0 auto;background:#0f1720;border:1px solid #1f2c38;border-radius:12px;color:#e7eef4;}
+.cs-top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1f2c38;}
+.cs-tabs{display:flex;gap:4px;padding:0 14px;border-bottom:1px solid #1f2c38;flex-wrap:wrap;}
+.cs-tab{background:none;border:none;border-bottom:2px solid transparent;color:#8aa0b2;padding:11px 12px;font-weight:700;font-size:13px;cursor:pointer;}
+.cs-tab.on{color:#00d4ff;border-bottom-color:#00d4ff;}
+.cs-body{padding:18px 20px;}
+.cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cs-f label{display:block;font-size:11px;color:#8aa0b2;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.cs-f input,.cs-f select,.cs-f textarea{width:100%;box-sizing:border-box;background:#0b1219;border:1px solid #24333f;color:#e7eef4;border-radius:7px;padding:9px 10px;font-size:14px;}
+.cs-h{font-size:12px;color:#00d4ff;text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px;font-weight:700;}
+.cs-h:first-child{margin-top:0;}
+.cs-btn{background:#0E7C92;color:#fff;border:none;border-radius:8px;padding:11px 16px;font-weight:800;cursor:pointer;}
+.cs-btn.sec{background:#1f2c38;color:#e7eef4;}
+.cs-btn.red{background:#3a1414;color:#ff8080;border:1px solid #5a2020;}
+.cs-note{font-size:12px;color:#8aa0b2;line-height:1.5;}
+.cs-msg{font-size:13px;margin-top:10px;}
+@media(max-width:1100px){#crm-kpis.admin-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:700px){#crm-kpis.admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:8px;}#crm-kpis .kpi{padding:10px 12px;}#crm-kpis .kpi-val{font-size:22px;}#admin-settings-btn{display:none;}}
+@media(max-width:900px){#ops-panel{grid-template-columns:1fr;}.ops-row{grid-template-columns:1fr auto;}.ops-items{grid-column:1/-1;}.ops-btns{grid-column:1/-1;}.cs-grid{grid-template-columns:1fr;}}
+</style>
+<script>
+/* ---------- SETTINGS STORE: Supabase table crm_settings (admin only), with an on-device copy ---------- */
+window.CancasSettings = (function(){
+  var KEY='crm_settings';
+  var DEFAULTS={ bizName:'CANCAS STUDIO', tagline:'Web Design & Development · Dubai, UAE', phone:'+971 56 901 6046', email:'hello@cancasstudio.com',
+    website:'cancasstudio.com', trn:'', bankName:'', accountName:'', accountNo:'', iban:'', swift:'', payNote:'',
+    prices:{ starter:{build:1999,monthly:199}, business:{build:3499,monthly:349}, advanced:{build:5499,monthly:499} } };
+  var cache=null, cloud=null;
+  function merge(v){ var o=JSON.parse(JSON.stringify(DEFAULTS)); v=v||{}; Object.keys(v).forEach(function(k){ if(k==='prices'&&v.prices){ Object.keys(v.prices).forEach(function(t){ o.prices[t]=Object.assign({},o.prices[t]||{},v.prices[t]); }); } else o[k]=v[k]; }); return o; }
+  function get(){ if(!cache){ var l=null; try{ l=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){} cache=merge(l); } return cache; }
+  function load(){
+    var sb=(typeof getSB==='function')?getSB():null; if(!sb) return Promise.resolve({cloud:false});
+    return Promise.resolve(sb.from('crm_settings').select('value').eq('key','studio').maybeSingle()).then(function(res){
+      if(res && res.error){ cloud=false; return {cloud:false,error:res.error.message}; }
+      cloud=true;
+      if(res && res.data && res.data.value){ cache=merge(res.data.value); try{ localStorage.setItem(KEY,JSON.stringify(cache)); }catch(e){} }
+      return {cloud:true};
+    }, function(){ return {cloud:false}; });
+  }
+  function save(v){
+    cache=merge(v); try{ localStorage.setItem(KEY,JSON.stringify(cache)); }catch(e){}
+    var sb=(typeof getSB==='function')?getSB():null; if(!sb) return Promise.resolve({cloud:false});
+    return Promise.resolve(sb.from('crm_settings').upsert({key:'studio',value:cache,updated_at:new Date().toISOString()},{onConflict:'key'})).then(function(res){
+      return (res && res.error) ? {cloud:false,error:res.error.message} : {cloud:true};
+    }, function(e){ return {cloud:false,error:(e&&e.message)||'offline'}; });
+  }
+  return { get:get, load:load, save:save, isCloud:function(){ return cloud; } };
+})();
+
+window.CancasOps = (function(){
+  function E(id){ return document.getElementById(id); }
+  function esc(v){ return (typeof escHTML==='function')?escHTML(v):String(v==null?'':v); }
+  function money(n){ n=Number(n||0); var f=Math.abs(n%1)>0.004; return n.toLocaleString('en-US',{minimumFractionDigits:f?2:0,maximumFractionDigits:2}); }
+  function num(v){ return Number(String(v==null?'':v).replace(/[^0-9.\-]/g,''))||0; }
+  function liveClients(){ try{ CRM.load(); }catch(e){} return (CRM.clients||[]).filter(function(c){ return !c.archived; }); }
+  function nameOf(c){ return c.biz||c.name||'Client'; }
+  function tier(pkg){ var p=String(pkg||'').toLowerCase(); return p.indexOf('starter')>-1?'starter':p.indexOf('business')>-1?'business':(p.indexOf('advanc')>-1||p.indexOf('premium')>-1)?'advanced':''; }
+  var _t=null, ledgers={};
+
+  /* ---------- dashboard ---------- */
+  function ensureLayout(){
+    if(E('ops-panel')) return;
+    var k=E('crm-kpis'); if(!k) return;
+    // extra money tiles
+    var out=document.createElement('div'); out.className='kpi'; out.style.cssText='border-left-color:#ff5050;cursor:pointer;';
+    out.title='Everything owed to you right now'; out.onclick=function(){ var p=E('ops-settle'); if(p) p.scrollIntoView({behavior:'smooth',block:'center'}); };
+    out.innerHTML='<div class="kpi-val" id="kpi-outstanding" style="color:#ff5050;"><small>AED</small>0</div><div class="kpi-lbl">Outstanding</div><div class="kpi-live" id="kpi-outstanding-sub">—</div>';
+    var col=document.createElement('div'); col.className='kpi'; col.style.cssText='border-left-color:#00e87a;';
+    col.title='Payments recorded this calendar month';
+    col.innerHTML='<div class="kpi-val" id="kpi-collected" style="color:#00e87a;"><small>AED</small>0</div><div class="kpi-lbl">Collected This Month</div><div class="kpi-live" id="kpi-collected-sub">—</div>';
+    var dueWeekTile=E('kpi-dueweek'); dueWeekTile=dueWeekTile?dueWeekTile.parentNode:null;
+    k.insertBefore(out, dueWeekTile); k.insertBefore(col, dueWeekTile);
+    var p=document.createElement('div'); p.id='ops-panel';
+    p.innerHTML=''
+      +'<div class="ops-card" id="ops-settle"><div class="ops-h"><div><div class="ops-t">Settling payments</div><div class="ops-sub" id="ops-settle-sub">Who owes what, month by month</div></div>'
+      +'<button class="ops-b pri" onclick="CancasOps.recordPayment()">+ Record payment</button></div><div id="ops-settle-list"><div class="ops-empty">Loading…</div></div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:14px;min-width:0;">'
+      +'  <div class="ops-card"><div class="ops-h"><div class="ops-t">Quick actions</div></div><div class="ops-qa">'
+      +'    <button onclick="openNewClient()">+ New client</button>'
+      +'    <button onclick="CancasOps.recordPayment()">+ Record payment</button>'
+      +'    <button onclick="showEnquiriesView()">Enquiries</button>'
+      +'    <button onclick="openTodayView()">Today</button>'
+      +'    <button onclick="window.CancasReports&&CancasReports.open()">Reports</button>'
+      +'    <button onclick="CancasOps.openSettings()">Settings</button>'
+      +'  </div></div>'
+      +'  <div class="ops-card"><div class="ops-h"><div class="ops-t">Coming up · 14 days</div></div><div id="ops-upcoming"><div class="ops-empty">—</div></div></div>'
+      +'</div>';
+    k.parentNode.insertBefore(p, k.nextSibling);
+  }
+  function render(){ clearTimeout(_t); _t=setTimeout(doRender, 250); }
+  function doRender(){
+    ensureLayout();
+    if(!E('ops-panel')) return;
+    var clients=liveClients();
+    renderUpcoming(clients);
+    var monthStart=new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+    var collected=0, collN=0;
+    clients.forEach(function(c){ (c.payments||[]).forEach(function(p){ var d=new Date(p.date); if(!isNaN(d) && d>=monthStart){ collected+=num(p.amount); collN++; } }); });
+    if(E('kpi-collected')){ E('kpi-collected').innerHTML='<small>AED</small>'+money(collected); E('kpi-collected-sub').textContent=collN+' payment'+(collN===1?'':'s'); }
+    if(!window.CancasLedger){ return; }
+    CancasLedger.allInvoices().then(function(rows){
+      var owing=[], total=0;
+      ledgers={};
+      clients.forEach(function(c){
+        var L=CancasLedger.buildLedger(c, rows); ledgers[c.id]=L;
+        if(L.dueNow>0.004){ owing.push({c:c,L:L}); total+=L.dueNow; }
+      });
+      owing.sort(function(a,b){ return b.L.dueNow-a.L.dueNow; });
+      if(E('kpi-outstanding')){ E('kpi-outstanding').innerHTML='<small>AED</small>'+money(total); E('kpi-outstanding-sub').textContent=owing.length?(owing.length+' client'+(owing.length===1?'':'s')+' · click to settle'):'all paid up'; }
+      E('ops-settle-sub').textContent = owing.length ? ('AED '+money(total)+' due now from '+owing.length+' client'+(owing.length===1?'':'s')) : 'Who owes what, month by month';
+      var list=E('ops-settle-list');
+      if(!owing.length){ list.innerHTML='<div class="ops-empty">✓ Everyone is paid up.</div>'; return; }
+      list.innerHTML=owing.map(function(o){
+        var items=o.L.dueNowLines.map(function(ch){ return esc(ch.short)+' · AED '+money(ch.due); }).join('<br>');
+        return '<div class="ops-row"><div class="ops-name" data-open="'+esc(o.c.id)+'" title="Open client">'+esc(nameOf(o.c))+'</div>'
+          +'<div class="ops-items">'+items+'</div>'
+          +'<div class="ops-amt">AED '+money(o.L.dueNow)+'</div>'
+          +'<div class="ops-btns"><button class="ops-b" data-st="'+esc(o.c.id)+'">Statement</button><button class="ops-b" data-pay="'+esc(o.c.id)+'">Paid</button><button class="ops-b" data-rem="'+esc(o.c.id)+'">Remind</button></div></div>';
+      }).join('');
+      Array.prototype.forEach.call(list.querySelectorAll('[data-open]'),function(b){ b.onclick=function(){ openClientProfile(b.getAttribute('data-open')); }; });
+      Array.prototype.forEach.call(list.querySelectorAll('[data-st]'),function(b){ b.onclick=function(){ CancasLedger.showStatement(b.getAttribute('data-st')); }; });
+      Array.prototype.forEach.call(list.querySelectorAll('[data-pay]'),function(b){ b.onclick=function(){ recordPayment(b.getAttribute('data-pay')); }; });
+      Array.prototype.forEach.call(list.querySelectorAll('[data-rem]'),function(b){ b.onclick=function(){ var id=b.getAttribute('data-rem'); var c=CRM.get(id); if(c&&ledgers[id]) CancasLedger.sendReminder(c, ledgers[id]); }; });
+    }).catch(function(e){ E('ops-settle-list').innerHTML='<div class="ops-empty">Could not load invoices ('+esc((e&&e.message)||'offline')+').</div>'; });
+  }
+  function renderUpcoming(clients){
+    var host=E('ops-upcoming'); if(!host) return;
+    var today=new Date(); today.setHours(0,0,0,0);
+    var horizon=new Date(today.getTime()+14*86400000), items=[];
+    function add(d,tag,color,text,id){ items.push({d:d,tag:tag,color:color,text:text,id:id}); }
+    clients.forEach(function(c){
+      var nm=nameOf(c), activeish=(c.status==='active'||c.status==='inprogress'||c.status==='revision');
+      // next hosting invoice: same day each month as the first payment
+      if(activeish && num(c.monthly)>0 && !c.end){
+        var firsts=(c.payments||[]).map(function(p){ return new Date(p.date); }).filter(function(d){ return !isNaN(d); }).sort(function(a,b){ return a-b; });
+        if(firsts.length){
+          var day=firsts[0].getDate(), n=new Date(today.getFullYear(), today.getMonth(), day);
+          if(n<today) n=new Date(today.getFullYear(), today.getMonth()+1, day);
+          if(n<=horizon) add(n,'Billing','#00d4ff','Hosting invoice · AED '+money(c.monthly),c.id);
+        }
+      }
+      if(c.due && c.status!=='completed'){ var dd=new Date(c.due); if(!isNaN(dd) && dd<=horizon) add(dd,'Deadline',dd<today?'#ff5050':'#e8b84b','Project due',c.id); }
+      if(c.followupdate){ var fd=new Date(c.followupdate); if(!isNaN(fd) && fd<=horizon) add(fd,'Follow-up',fd<today?'#ff5050':'#ffd23f',c.followupnote||'Follow up',c.id); }
+      if(c.domainexp){ var de=new Date(c.domainexp); if(!isNaN(de) && de<=new Date(today.getTime()+30*86400000)) add(de,'Domain','#b464ff','Domain expires',c.id); }
+      items.forEach(function(it){ if(it.id===c.id && !it.nm) it.nm=nm; });
+    });
+    items.sort(function(a,b){ return a.d-b.d; });
+    if(!items.length){ host.innerHTML='<div class="ops-empty">Nothing due in the next 14 days.</div>'; return; }
+    host.innerHTML=items.slice(0,9).map(function(it){
+      var when = it.d<today ? 'Overdue' : it.d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+      return '<div class="ops-up"><div style="min-width:0;"><span class="ops-tag" style="background:'+it.color+'22;color:'+it.color+';">'+it.tag+'</span><b class="ops-name" style="display:inline;" data-open="'+esc(it.id)+'">'+esc(it.nm)+'</b><div class="ops-sub" style="margin-top:2px;">'+esc(it.text)+'</div></div><div style="color:'+(it.d<today?'#ff5050':'var(--muted)')+';white-space:nowrap;">'+when+'</div></div>';
+    }).join('');
+    Array.prototype.forEach.call(host.querySelectorAll('[data-open]'),function(b){ b.onclick=function(){ openClientProfile(b.getAttribute('data-open')); }; });
+  }
+
+  /* ---------- record a payment (from the dashboard) ---------- */
+  function modal(id, inner){
+    var m=E(id); if(!m){ m=document.createElement('div'); m.id=id; m.className='cs-modal'; document.body.appendChild(m); }
+    m.innerHTML=inner; m.style.display='block'; return m;
+  }
+  function recordPayment(clientId){
+    var cs=liveClients().sort(function(a,b){ return nameOf(a).localeCompare(nameOf(b)); });
+    var opts=cs.map(function(c){ var L=ledgers[c.id]; return '<option value="'+esc(c.id)+'"'+(String(c.id)===String(clientId)?' selected':'')+'>'+esc(nameOf(c))+(L&&L.dueNow>0?' — AED '+money(L.dueNow)+' due':'')+'</option>'; }).join('');
+    var m=modal('cs-pay','<div class="cs-shell" style="max-width:520px;"><div class="cs-top"><b style="font-size:17px;">Record a payment</b><button class="cs-btn sec" onclick="document.getElementById(\'cs-pay\').style.display=\'none\'">× Close</button></div>'
+      +'<div class="cs-body"><div class="cs-grid">'
+      +'<div class="cs-f" style="grid-column:1/-1;"><label>Client</label><select id="csp-client">'+opts+'</select></div>'
+      +'<div class="cs-f"><label>Amount (AED)</label><input id="csp-amount" type="number" min="0" step="0.01"></div>'
+      +'<div class="cs-f"><label>Date received</label><input id="csp-date" type="date" style="color-scheme:dark;" value="'+new Date().toISOString().slice(0,10)+'"></div>'
+      +'<div class="cs-f"><label>Method</label><select id="csp-method"><option>Bank Transfer</option><option>Cash</option><option>Card</option><option>Cheque</option><option>Online</option></select></div>'
+      +'<div class="cs-f"><label>Reference</label><input id="csp-ref"></div>'
+      +'<div class="cs-f" style="grid-column:1/-1;"><label>Note</label><input id="csp-note" placeholder="e.g. November hosting"></div>'
+      +'</div><div id="csp-due" class="cs-note" style="margin-top:10px;"></div>'
+      +'<div style="display:flex;gap:10px;margin-top:14px;"><button class="cs-btn" id="csp-save">Save payment</button></div></div></div>');
+    function showDue(){ var id=E('csp-client').value, L=ledgers[id]; E('csp-due').innerHTML = L ? (L.dueNow>0 ? 'Due now: <b style="color:#ff8080;">AED '+money(L.dueNow)+'</b> — '+L.dueNowLines.map(function(ch){ return esc(ch.short); }).join(', ') : 'Nothing due right now for this client.') : ''; if(L && L.dueNow>0 && !E('csp-amount').value) E('csp-amount').value=L.dueNow; }
+    E('csp-client').onchange=function(){ E('csp-amount').value=''; showDue(); }; showDue();
+    E('csp-save').onclick=function(){
+      var id=E('csp-client').value, amount=num(E('csp-amount').value);
+      if(!amount || amount<=0){ alert('Please enter a valid amount.'); return; }
+      CRM.load(); var c=CRM.get(id); if(!c) return;
+      var method=E('csp-method').value, ref=E('csp-ref').value.trim(), note=E('csp-note').value.trim(), date=E('csp-date').value||new Date().toISOString().slice(0,10);
+      var stamp=new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(!c.payments) c.payments=[];
+      c.payments.push({id:Date.now(),amount:amount,method:method,date:date,ref:ref,note:note,recorded:stamp});
+      if(!c.notes) c.notes=[]; if(!c.activeCats) c.activeCats={};
+      c.activeCats['Billing']=(c.activeCats['Billing']||0)+1;
+      c.notes.unshift({id:Date.now()+1,tag:'Payment Received',tags:['Payment Received'],mainCat:'Billing',text:'Payment of AED '+amount.toLocaleString()+' received via '+method+(ref?' (Ref: '+ref+')':'')+(note?' — '+note:''),date:stamp});
+      c.updated=Date.now();
+      CRM.save();
+      m.style.display='none';
+      try{ if(String(CRM.currentId)===String(id)){ renderPaymentsList(); calcPending(); renderNoteThread(c); } }catch(e){}
+      try{ refreshAttention(); }catch(e){}
+      render();
+    };
+  }
+
+  /* ---------- settings ---------- */
+  var tab='biz';
+  function openSettings(which){
+    tab=which||tab||'biz';
+    var m=modal('cs-settings','<div class="cs-shell"><div class="cs-top"><b style="font-size:18px;">Settings</b><button class="cs-btn sec" onclick="document.getElementById(\'cs-settings\').style.display=\'none\'">× Close</button></div>'
+      +'<div class="cs-tabs">'
+      +'<button class="cs-tab" data-t="biz">Business &amp; invoices</button><button class="cs-tab" data-t="prices">Package prices</button>'
+      +'<button class="cs-tab" data-t="access">Access &amp; security</button><button class="cs-tab" data-t="archived">Archived clients</button></div>'
+      +'<div class="cs-body" id="cs-body"></div></div>');
+    Array.prototype.forEach.call(m.querySelectorAll('.cs-tab'),function(b){ b.onclick=function(){ tab=b.getAttribute('data-t'); drawTab(); }; });
+    CancasSettings.load().then(drawTab, drawTab);
+    drawTab();
+  }
+  function f(id,label,val,ph,type){ return '<div class="cs-f"><label>'+label+'</label><input id="'+id+'" type="'+(type||'text')+'" value="'+esc(val||'')+'" placeholder="'+esc(ph||'')+'"></div>'; }
+  function cloudNote(){ var c=CancasSettings.isCloud(); return c===false ? '<div class="cs-note" style="color:#ffb86b;margin-bottom:12px;">Settings are saved on this device only until the cloud settings table is set up.</div>' : ''; }
+  function drawTab(){
+    var m=E('cs-settings'); if(!m) return;
+    Array.prototype.forEach.call(m.querySelectorAll('.cs-tab'),function(b){ b.classList.toggle('on', b.getAttribute('data-t')===tab); });
+    var body=E('cs-body'), s=CancasSettings.get();
+    if(tab==='biz'){
+      body.innerHTML=cloudNote()+'<div class="cs-h">Shown on statements &amp; invoices</div><div class="cs-grid">'
+        +f('st-tagline','Line under the logo',s.tagline)+f('st-trn','TRN (VAT no.) — optional',s.trn)
+        +f('st-phone','Phone / WhatsApp',s.phone)+f('st-email','Email',s.email)+'</div>'
+        +'<div class="cs-h">Bank / payment details</div><div class="cs-grid">'
+        +f('st-bank','Bank name',s.bankName)+f('st-accname','Account name',s.accountName)
+        +f('st-accno','Account number',s.accountNo)+f('st-iban','IBAN',s.iban)
+        +f('st-swift','SWIFT / BIC',s.swift)+f('st-paynote','Extra payment note (optional)',s.payNote,'e.g. Payment due within 7 days')+'</div>'
+        +'<div class="cs-note" style="margin-top:10px;">Invoice numbers run automatically (CS-YEAR-001, 002 …). Next number: <b id="st-nextno">…</b></div>'
+        +'<div style="margin-top:16px;"><button class="cs-btn" id="st-save">Save</button><span class="cs-msg" id="st-msg"></span></div>';
+      try{ getSB().rpc('next_invoice_no').then(function(r){ E('st-nextno').textContent=(r&&r.data)||'—'; }); }catch(e){}
+      E('st-save').onclick=function(){
+        var v=CancasSettings.get();
+        v.tagline=E('st-tagline').value.trim(); v.trn=E('st-trn').value.trim(); v.phone=E('st-phone').value.trim(); v.email=E('st-email').value.trim();
+        v.bankName=E('st-bank').value.trim(); v.accountName=E('st-accname').value.trim(); v.accountNo=E('st-accno').value.trim();
+        v.iban=E('st-iban').value.trim(); v.swift=E('st-swift').value.trim(); v.payNote=E('st-paynote').value.trim();
+        saved(CancasSettings.save(v));
+      };
+    } else if(tab==='prices'){
+      var P=s.prices;
+      body.innerHTML=cloudNote()+'<div class="cs-note" style="margin-bottom:12px;">Used to pre-fill a client\'s Total Contract Value and Monthly Fee when you pick a package (only if those boxes are empty). This does <b>not</b> change the prices on your public website.</div>'
+        +['starter','business','advanced'].map(function(t){ var nm=t.charAt(0).toUpperCase()+t.slice(1); return '<div class="cs-h">'+nm+'</div><div class="cs-grid">'+f('pr-'+t+'-b','Website build (AED)',P[t].build,'','number')+f('pr-'+t+'-m','Hosting per month (AED)',P[t].monthly,'','number')+'</div>'; }).join('')
+        +'<div style="margin-top:16px;"><button class="cs-btn" id="pr-save">Save</button><span class="cs-msg" id="st-msg"></span></div>';
+      E('pr-save').onclick=function(){ var v=CancasSettings.get(); ['starter','business','advanced'].forEach(function(t){ v.prices[t]={build:num(E('pr-'+t+'-b').value),monthly:num(E('pr-'+t+'-m').value)}; }); saved(CancasSettings.save(v)); };
+    } else if(tab==='access'){
+      body.innerHTML='<div class="cs-h">Signed in as</div><div id="ac-who" class="cs-note">Checking…</div>'
+        +'<div class="cs-h">Change admin password</div><div class="cs-grid">'+f('ac-p1','New password','','At least 10 characters','password')+f('ac-p2','Repeat new password','','','password')+'</div>'
+        +'<div style="margin-top:12px;"><button class="cs-btn" id="ac-save">Change password</button><span class="cs-msg" id="ac-msg"></span></div>'
+        +'<div class="cs-h">Sessions</div><div class="cs-note">Lost a phone or laptop? Sign out everywhere — every device (including this one) will need your password again.</div>'
+        +'<div style="margin-top:10px;"><button class="cs-btn red" id="ac-out">Sign out of all devices</button></div>'
+        +'<div class="cs-h">Two-step login</div><div class="cs-note">Protect your Supabase account (which controls this CRM\'s database) with an authenticator app: <a href="https://supabase.com/dashboard/account/security" target="_blank" rel="noopener" style="color:#00d4ff;">supabase.com/dashboard/account/security</a>. Also keep “Allow new users to sign up” switched off in Supabase → Authentication → Sign In / Providers.</div>';
+      var sb=getSB();
+      try{ sb.auth.getUser().then(function(r){ var u=r&&r.data&&r.data.user; E('ac-who').innerHTML = u ? ('<b style="color:#e7eef4;">'+esc(u.email)+'</b><br>Last sign-in: '+(u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleString('en-GB'):'—')) : 'Not signed in.'; }); }catch(e){ E('ac-who').textContent='Offline.'; }
+      E('ac-save').onclick=function(){
+        var a=E('ac-p1').value, b=E('ac-p2').value, msg=E('ac-msg');
+        if(a.length<10){ msg.innerHTML=' <span style="color:#ff8080;">Use at least 10 characters.</span>'; return; }
+        if(a!==b){ msg.innerHTML=' <span style="color:#ff8080;">The two passwords don\'t match.</span>'; return; }
+        msg.textContent=' Saving…';
+        sb.auth.updateUser({password:a}).then(function(r){
+          if(r && r.error){ msg.innerHTML=' <span style="color:#ff8080;">'+esc(r.error.message)+'</span>'; return; }
+          E('ac-p1').value=''; E('ac-p2').value=''; msg.innerHTML=' <span style="color:#00e87a;">Password changed.</span>';
+        });
+      };
+      E('ac-out').onclick=function(){
+        if(!confirm('Sign out of the admin panel on ALL devices, including this one?')) return;
+        sb.auth.signOut({scope:'global'}).then(function(){ location.reload(); }, function(){ location.reload(); });
+      };
+    } else if(tab==='archived'){
+      CRM.load();
+      var arch=(CRM.clients||[]).filter(function(c){ return c.archived; });
+      body.innerHTML='<div class="cs-note" style="margin-bottom:12px;">Archived clients are hidden from your lists, dashboard and alerts. Restore brings one back exactly as it was. Delete permanently removes it from the cloud — you must type the client\'s name to confirm.</div>'
+        +(arch.length ? arch.map(function(c){ return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #1f2c38;"><div><b>'+esc(nameOf(c))+'</b><div class="cs-note">'+esc(CRM.statusLabel(c.status))+(c.archivedAt?' · archived '+new Date(c.archivedAt).toLocaleDateString('en-GB'):'')+'</div></div><div style="display:flex;gap:8px;"><button class="cs-btn sec" data-res="'+esc(c.id)+'">Restore</button><button class="cs-btn red" data-del="'+esc(c.id)+'">Delete permanently</button></div></div>'; }).join('') : '<div class="cs-note">No archived clients.</div>');
+      Array.prototype.forEach.call(body.querySelectorAll('[data-res]'),function(b){ b.onclick=function(){ restoreClient(b.getAttribute('data-res')); drawTab(); }; });
+      Array.prototype.forEach.call(body.querySelectorAll('[data-del]'),function(b){ b.onclick=function(){ if(permanentDeleteClient(b.getAttribute('data-del'))) drawTab(); }; });
+    }
+  }
+  function saved(p){
+    var msg=E('st-msg'); if(msg) msg.textContent=' Saving…';
+    p.then(function(r){ if(!msg) return; msg.innerHTML = r.cloud ? ' <span style="color:#00e87a;">Saved.</span>' : ' <span style="color:#ffb86b;">Saved on this device'+(r.error?' (cloud: '+esc(r.error)+')':'')+'.</span>'; });
+  }
+
+  /* ---------- package price pre-fill in the client form ---------- */
+  document.addEventListener('change', function(e){
+    if(!e.target || e.target.id!=='cf-package') return;
+    var t=tier(e.target.value); if(!t) return;
+    var P=CancasSettings.get().prices[t]; if(!P) return;
+    var v=E('cf-value'), mo=E('cf-monthly');
+    if(v && !v.value && P.build) v.value=P.build;
+    if(mo && !mo.value && /monthly/i.test(e.target.value) && P.monthly) mo.value=P.monthly;
+    try{ calcPending(); }catch(err){}
+  });
+
+  // keep the dashboard in step with the client list
+  if(typeof window.updateKpis==='function'){
+    var _uk=window.updateKpis;
+    window.updateKpis=function(){ var r=_uk.apply(this, arguments); render(); return r; };
+  }
+  document.addEventListener('DOMContentLoaded', function(){ CancasSettings.load(); render(); });
+  return { render:render, openSettings:openSettings, recordPayment:recordPayment };
+})();
+</script>
+
 </body>
 </html>
