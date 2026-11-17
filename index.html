@@ -1117,6 +1117,12 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:72px 72px
 .crm-btn.sec:hover{background:rgba(0,212,255,.08);}
 .crm-btn.red{background:rgba(255,80,80,.12);color:#ff5050;border:1px solid rgba(255,80,80,.3);}
 .crm-btn.red:hover{background:rgba(255,80,80,.2);}
+.crm-btn.pa-archive{background:rgba(255,176,32,.10);color:#ffb020;border:1px solid rgba(255,176,32,.55);}
+.crm-btn.pa-archive:hover{background:rgba(255,176,32,.2);color:#ffc24d;}
+.crm-btn.pa-save{background:#00e87a;color:#04140b;border:1px solid #00e87a;}
+.crm-btn.pa-save:hover{background:#3dffa0;border-color:#3dffa0;}
+.crm-btn.pa-close{background:transparent;color:#9fb0bf;border:1px solid #3a4a58;}
+.crm-btn.pa-close:hover{background:rgba(255,255,255,.06);color:#fff;border-color:#5b6d7c;}
 .crm-filter{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:10px 14px;color:var(--muted);font-size:12px;cursor:pointer;}
 .crm-filter:focus{outline:none;border-color:var(--cyan);}
 /* Client cards grid */
@@ -2851,9 +2857,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
         </div>
         <div class="crm-profile-actions">
-          <button class="crm-btn sec" onclick="saveClient()">Save</button>
-          <button class="crm-btn sec" onclick="closeCrmProfile()">× Close</button>
-          <button class="crm-btn sec" id="prof-del-btn" onclick="archiveClient()" style="display:none;" title="Hide this client from your lists — all data is kept and can be restored from Settings">Archive</button>
+          <button class="crm-btn pa-archive" id="prof-del-btn" onclick="archiveClient()" style="display:none;" title="Hide this client from your lists — all data is kept and can be restored from Settings">Archive</button>
+          <button class="crm-btn pa-save" id="prof-save-btn" onclick="saveClient()">Save</button>
+          <button class="crm-btn pa-close" onclick="closeCrmProfile()">× Close</button>
         </div>
       </div>
 
@@ -5836,8 +5842,8 @@ function saveClient(){
   }
 
   // Flash save button
-  var btn = document.querySelector('.crm-profile-actions .crm-btn.sec');
-  if(btn){ var orig=btn.textContent; btn.textContent='Saved!'; btn.style.color='#00e87a'; setTimeout(function(){ btn.textContent=orig; btn.style.color=''; },1500); }
+  var btn = document.getElementById('prof-save-btn');
+  if(btn){ var orig=btn.textContent; btn.textContent='Saved ✓'; setTimeout(function(){ btn.textContent=orig; },1500); }
 }
 
 // Archive = hide from every list, count and alert. Nothing is deleted.
