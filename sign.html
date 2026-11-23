@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cancas Studio — Sign Your Agreement</title>
+<title>Cancas Studio, Sign Your Agreement</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -83,7 +83,9 @@ function hostTerms(d,s){var p=String(d.packageName||"").toLowerCase();var hosted
     planTerm:hosted?("Hosting plan: hosting, SSL, monitoring, "+upd+", support. Cancel any time with 30 days' written notice."):"Self-hosted: you receive the full source code and free setup guidance; you can switch to our hosting plan any time.",
     domainTerm:hosted&&dom?"Domain: included in your hosting plan and registered by Cancas Studio (premium names quoted first).":"Domain: provided and owned by the Client; Client gives DNS access and keeps it registered/renewed."};}
 function buildAgreementDoc(d,sig){var s=splitDefaults(d);var ht=hostTerms(d,s);var sb=(sig&&sig.dataUrl)?[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,6]},{text:"Digitally signed via Cancas Studio",color:"#0a8f3c",bold:true,fontSize:9,margin:[0,0,0,8]},{image:sig.dataUrl,width:170,margin:[0,0,0,6]},{canvas:[{type:"line",x1:0,y1:0,x2:220,y2:0,lineWidth:.75,lineColor:"#999999"}],margin:[0,0,0,4]},{text:"Name: "+(sig.name||"—"),margin:[0,0,0,3]},{text:"Title / Position: "+(sig.title||"—"),margin:[0,0,0,3]},{text:"Signed on: "+(sig.date||"—"),margin:[0,0,0,0]}]:[{text:"FOR THE CLIENT — "+(d.clientName||"[Client Company]"),color:TEAL,bold:true,margin:[0,10,0,10]},{text:"Signature: ______________________________________",margin:[0,0,0,10]},{text:"Name: __________________________________________",margin:[0,0,0,10]},{text:"Title / Position: _________________________________",margin:[0,0,0,10]},{text:"Company Stamp & Date: __________________________"}];return{pageSize:"A4",pageMargins:[40,44,40,46],defaultStyle:{fontSize:10,color:DARK,lineHeight:1.2},footer:footer(),content:[brandHeader(""),{text:"Web Design & Development · Dubai, UAE",color:GREY,fontSize:8,characterSpacing:.5,margin:[0,1,0,8]},{text:"WEBSITE DESIGN & DEVELOPMENT SERVICE AGREEMENT",bold:true,fontSize:13,alignment:"center"},{text:"This Agreement is made on "+(d.agreementDate||"____ / ____ / ____"),alignment:"center",color:GREY,italics:true,margin:[0,2,0,10]},{text:"This Service Agreement is entered into between:"},{text:[{text:"The Studio: ",bold:true},"CANCAS STUDIO, Dubai, UAE."],margin:[0,3,0,0]},{text:[{text:"The Client: ",bold:true},(d.clientName||"[Client Company]")+(d.clientLocation?", "+d.clientLocation:"")+"."]},h2p("1.  Key Terms at a Glance"),{table:{widths:[150,"*"],body:[kv("Package",d.packageName||"[Package]"),kv("One-Time Build Fee","AED "+money(s.total)),kv("Hosting Plan",ht.monthlyRow),kv("Advance Deposit (50%)","AED "+money(s.deposit)+" — payable on signing"),kv("Balance (50%)","AED "+money(s.balance)+" — after final approval, before launch"),kv("Monthly Billing Starts",ht.billingStarts),kv("Domain & Hosting",ht.domainHosting),kv("Estimated Delivery","Approx. 14 days from deposit + all required content")]},layout:grid()},h2p("2.  Payment Schedule"),{ul:["50% advance — AED "+money(s.deposit)+" — due on signing. Work begins once received.","50% balance — AED "+money(s.balance)+" — due after final approval, before launch.",].concat(ht.hosted?["Hosting & management plan — AED "+money(s.monthly)+"/month — first payment 30 days after the advance date."]:[])},{text:"The 50% deposit is non-refundable once work has commenced.",color:GREY,fontSize:9,margin:[0,3,0,0]},h2p("3.  Key Terms You Should Know"),{ul:["Deposit & balance: 50% deposit non-refundable once work starts; balance due before launch.",ht.planTerm,ht.domainTerm,"Revisions: unlimited during build (within agreed scope); new pages/features quoted separately.","Your part: provide content & approvals promptly (approve mockups within 7 business days).","Ownership: full custom code/design transfers on full & final payment; Studio may show work in portfolio unless asked not to.","Non-payment/cancellation: services stop and the site may go offline within 7 days; files transfer free within 7 business days.","Liability limited to fees paid in the prior 3 months. Governed by UAE law; Dubai courts."]},{table:{widths:["*"],body:[[{text:"Please review the full Terms & Conditions at cancasstudio.com before signing. This summary highlights the main points only; the full T&C govern this Agreement.",bold:true,fillColor:LIGHT}]]},layout:{hLineColor:function(){return TEAL;},vLineColor:function(){return TEAL;},hLineWidth:function(){return 1;},vLineWidth:function(){return 1;},paddingLeft:function(){return 8;},paddingRight:function(){return 8;},paddingTop:function(){return 6;},paddingBottom:function(){return 6;}},margin:[0,10,0,0]},h2p("4.  Acceptance & Signature"),{text:"By signing below, the Client agrees to this Agreement and the full Terms & Conditions of CANCAS STUDIO, and authorises work to begin on receipt of the 50% advance."},{stack:sb,margin:[0,4,0,0]}]};}
-function agreementDocFor(d,sig){ return (d&&Number(d.tpl)>=2)?buildAgreementDoc(d,sig):buildAgreementDocLegacy(d,sig); }
+function undashText(t){ return String(t).replace(/\s+[—–-]\s+(One-Time|Monthly)\b/gi,function(_,x){ return ' ('+x.toLowerCase()+')'; }).replace(/(\d)\s*[–—]\s*(\d)/g,'$1 to $2').replace(/\b([A-Z]{2,}(?:[ &][A-Z]{2,})*) — /g,'$1: ').replace(/\s+[—–]\s+/g,', ').replace(/^\s*[—–]\s*$/,'').replace(/[—–]/g,''); }
+function undashDoc(o){ if(typeof o==='string') return undashText(o); if(Array.isArray(o)) return o.map(undashDoc); if(o && typeof o==='object'){ var r={}; for(var k in o){ r[k]=(k==='image'||k==='svg')?o[k]:undashDoc(o[k]); } return r; } return o; }
+function agreementDocFor(d,sig){ var n=Number(d&&d.tpl)||0; return n>=3?undashDoc(buildAgreementDoc(d,sig)):n>=2?buildAgreementDoc(d,sig):buildAgreementDocLegacy(d,sig); }
 
 /* ---------- load client data from link ---------- */
 var DATA=null, AGR_ID=null;
@@ -95,7 +97,7 @@ function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){retur
 function renderSummary(){
   if(!DATA){linkError("This signing link is missing its details. Please ask Cancas Studio to resend the link.");return;}
   var s=splitDefaults(DATA);
-  var rows=[["Client",DATA.clientName||"—"],["Package",DATA.packageName||"—"],["Total",("AED "+money(s.total))],["Deposit (50%)",("AED "+money(s.deposit)+" — due on signing")],["Balance (50%)",("AED "+money(s.balance))],(Number(DATA.tpl)>=2?["Hosting Plan",(s.monthly>0?("AED "+money(s.monthly)+" / month — starts 30 days after your deposit"):"Not selected — self-hosted")]:["Monthly Plan",("AED "+money(s.monthly)+" / month")])];
+  var rows=[["Client",DATA.clientName||""],["Package",String(DATA.packageName||"").replace(/\s+[—–-]\s+(One-Time|Monthly)$/i,function(_,x){ return " ("+x.toLowerCase()+")"; })],["Total",("AED "+money(s.total))],["Deposit (50%)",("AED "+money(s.deposit)+", due on signing")],["Balance (50%)",("AED "+money(s.balance))],(Number(DATA.tpl)>=2?["Hosting Plan",(s.monthly>0?("AED "+money(s.monthly)+" / month, starts 30 days after your deposit"):"Not selected, self-hosted")]:["Monthly Plan",("AED "+money(s.monthly)+" / month")])];
   document.getElementById("summary").innerHTML=rows.map(function(r){return "<tr><td class='k'>"+esc(r[0])+"</td><td>"+esc(r[1])+"</td></tr>";}).join("");
 }
 
@@ -110,7 +112,7 @@ function loadData(){
       var row=res&&res.data&&res.data[0];
       if((res&&res.error)||!row){ linkError("This agreement could not be found. Please ask Cancas Studio to resend the link."); return; }
       DATA=row.data;
-      if(row.status==="signed"){ showThankYou(); return; }   // already signed — don't show the form again
+      if(row.status==="signed"){ showThankYou(); return; }   // already signed, don't show the form again
       renderSummary();
     },function(){ linkError("Could not load the agreement. Please refresh and try again."); });
     return;
@@ -173,7 +175,7 @@ function saveSignatureToServer(name,title,sig){
   });
 }
 function signDownload(){
-  if(!DATA){alert("Link problem — please ask for a new link.");return;}
+  if(!DATA){alert("There is a problem with this link. Please ask for a new one.");return;}
   var name=document.getElementById("sigName").value.trim();
   var title=document.getElementById("sigTitle").value.trim();
   if(!name){alert("Please type your full name.");return;}
@@ -185,7 +187,7 @@ function signDownload(){
   if(btn){ btn.disabled=true; btn.textContent="Saving…"; }
 
   saveSignatureToServer(name,title,sig).catch(function(err){
-    if(err && err._alreadySigned) throw err; // don't retry — nothing a retry would fix
+    if(err && err._alreadySigned) throw err; // don't retry, nothing a retry would fix
     // One retry after a short pause, in case of a transient mobile network blip.
     return new Promise(function(resolve){ setTimeout(resolve,1500); })
       .then(function(){ return saveSignatureToServer(name,title,sig); });
@@ -195,9 +197,9 @@ function signDownload(){
   }).catch(function(err){
     if(btn){ btn.disabled=false; btn.textContent="Submit Signature"; }
     if(err && err._alreadySigned){
-      showSignError("This agreement has already been signed. Please refresh the page — if it still shows the sign form, contact Cancas Studio for a new link.");
+      showSignError("This agreement has already been signed. Please refresh the page. If it still shows the sign form, contact Cancas Studio for a new link.");
     } else {
-      showSignError("We couldn't save your signature — please check your internet connection and try again. Nothing has been lost; your name and signature are still filled in above.");
+      showSignError("We couldn't save your signature. Please check your internet connection and try again. Nothing has been lost; your name and signature are still filled in above.");
     }
   });
 }
