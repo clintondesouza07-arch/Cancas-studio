@@ -1387,6 +1387,12 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:72px 72px
 #cancas-pv, #cancas-pv *, #cancas-reports, #cancas-reports *, #cancas-ih, #cancas-ih *{cursor:auto!important;}
 #cancas-pv button, #cancas-reports button, #cancas-ih button, #cancas-pv [onclick], #cancas-reports [onclick], #cancas-ih [onclick]{cursor:pointer!important;}
 #cancas-pv textarea, #cancas-pv input, #cancas-reports input, #cancas-ih select{cursor:pointer!important;}
+/* CRM, team page and all their pop-ups: use the normal mouse pointer (the custom circle sat under pop-up windows) */
+body.adm, body.adm *{cursor:auto!important;}
+body.adm a, body.adm button, body.adm [onclick], body.adm select, body.adm label, body.adm summary, body.adm [data-go], body.adm [data-task], body.adm [data-open], body.adm [data-money], body.adm .tk-card, body.adm .as-i, body.adm .bf-t, body.adm .today-row, body.adm .today-snooze, body.adm .crm-tag, body.adm .cs-tab, body.adm tr.click, body.adm input[type=checkbox], body.adm input[type=radio], body.adm input[type=file], body.adm input[type=date], body.adm input[type=month]{cursor:pointer!important;}
+body.adm input[type=text], body.adm input[type=email], body.adm input[type=tel], body.adm input[type=number], body.adm input[type=password], body.adm input[type=search], body.adm input:not([type]), body.adm textarea{cursor:text!important;}
+body.adm #cursor-outer, body.adm #cursor-inner, body.adm .trail-dot{display:none!important;}
+#cursor-outer{z-index:2147483646!important;} #cursor-inner{z-index:2147483647!important;}
 /* Touch/mobile — hide the custom cursor elements, keep default tap behaviour */
 @media (pointer:coarse) {
   #cursor-outer,#cursor-inner,.trail-dot{display:none!important;}
@@ -2121,9 +2127,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
   </div>
 
   <div class="p-section" id="cat-hospitality">
-    <div class="p-card" onclick="openDemo('hosp1')"><img loading="lazy" decoding="async" class="p-img" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80" alt="Luxury hotel pool"><div class="p-body"><h3>The Grand &mdash; Luxury Hotel</h3><p>Five-star hotel with room booking, spa reservations, fine dining, and personalised concierge services.</p><div class="p-tags"><span class="p-tag">Room Booking</span><span class="p-tag">Spa</span><span class="p-tag">Concierge</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hosp1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('hosp2')"><img loading="lazy" decoding="async" class="p-img" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80" alt="Desert resort pool"><div class="p-body"><h3>Oasis &mdash; Desert Boutique Resort</h3><p>Intimate desert resort with experience packages, sunset dining, gallery, and seasonal promotions.</p><div class="p-tags"><span class="p-tag">Packages</span><span class="p-tag">Gallery</span><span class="p-tag">Promotions</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hosp2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
-    <div class="p-card" onclick="openDemo('hosp3')"><img loading="lazy" decoding="async" class="p-img" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" alt="Urban hotel lobby"><div class="p-body"><h3>Cityview &mdash; Urban Business Hotel</h3><p>Modern city hotel with real-time room availability, loyalty programme, corporate booking, and event spaces.</p><div class="p-tags"><span class="p-tag">Availability</span><span class="p-tag">Loyalty</span><span class="p-tag">Corporate</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hosp3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('hosp1')"><img loading="lazy" decoding="async" class="p-img" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80" alt="Luxury hotel pool"><div class="p-body"><h3>The Grand: Luxury Hotel</h3><p>Five-star hotel with room booking, spa reservations, fine dining, and personalised concierge services.</p><div class="p-tags"><span class="p-tag">Room Booking</span><span class="p-tag">Spa</span><span class="p-tag">Concierge</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hosp1')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('hosp2')"><img loading="lazy" decoding="async" class="p-img" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80" alt="Desert resort pool"><div class="p-body"><h3>Oasis: Desert Boutique Resort</h3><p>Intimate desert resort with experience packages, sunset dining, gallery, and seasonal promotions.</p><div class="p-tags"><span class="p-tag">Packages</span><span class="p-tag">Gallery</span><span class="p-tag">Promotions</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hosp2')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+    <div class="p-card" onclick="openDemo('hosp3')"><img loading="lazy" decoding="async" class="p-img" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" alt="Urban hotel lobby"><div class="p-body"><h3>Cityview: Urban Business Hotel</h3><p>Modern city hotel with real-time room availability, loyalty programme, corporate booking, and event spaces.</p><div class="p-tags"><span class="p-tag">Availability</span><span class="p-tag">Loyalty</span><span class="p-tag">Corporate</span></div></div><button class="p-prev-btn" onclick="event.stopPropagation();openDemo('hosp3')">Live Preview <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
   </div>
 
 </section>
@@ -4553,6 +4559,7 @@ var SYNC = {
     });
   },
   _one: function(sb, c){
+    if(window.STAFF) return this._oneStaff(sb, c);
     var id=String(c.id), data=JSON.parse(JSON.stringify(c)); delete data._v;
     var row={ id:id, name:c.name||'', email:c.email||'', status:c.status||'lead', data:data, updated_at:new Date().toISOString() };
     var force=this._force && this._force[id];
@@ -4577,6 +4584,18 @@ var SYNC = {
       });
     }, function(e){ return {id:id, ok:false, error:(e&&e.message)||'network'}; });
   },
+  // department logins save through the server, which only accepts the parts they're allowed to change
+  _oneStaff: function(sb, c){
+    var id=String(c.id), data=JSON.parse(JSON.stringify(c)); delete data._v;
+    var force=this._force && this._force[id], self=this;
+    return Promise.resolve(sb.rpc('staff_save_client',{p_id:id, p_data:data, p_version:(force?null:(c._v||null))})).then(function(r){
+      var d=r && r.data;
+      if(r && r.error) return {id:id, ok:false, error:r.error.message};
+      if(d && d.ok){ if(force) delete self._force[id]; return {id:id, ok:true, v:d.updated_at}; }
+      if(d && d.conflict) return {id:id, ok:false, conflict:true};
+      return {id:id, ok:false, error:(d&&d.error)||'not saved'};
+    }, function(e){ return {id:id, ok:false, error:(e&&e.message)||'network'}; });
+  },
   // after a conflict: keep the version on this device (overwrites the other device's change)
   keepMine: function(id){ id=String(id); this._force=this._force||{}; this._force[id]=true; delete this.conflicts[id]; return this.flush(); },
   // after a conflict: throw away this device's change and load the cloud copy
@@ -4584,6 +4603,7 @@ var SYNC = {
 
   // Delete ONE client from the cloud, only called from permanent delete
   remove: function(id){
+    if(window.STAFF) return;
     var sb = getSB();
     if(!sb || !id) return;
     var self = this;
@@ -4599,7 +4619,7 @@ var SYNC = {
     if(!sb){ if(cb) cb(false); return; }
     this.status('Loading…', null);
     var self = this;
-    sb.from('clients').select('id,data,updated_at').order('updated_at', { ascending: false }).then(function(res){
+    (window.STAFF ? sb.rpc('staff_clients') : sb.from('clients').select('id,data,updated_at').order('updated_at', { ascending: false })).then(function(res){
       if(res.error){ self.status('Offline. Showing the copy saved on this device', false); if(cb) cb(false); return; }
       var local=[]; try{ local=JSON.parse(localStorage.getItem('crm_clients')||'[]'); }catch(e){}
       var pend=self.pending(), byLocal={}; local.forEach(function(c){ byLocal[String(c.id)]=c; });
@@ -5261,7 +5281,7 @@ async function crmCloudSync(){
   var local = [];
   try { local = JSON.parse(localStorage.getItem('crm_clients')||'[]'); } catch(e){}
   try {
-    var res = await sb.from('clients').select('id');
+    var res = window.STAFF ? {data:[{id:1}], error:null} : await sb.from('clients').select('id');
     if(res.error){ SYNC.status('Offline. Showing the copy saved on this device', false); return; }
     var cloudCount = (res.data||[]).length;
     if(cloudCount === 0 && local.length > 0){
@@ -5288,6 +5308,7 @@ async function crmCloudSync(){
 // toward "invoiced", so it shows as Pending, then Overdue if unpaid.
 var _ensuringMonthly = false;
 async function ensureMonthlyInvoices(){
+  if(window.STAFF) return;
   // #11: monthly invoices are now created ONLY by the server's daily job
   // (generate_due_monthly_invoices) using your billing rule. The website no
   // longer creates them, so there is one source and no duplicates.
@@ -6294,6 +6315,10 @@ function _patchAdminForCrm(){
       try { var wr = await sb.rpc('team_whoami'); who = wr && wr.data; } catch(e){}
       if(email.toLowerCase() !== ADMIN_EMAIL && !(who && who.role==='admin')){
         document.getElementById('admin-p').value = '';
+        if(who && who.role==='member' && window.CancasStaff && CancasStaff.hasAreas(who.access)){
+          CancasStaff.enter(who);   // department login: CRM with only the areas Clinton switched on
+          return;
+        }
         if(who && who.role==='member' && window.CancasTasks){
           document.getElementById('admin-modal').classList.remove('open');
           CancasTasks.openTeam(who);
@@ -6304,6 +6329,7 @@ function _patchAdminForCrm(){
         return;
       }
       // Signed in — open the panel and load cloud data.
+      window.STAFF=null; try{ if(window.CancasStaff){ CancasStaff.ownerCheck('admin'); CancasStaff.flags(); } }catch(e){}
       document.getElementById('admin-modal').classList.remove('open');
       document.getElementById('admin-panel').classList.add('open');
       document.getElementById('admin-p').value = '';
@@ -6634,6 +6660,7 @@ function showToast(msg) {
 // • Once per day: auto-downloads a .json backup file
 // ══════════════════════════════════════════════════════
 function autoBackupOnSave() {
+  if(window.STAFF) return;   // backup files with every client are made on the owner's devices only
   try {
     var clients   = JSON.parse(localStorage.getItem('crm_clients')   || '[]');
     var enquiries = JSON.parse(localStorage.getItem('crm_enquiries') || '[]');
@@ -8670,7 +8697,7 @@ window.CancasTasks = (function(){
     return Promise.all([
       c.from('tasks').select('*').neq('status','cancelled').order('created_at',{ascending:false}).limit(500),
       c.from('team_members').select('*').order('created_at'),
-      c.from('notifications').select('*').eq('recipient',ADMIN).is('read_at',null).order('created_at',{ascending:false}).limit(40)
+      c.from('notifications').select('*').eq('recipient',window.STAFF?String(STAFF.email||'').toLowerCase():ADMIN).is('read_at',null).order('created_at',{ascending:false}).limit(40)
     ]).then(function(r){
       if(r[0] && !r[0].error) S.tasks=r[0].data||[];
       if(r[1] && !r[1].error) S.members=r[1].data||[];
@@ -8691,8 +8718,8 @@ window.CancasTasks = (function(){
   }
   function reload(){ return S.role==='admin' ? loadAdmin() : loadMember(); }
   function afterLoad(){
-    if(S.role==='admin'){
-      var w=S.tasks.filter(function(t){ return t.status==='submitted'; }).length;
+    if(S.role==='admin' || S.role==='staff'){
+      var w=S.tasks.filter(function(t){ return t.status==='submitted' && (S.role==='admin' || (isManager() && t.assignee!==myId())); }).length;
       var n=E('as-n-tasks'); if(n){ n.textContent=w||''; n.className='n'+(w?' lime':''); }
       if(document.body.classList.contains('adm-v-tasks')) renderBoard();
       try{ if(window.CancasAdm) CancasAdm.render(); }catch(e){}
@@ -8723,19 +8750,19 @@ window.CancasTasks = (function(){
     ];
     var html='<div class="tk-bar"><select id="tk-filter"><option value="">Everyone</option>'+active.map(function(m){ return '<option value="'+esc(m.id)+'"'+(S.filter===m.id?' selected':'')+'>'+esc(m.name)+'</option>'; }).join('')+'</select>'
       +'<span style="font-size:12px;color:var(--muted);">'+list.length+' open & recent tasks</span><span style="flex:1"></span>'
-      +'<button class="pill light" id="tk-rep-btn" title="Tasks that create themselves every week/month">Repeat jobs</button><button class="pill light" id="tk-team-btn">Team</button><button class="pill dark" id="tk-new">+ New task</button></div>';
-    if(!active.length) html+='<div class="tk-note lime" style="margin-bottom:14px;"><b>Add your team first.</b> Invite someone in Settings > Team, then you can assign them tasks. <button class="pill dark" style="margin-left:8px;" onclick="CancasOps.openSettings(\'team\')">Invite a team member</button></div>';
+      +(S.role==='admin'?'<button class="pill light" id="tk-rep-btn" title="Tasks that create themselves every week/month">Repeat jobs</button><button class="pill light" id="tk-team-btn">Team</button>':'')+(isManager()?'<button class="pill dark" id="tk-new">+ New task</button>':'')+'</div>';
+    if(!active.length && S.role==='admin') html+='<div class="tk-note lime tk-addteam" style="margin-bottom:14px;"><b>Add your team first.</b> Invite someone in Settings > Team, then you can assign them tasks. <button class="pill dark" style="margin-left:8px;" onclick="CancasOps.openSettings(\'team\')">Invite a team member</button></div>';
     html+='<div class="tk-board">'+cols.map(function(c){
       return '<div class="tk-col '+(c[0]==='wait'?'wait':'')+'"><div class="tk-colh">'+c[1]+'<span class="n">'+c[2].length+'</span></div>'
         +(c[2].length?c[2].map(card).join(''):'<div class="tk-empty">'+(c[0]==='wait'?'Nothing waiting for approval':'')+'</div>')+'</div>';
     }).join('')+'</div>';
     host.innerHTML=html;
     E('tk-filter').onchange=function(){ S.filter=this.value; renderBoard(); };
-    E('tk-new').onclick=function(){ editTask(null); };
-    E('tk-team-btn').onclick=function(){ CancasOps.openSettings('team'); };
+    if(E('tk-new')) E('tk-new').onclick=function(){ editTask(null); };
+    if(E('tk-team-btn')) E('tk-team-btn').onclick=function(){ CancasOps.openSettings('team'); };
     Array.prototype.forEach.call(host.querySelectorAll('[data-task]'),function(el){ el.onclick=function(){ openTask(el.getAttribute('data-task')); }; });
     Array.prototype.forEach.call(host.querySelectorAll('[data-nudge]'),function(b){ b.onclick=function(e){ e.stopPropagation(); nudge(byId(b.getAttribute('data-nudge'))); }; });
-    E('tk-rep-btn').onclick=openRepeats;
+    if(E('tk-rep-btn')) E('tk-rep-btn').onclick=openRepeats;
   }
   function nudge(t){
     if(!t) return; var m=member(t.assignee);
@@ -8744,16 +8771,16 @@ window.CancasTasks = (function(){
   }
   function card(t){
     var m=member(t.assignee), p=progress(t);
-    return '<div class="tk-card'+(t.status==='submitted'&&S.role==='admin'?' wait':'')+'" data-task="'+esc(t.id)+'">'
+    return '<div class="tk-card'+(t.status==='submitted'&&isManager()&&t.assignee!==myId()?' wait':'')+'" data-task="'+esc(t.id)+'">'
       +'<div class="tk-top"><span></span>'+priTag(t.priority)+'</div>'
       +'<div class="tk-title">'+esc(t.title)+'</div>'
       +(t.client_name?'<div class="tk-sub">'+esc(t.client_name)+'</div>':'')
       +(t.status==='declined'?'<div style="margin-top:6px;">'+stChip('declined')+'</div>':'')
-      +'<div class="tk-meta">'+(S.role==='admin'?(m?'<span class="tk-av" title="'+esc(m.name)+'">'+esc(initials(m.name))+'</span>':'<span>Unassigned</span>'):'')
+      +'<div class="tk-meta">'+(S.role!=='member'?(myId() && t.assignee===myId()?'<span>You</span>':m?'<span class="tk-av" title="'+esc(m.name)+'">'+esc(initials(m.name))+'</span>':'<span>Unassigned</span>'):'')
       +(t.due_date?'<span class="'+(late(t)?'tk-late':'')+'">'+(late(t)?'Overdue since ':'Due ')+d2(t.due_date)+'</span>':'')
       +(p?'<span>☑ '+p+'</span>':'')+(t.status==='submitted'?'<span>sent '+ago(t.submitted_at)+'</span>':'')
       +(t.template_id?'<span title="Created by a repeat job">Repeat job</span>':'')
-      +(S.role==='admin'&&late(t)&&m&&t.status!=='submitted'?'<button class="tk-nudge" data-nudge="'+esc(t.id)+'" title="Send '+esc(m.name)+' a reminder on WhatsApp">Nudge</button>':'')+'</div></div>';
+      +(isManager()&&late(t)&&m&&t.status!=='submitted'&&t.assignee!==myId()?'<button class="tk-nudge" data-nudge="'+esc(t.id)+'" title="Send '+esc(m.name)+' a reminder on WhatsApp">Nudge</button>':'')+'</div></div>';
   }
 
   /* ================= ADMIN: CREATE / EDIT ================= */
@@ -8809,7 +8836,7 @@ window.CancasTasks = (function(){
   /* ================= TASK WINDOW (admin & member) ================= */
   function openTask(id, refreshOnly){
     var t=byId(id); if(!t) return;
-    var mineAdmin=S.role==='admin';
+    var mineAdmin=isManager() && !(myId() && t.assignee===myId());   // managers review others' work; their own tasks they work on like anyone
     if(refreshOnly && (!E('tk-view') || E('tk-view').style.display==='none')) return;
     S.open=id;
     var m=member(t.assignee);
@@ -8984,15 +9011,17 @@ window.CancasTasks = (function(){
       +'<div class="cs-f"><label>Name</label><input id="tm-name" maxlength="80" placeholder="e.g. Maya Fernandes"></div>'
       +'<div class="cs-f"><label>Role</label><input id="tm-role" maxlength="60" placeholder="e.g. Designer"></div>'
       +'<div class="cs-f" style="grid-column:1/-1;"><label>Email</label><input id="tm-email" type="email" maxlength="200" placeholder="their@email.com"></div></div>'
+      +'<div class="cs-f" style="margin-top:12px;"><label>What can they see in the CRM?</label>'+(window.CancasStaff?CancasStaff.accessGrid('tm-acc-',{}):'')+'</div>'
       +'<div style="margin-top:12px;"><button class="cs-btn" id="tm-invite">Create invite link</button><span class="cs-msg" id="tm-msg"></span></div>'
-      +'<div class="cs-note" style="margin-top:8px;">You\'ll get a personal link to send them on WhatsApp or email. They tap it, set a password, then log in any time at cancasstudio.com/#team. They only ever see the tasks you give them.</div>'
+      +'<div class="cs-note" style="margin-top:8px;">You\'ll get a personal link to send them on WhatsApp or email. They tap it, set a password, then log in any time at cancasstudio.com/#team. With no access switched on they only see the tasks you give them. Client logins and passwords are never shown to anyone but you.</div>'
       +'<div class="cs-h">Your team</div>'
       +(rows.length?rows.map(function(m){
         var st = !m.active ? ['Removed','#7b8087'] : (m.joined_at ? ['Active','#15803d'] : ['Invited','#b45309']);
         var open=S.tasks.filter(function(t){ return t.assignee===m.id && ['todo','in_progress','declined','submitted'].indexOf(t.status)>-1; }).length;
         return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap;"><span class="tk-av" style="width:32px;height:32px;border-radius:9px;font-size:11px;">'+esc(initials(m.name))+'</span>'
-          +'<div style="flex:1;min-width:160px;"><b>'+esc(m.name)+'</b>'+(m.role?' <span class="cs-note">'+esc(m.role)+'</span>':'')+'<div class="cs-note">'+esc(m.email)+', '+open+' open task'+(open===1?'':'s')+'</div></div>'
+          +'<div style="flex:1;min-width:160px;"><b>'+esc(m.name)+'</b>'+(m.role?' <span class="cs-note">'+esc(m.role)+'</span>':'')+'<div class="cs-note">'+esc(m.email)+', '+open+' open task'+(open===1?'':'s')+'</div><div class="cs-note" style="color:#3a3f45;">Access: '+esc(window.CancasStaff?CancasStaff.summary(m.access):'')+'</div><div id="tm-accbox-'+esc(m.id)+'" style="display:none;"></div></div>'
           +'<span class="st-chip" style="background:'+st[1]+'18;color:'+st[1]+';">'+st[0]+'</span>'
+          +(m.active?'<button class="cs-btn sec" data-acc="'+esc(m.id)+'">Access</button>':'')
           +(m.active?'<button class="cs-btn sec" data-resend="'+esc(m.email)+'">'+(m.joined_at?'Password link':'New invite link')+'</button>':'')
           +(m.active?'<button class="cs-btn red" data-off="'+esc(m.id)+'">Remove</button>':'<button class="cs-btn sec" data-on="'+esc(m.id)+'">Restore</button>')+'</div>';
       }).join(''):'<div class="cs-note">No team members yet.</div>');
@@ -9000,8 +9029,19 @@ window.CancasTasks = (function(){
       var name=E('tm-name').value.trim(), email=E('tm-email').value.trim().toLowerCase(), role=E('tm-role').value.trim(), msg=E('tm-msg');
       if(!name){ msg.innerHTML=' <span style="color:#c42b30">Please add a name.</span>'; return; }
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ msg.innerHTML=' <span style="color:#c42b30">Please enter a valid email.</span>'; return; }
-      invite({action:'invite',name:name,email:email,role:role}, msg, function(){ E('tm-name').value=''; E('tm-email').value=''; E('tm-role').value=''; });
+      var acc=window.CancasStaff?CancasStaff.readGrid('tm-acc-'):{};
+      invite({action:'invite',name:name,email:email,role:role}, msg, function(){ E('tm-name').value=''; E('tm-email').value=''; E('tm-role').value='';
+        Promise.resolve(sb().from('team_members').update({access:acc}).eq('email',email)).then(function(r){ if(r && r.error) alert('The invite worked, but the access areas were not saved: '+r.error.message+'. Use the Access button to set them.'); loadAdmin(); }); });
     };
+    Array.prototype.forEach.call(body.querySelectorAll('[data-acc]'),function(b){ b.onclick=function(){
+      var m=member(b.getAttribute('data-acc')), box=E('tm-accbox-'+m.id); if(!m||!box) return;
+      if(box.style.display==='block'){ box.style.display='none'; return; }
+      box.style.display='block';
+      box.innerHTML=CancasStaff.accessGrid('tm-a-'+m.id+'-', m.access||{})+'<div style="margin-top:8px;"><button class="cs-btn" id="tm-asave-'+esc(m.id)+'">Save access</button><span class="cs-msg" id="tm-amsg-'+esc(m.id)+'"></span></div>';
+      E('tm-asave-'+m.id).onclick=function(){ var acc=CancasStaff.readGrid('tm-a-'+m.id+'-'), mm=E('tm-amsg-'+m.id); mm.textContent=' Saving…';
+        Promise.resolve(sb().from('team_members').update({access:acc}).eq('id',m.id)).then(function(r){ if(r.error){ mm.innerHTML=' <span style="color:#c42b30">'+esc(r.error.message)+'</span>'; return; }
+          mm.innerHTML=' <span style="color:#16a34a">Saved. It applies the next time they log in.</span>'; m.access=acc; setTimeout(function(){ loadAdmin().then(function(){ drawTeamTab(body); }); }, 900); }); };
+    }; });
     Array.prototype.forEach.call(body.querySelectorAll('[data-resend]'),function(b){ b.onclick=function(){ invite({action:'resend',email:b.getAttribute('data-resend')}, E('tm-msg')); }; });
     Array.prototype.forEach.call(body.querySelectorAll('[data-off]'),function(b){ b.onclick=function(){
       var m=member(b.getAttribute('data-off')); if(!m || !confirm('Remove '+m.name+'? Their login stops working straight away. Their tasks stay (you can reassign them).')) return;
@@ -9232,6 +9272,7 @@ window.CancasTasks = (function(){
   function route(){
     return Promise.resolve(sb().rpc('team_whoami')).then(function(r){
       var w=r&&r.data;
+      if(w && w.role==='member' && window.CancasStaff && CancasStaff.hasAreas(w.access)){ CancasStaff.enter(w); return 'staff'; }
       if(w && w.role==='member'){ openTeam(w); return 'member'; }
       if(w && w.role==='admin'){ location.hash='admin'; return 'admin'; }
       Promise.resolve(sb().auth.signOut()).then(function(){ alert('This account doesn\'t have access. Ask Clinton to invite you.'); });
@@ -9240,7 +9281,9 @@ window.CancasTasks = (function(){
   }
 
   /* ================= START-UP ================= */
-  function initAdmin(){ S.role='admin'; hookBell(); loadAdmin(); poll(); }
+  function initAdmin(){ S.role=window.STAFF?'staff':'admin'; hookBell(); loadAdmin(); poll(); }
+  function isManager(){ return S.role==='admin' || (S.role==='staff' && window.STAFF && (STAFF.access||{}).tasks==='edit'); }
+  function myId(){ return window.STAFF ? STAFF.id : (S.me && S.me.id); }
   if(typeof window.crmInit==='function'){ var _ci=window.crmInit; window.crmInit=function(){ var r=_ci.apply(this, arguments); try{ initAdmin(); }catch(e){} return r; }; }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', handleAuthLink); else handleAuthLink();
   return { initAdmin:initAdmin, renderBoard:renderBoard, needsItems:needsItems, openTask:openTask, editTask:editTask, drawTeamTab:drawTeamTab, openTeam:openTeam, route:route, reload:reload, state:S };
@@ -9349,7 +9392,7 @@ window.CancasNotify = (function(){
   }
   // task notifications (submitted for approval, comments) — compare with what we've already seen
   function checkTasks(){
-    var T=window.CancasTasks&&CancasTasks.state; if(!T || T.role!=='admin' || !T.loaded) return;
+    var T=window.CancasTasks&&CancasTasks.state; if(!T || T.role==='member' || !T.role || !T.loaded) return;
     var ids=(T.notifs||[]).map(function(n){ return n.id; });
     if(seen.tn===null){ seen.tn={}; ids.forEach(function(i){ seen.tn[i]=1; }); return; }
     (T.notifs||[]).forEach(function(n){
@@ -9914,14 +9957,16 @@ window.CancasReports2 = (function(){
   var EYE='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3a3f45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
   var NOEYE='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3a3f45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>';
   function apply(){
-    document.body.classList.toggle('adm-priv', !shown());
-    var b=document.getElementById('ah-eye'); if(b){ b.innerHTML=shown()?EYE:NOEYE; b.title=shown()?'Hide amounts':'Show amounts'; }
+    var hide=!shown();
+    if(document.body.classList.contains('adm-priv')!==hide) document.body.classList.toggle('adm-priv', hide);
+    var b=document.getElementById('ah-eye'), st=hide?'0':'1';
+    if(b && b.getAttribute('data-st')!==st){ b.setAttribute('data-st',st); b.innerHTML=hide?NOEYE:EYE; b.title=hide?'Show amounts':'Hide amounts'; }   // only redraw when it changes (no loop)
   }
   function mark(){
     ['adm-overview','crm-kpis'].forEach(function(id){
       var root=document.getElementById(id); if(!root) return;
       Array.prototype.forEach.call(root.querySelectorAll('*'), function(el){
-        if(el.closest && el.closest('[data-show-money]')){ el.classList.remove('mny'); return; }   // "Collected this month" always shows
+        if(el.closest && el.closest('[data-show-money]')){ if(el.classList.contains('mny')) el.classList.remove('mny'); return; }   // "Collected this month" always shows
         if(el.classList.contains('mny') || el.tagName==='svg' || (el.closest && el.closest('svg'))) return;
         if(!RE.test(el.textContent||'')) return;
         var kid=Array.prototype.some.call(el.children, function(ch){ return RE.test(ch.textContent||''); });
@@ -9958,7 +10003,7 @@ window.CancasReports2 = (function(){
   // start alerts + briefing when the admin loads
   if(typeof window.crmInit==='function' && !window.crmInit._p3){
     var c0=window.crmInit;
-    window.crmInit=function(){ var r=c0.apply(this, arguments); try{ CancasNotify.start(); CancasBriefing.start(); }catch(e){} return r; };
+    window.crmInit=function(){ var r=c0.apply(this, arguments); try{ CancasNotify.start(); if(!window.STAFF) CancasBriefing.start(); }catch(e){} return r; };
     window.crmInit._p3=true;
   }
   if(typeof window.updateKpis==='function' && !window.updateKpis._p3){
@@ -10089,6 +10134,398 @@ window.CancasHistory = (function(){
     });
   }
   return { open:open, load:load, changes:changes, drawDeleted:drawDeleted };
+})();
+</script>
+
+<!-- ===================== DEPARTMENT LOGINS (access areas per person) ===================== -->
+<style>
+body.staff #adm-side [data-go="overview"], body.staff #adm-side [data-go="reports"], body.staff #adm-side [data-go="settings"],
+body.staff #prof-hist-btn, body.staff #prof-del-btn, body.staff #adm-overview, body.staff #ah-seg, body.staff #tk-rep-btn, body.staff #tk-team-btn, body.staff .tk-addteam{display:none !important;}
+body.staff.s-no-clients #adm-side [data-go="clients"], body.staff.s-no-clients #adm-side [data-go="today"], body.staff.s-no-clients #adm-side [data-go^="status:"], body.staff.s-no-clients #adm-side .as-h-live{display:none !important;}
+body.staff.s-no-money #adm-side [data-money], body.staff.s-no-money #adm-side .as-h-money, body.staff.s-no-money [onclick^="CancasPanel."], body.staff.s-no-money .crm-prof-tab[onclick*="billing"], body.staff.s-no-money #pp-billing, body.staff.s-no-money .s-money{display:none !important;}
+body.staff.s-ro-money [onclick="CancasPanel.agreement()"], body.staff.s-ro-money [onclick="CancasPanel.signlink()"], body.staff.s-ro-money [onclick="CancasPanel.depositReminder()"], body.staff.s-ro-money [onclick="CancasPanel.balanceReminder()"], body.staff.s-ro-money [onclick="addPayment()"], body.staff.s-ro-money [onclick^="deletePayment"]{display:none !important;}
+body.staff.s-no-cedit [onclick*="openNewClient"], body.staff.s-no-cedit .ah-pill-new, body.staff.s-no-cedit [onclick^="convertEnquiryToLead"]{display:none !important;}
+body.staff.s-no-enq #adm-side [data-go="enquiries"]{display:none !important;}
+body.staff.s-ro-enq #enq-archive-btn, body.staff.s-ro-enq [onclick^="markEnquiryRead"], body.staff.s-ro-enq [onclick^="restoreEnquiry"], body.staff.s-ro-enq [onclick^="markEnquiryReplied"]{display:none !important;}
+body.staff.s-no-anyedit #prof-save-btn, body.staff.s-no-anyedit [onclick="saveClient()"], body.staff.s-no-anyedit #note-composer-wrap{display:none !important;}
+body.staff .s-pw{display:none !important;}
+body.staff input:disabled, body.staff select:disabled, body.staff textarea:disabled{opacity:.75;cursor:not-allowed !important;}
+.acc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:6px;}
+.acc-grid label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;}
+.acc-grid select{width:100%;}
+@media(max-width:700px){ .acc-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+</style>
+<script>
+window.CancasStaff = (function(){
+  var AREAS=[['clients','Clients & projects'],['enquiries','Enquiries & leads'],['money','Money'],['tasks','Tasks for everyone']];
+  function E(id){ return document.getElementById(id); }
+  function esc(v){ return (typeof escHTML==='function')?escHTML(v):String(v==null?'':v); }
+  function hasAreas(a){ a=a||{}; return AREAS.some(function(x){ return a[x[0]]==='view' || a[x[0]]==='edit'; }); }
+  function can(area, need){ if(!window.STAFF) return true; var v=(STAFF.access||{})[area]; return v==='edit' || (need!=='edit' && v==='view'); }
+  function summary(a){ a=a||{}; var p=AREAS.filter(function(x){ return a[x[0]]; }).map(function(x){ return x[1]+': '+(a[x[0]]==='edit'?'can edit':'view only'); }); return p.length?p.join(', '):'Own tasks only'; }
+  // Never show one person's saved CRM copy to another login on the same device.
+  function clearLocal(){
+    ['crm_clients','crm_unsynced','crm_enquiries','crm_auto_backup_latest','crm_auto_backup_time','crm_settings','cc_goals','cc_notify','cc_brief_sent'].forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+    try{ SYNC._snap={}; SYNC.conflicts={}; }catch(e){}
+    try{ CRM.clients=[]; }catch(e){}
+  }
+  function ownerCheck(owner){ var prev=null; try{ prev=localStorage.getItem('crm_owner'); }catch(e){} if(prev!==owner){ clearLocal(); try{ localStorage.setItem('crm_owner', owner); }catch(e){} } }
+  function flags(){
+    var b=document.body, on=!!window.STAFF;
+    var cv=can('clients'), ce=can('clients','edit'), mv=can('money'), me=can('money','edit'), ev=can('enquiries'), ee=can('enquiries','edit');
+    b.classList.toggle('staff', on);
+    b.classList.toggle('s-no-clients', on && !cv && !mv);
+    b.classList.toggle('s-no-money', on && !mv);
+    b.classList.toggle('s-ro-money', on && mv && !me);
+    b.classList.toggle('s-no-cedit', on && !ce);
+    b.classList.toggle('s-no-enq', on && !ev);
+    b.classList.toggle('s-ro-enq', on && ev && !ee);
+    b.classList.toggle('s-no-anyedit', on && !ce && !me);
+  }
+  function firstView(){ return (can('clients')||can('money'))?'clients':can('enquiries')?'enquiries':'tasks'; }
+  function decorate(){
+    if(!window.STAFF) return;
+    Array.prototype.forEach.call(document.querySelectorAll('#adm-side .as-h'),function(h){ var t=h.textContent.trim().toLowerCase(); if(t==='money') h.classList.add('as-h-money'); if(t==='live') h.classList.add('as-h-live'); });
+    var u=document.querySelector('#adm-side .as-user'); if(u){ var ini=String(STAFF.name||'?').trim().split(/\s+/).map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase();
+      u.innerHTML='<div class="as-av">'+esc(ini)+'</div><div><b>'+esc(STAFF.name||'Team')+'</b><span>'+esc(STAFF.title||'Team')+'</span></div>'; }
+    var np=document.querySelector('#admin-panel .ah-pill'); if(np && /New client/.test(np.textContent)) np.classList.add('ah-pill-new');
+    ['kpi-outstanding','kpi-collected','prof-pending-val','prof-monthly-val'].forEach(function(id){ var el=E(id); if(el && el.parentNode) el.parentNode.classList.add('s-money'); });
+  }
+  // Profile: hide logins always; lock what this person may not change.
+  function applyProfile(){
+    if(!window.STAFF) return;
+    ['cf-admin-email','cf-cpanel','cf-tech'].forEach(function(id){ var el=E(id); var f=el&&el.closest('.crm-field'); if(f) f.classList.add('s-pw'); });
+    var ce=can('clients','edit'), me=can('money','edit');
+    var bill=E('pp-billing');
+    Array.prototype.forEach.call(document.querySelectorAll('#crm-profile-modal input, #crm-profile-modal select, #crm-profile-modal textarea'),function(el){
+      if(el.type==='file' || el.closest('#hv-modal')) return;
+      var isMoney = bill && bill.contains(el);
+      var isNote = el.id==='note-text' || (el.closest && el.closest('#pp-notes'));
+      var allow = isMoney ? me : (isNote ? (ce||me) : ce);
+      el.disabled = !allow;
+    });
+    var nt=E('note-text'); if(nt){ var w=nt.parentNode; if(w && !w.id) w.id='note-composer-wrap'; }
+    Array.prototype.forEach.call(document.querySelectorAll('#crm-profile-modal .crm-tag'),function(t){ if(!ce && !(t.closest('#note-tags')||t.closest('#note-main-cats'))) t.style.pointerEvents='none'; });
+    decorate();
+  }
+  function wrap(fn){ var f=window[fn]; if(typeof f!=='function' || f._staff) return; window[fn]=function(){ var r=f.apply(this, arguments); try{ setTimeout(applyProfile, 30); }catch(e){} return r; }; window[fn]._staff=true; }
+  ['openClientProfile','openNewClient','convertEnquiryToLead'].forEach(wrap);
+  function enter(who){
+    window.STAFF={id:who.id, name:who.name, email:who.email, title:who.title, access:who.access||{}};
+    ownerCheck('staff:'+who.id);
+    flags();
+    var m=E('admin-modal'); if(m) m.classList.remove('open');
+    E('admin-panel').classList.add('open');
+    setTimeout(function(){ crmInit(); setTimeout(function(){ decorate(); try{ CancasAdm.go(firstView()); }catch(e){} }, 400); }, 80);
+    if(can('enquiries')){ try{ SB_loadEnquiries(); }catch(e){} }
+  }
+  // keep sidebar decoration after the admin shell rebuilds
+  if(window.MutationObserver){ var t=null; new MutationObserver(function(){ if(!window.STAFF) return; clearTimeout(t); t=setTimeout(decorate,150); }).observe(document.getElementById('admin-panel')||document.body,{childList:true}); }
+  // Exiting a department login reloads the page so nothing carries over to the next person.
+  var c0=window.closeAdmin; if(typeof c0==='function'){ window.closeAdmin=function(){ var was=!!window.STAFF, r=c0.apply(this, arguments); if(was && !E('admin-panel').classList.contains('open')) setTimeout(function(){ location.href=location.pathname; }, 300); return r; }; }
+
+  // ---------- Settings → Team: access per person ----------
+  function accessGrid(prefix, a){
+    a=a||{};
+    return '<div class="acc-grid">'+AREAS.map(function(x){ var v=a[x[0]]||'';
+      return '<div><label>'+x[1]+'</label><select id="'+prefix+x[0]+'"><option value=""'+(v===''?' selected':'')+'>No access</option><option value="view"'+(v==='view'?' selected':'')+'>View only</option><option value="edit"'+(v==='edit'?' selected':'')+'>Can edit</option></select></div>'; }).join('')+'</div>';
+  }
+  function readGrid(prefix){ var a={}; AREAS.forEach(function(x){ var el=E(prefix+x[0]); if(el && el.value) a[x[0]]=el.value; }); return a; }
+  return { hasAreas:hasAreas, can:can, summary:summary, enter:enter, ownerCheck:ownerCheck, applyProfile:applyProfile, accessGrid:accessGrid, readGrid:readGrid, AREAS:AREAS, firstView:firstView, flags:flags };
+})();
+</script>
+
+<!-- ===================== TEAM CHAT (group chats + direct messages) ===================== -->
+<style>
+#cc-chat{position:fixed;inset:0;z-index:100500;display:none;background:rgba(17,18,20,.4);font-family:'Outfit',system-ui,sans-serif;}
+#cc-chat.open{display:flex;justify-content:flex-end;}
+#cc-chat *{box-sizing:border-box;}
+.cc-shell{width:min(920px,100%);height:100%;background:#fff;display:grid;grid-template-columns:300px minmax(0,1fr);box-shadow:-20px 0 60px rgba(0,0,0,.2);}
+.cc-list{border-right:1px solid #e4e6e9;display:flex;flex-direction:column;min-height:0;background:#f7f8f9;}
+.cc-lh{padding:16px 14px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.cc-lh b{font-size:18px;color:#111214;}
+.cc-actions{display:flex;gap:6px;padding:0 14px 10px;flex-wrap:wrap;}
+.cc-btn{font:inherit;font-size:12.5px;font-weight:600;border-radius:999px;padding:7px 12px;border:1px solid #e4e6e9;background:#fff;color:#111214;cursor:pointer !important;}
+.cc-btn.dark{background:#111214;color:#fff;border-color:#111214;}
+.cc-btn.lime{background:#d4f53a;border-color:#c4e82a;color:#111;}
+.cc-rooms{overflow:auto;flex:1;padding:0 8px 12px;}
+.cc-room{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:9px 8px;border-radius:12px;cursor:pointer !important;}
+.cc-room:hover{background:#eceef0;}
+.cc-room.on{background:#111214;color:#fff;}
+.cc-room.on .cc-sub{color:#c9ccd1;}
+.cc-av{width:36px;height:36px;border-radius:11px;background:#111214;color:#d4f53a;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.cc-room.on .cc-av{background:#d4f53a;color:#111;}
+.cc-av.grp{background:#2f6fed;color:#fff;}
+.cc-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-sub{font-size:12px;color:#7b8087;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-badge{background:#d4f53a;color:#111;font-size:11px;font-weight:700;border-radius:999px;padding:1px 7px;}
+.cc-thread{display:flex;flex-direction:column;min-height:0;}
+.cc-th{padding:14px 18px;border-bottom:1px solid #e4e6e9;display:flex;align-items:center;gap:10px;}
+.cc-th .t{flex:1;min-width:0;}
+.cc-th b{font-size:16px;color:#111214;display:block;}
+.cc-th span{font-size:12px;color:#7b8087;}
+.cc-msgs{flex:1;overflow:auto;padding:16px 18px;background:#fbfbfc;}
+.cc-day{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.2px;color:#9aa0a6;text-transform:uppercase;margin:12px 0 8px;}
+.cc-m{display:flex;margin:4px 0;}
+.cc-m.me{justify-content:flex-end;}
+.cc-b{max-width:72%;background:#fff;border:1px solid #e4e6e9;border-radius:16px 16px 16px 6px;padding:8px 12px;font-size:14px;color:#111214;line-height:1.4;white-space:pre-wrap;word-break:break-word;position:relative;}
+.cc-m.me .cc-b{background:#111214;color:#fff;border-color:#111214;border-radius:16px 16px 6px 16px;}
+.cc-who{font-size:11.5px;font-weight:700;color:#2f6fed;margin-bottom:2px;}
+.cc-time{font-size:10.5px;color:#9aa0a6;margin-top:4px;text-align:right;}
+.cc-m.me .cc-time{color:#a9aeb4;}
+.cc-del{font:inherit;font-size:10.5px;background:none;border:none;color:#a9aeb4;cursor:pointer !important;padding:0 0 0 8px;}
+.cc-img{display:block;max-width:240px;max-height:220px;border-radius:10px;margin:2px 0 4px;cursor:pointer !important;}
+.cc-file,.cc-task{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 10px;border-radius:10px;background:rgba(47,111,237,.08);color:#2f6fed;text-decoration:none;cursor:pointer !important;margin:2px 0;}
+.cc-m.me .cc-file,.cc-m.me .cc-task{background:rgba(212,245,58,.18);color:#d4f53a;}
+.cc-deleted{font-style:italic;color:#9aa0a6;}
+.cc-comp{border-top:1px solid #e4e6e9;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:#fff;}
+.cc-comp textarea{width:100%;min-height:44px;max-height:140px;resize:vertical;border:1px solid #e4e6e9;border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;outline:none;}
+.cc-comp textarea:focus{border-color:#111214;}
+.cc-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.cc-chip{font-size:12px;background:#f1f2f4;border-radius:999px;padding:4px 10px;display:inline-flex;gap:6px;align-items:center;}
+.cc-chip button{border:none;background:none;cursor:pointer !important;font-size:13px;color:#7b8087;}
+.cc-empty{color:#9aa0a6;text-align:center;padding:40px 16px;font-size:13.5px;}
+.cc-pick{position:absolute;inset:0;background:rgba(17,18,20,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:5;}
+.cc-pick > div{background:#fff;border-radius:18px;width:min(440px,100%);max-height:80vh;overflow:auto;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.cc-pick label{display:flex;gap:10px;align-items:center;padding:8px 4px;border-top:1px solid #f0f1f3;font-size:14px;cursor:pointer !important;}
+.cc-pick input[type=text]{width:100%;border:1px solid #e4e6e9;border-radius:10px;padding:9px 12px;font:inherit;margin:6px 0 10px;}
+.cc-back{display:none;}
+.as-i .n.chat{background:#d4f53a;color:#111;}
+#tp-chat-btn{position:relative;}
+@media(max-width:760px){
+  .cc-shell{grid-template-columns:1fr;}
+  .cc-shell.in-thread .cc-list{display:none;}
+  .cc-shell:not(.in-thread) .cc-thread{display:none;}
+  .cc-back{display:inline-flex;}
+  .cc-b{max-width:86%;}
+}
+</style>
+<script>
+window.CancasChat = (function(){
+  function E(id){ return document.getElementById(id); }
+  function esc(v){ return (typeof escHTML==='function')?escHTML(v):String(v==null?'':v).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function sb(){ return (typeof getSB==='function')?getSB():null; }
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var S={rooms:[], dir:null, cur:null, msgs:{}, last:{}, open:false, me:null, admin:false, unread:0, seen:null, task:null, timer:null, ftimer:null, started:false, urls:{}};
+  function myKey(){ if(S.admin) return 'admin'; if(window.STAFF) return String(STAFF.id); var T=window.CancasTasks&&CancasTasks.state; return T&&T.me&&T.me.id?String(T.me.id):null; }
+  function initials(n){ return String(n||'?').trim().split(/\s+/).map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase(); }
+  function hm(d){ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function day(d){ var t=new Date(); t.setHours(0,0,0,0); var x=new Date(d); x.setHours(0,0,0,0); var diff=(t-x)/864e5; return diff===0?'Today':diff===1?'Yesterday':d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear(); }
+  function when(s){ var d=new Date(s); if(isNaN(d)) return ''; var t=new Date(); return d.toDateString()===t.toDateString()?hm(d):d.getDate()+' '+MON[d.getMonth()]; }
+  function size(n){ n=Number(n||0); return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'; }
+  function rpc(fn,args){ return Promise.resolve(sb().rpc(fn,args||{})).then(function(r){ if(r.error) throw new Error(r.error.message); return r.data; }); }
+
+  /* ---------- shell ---------- */
+  function ensure(){
+    if(E('cc-chat')) return;
+    var d=document.createElement('div'); d.id='cc-chat';
+    d.innerHTML='<div class="cc-shell" id="cc-shell"><div class="cc-list"><div class="cc-lh"><b>Messages</b><button class="cc-btn" id="cc-close">× Close</button></div>'
+      +'<div class="cc-actions"><button class="cc-btn dark" id="cc-new-dm">+ New message</button>'+(S.admin?'<button class="cc-btn" id="cc-new-grp">+ New group</button>':'')+'</div>'
+      +'<div class="cc-rooms" id="cc-rooms"><div class="cc-empty">Loading…</div></div></div>'
+      +'<div class="cc-thread" id="cc-thread"><div class="cc-empty" style="margin:auto;">Pick a conversation, or start a new one.</div></div></div>';
+    document.body.appendChild(d);
+    d.addEventListener('click', function(e){ if(e.target===d) close(); });
+    E('cc-close').onclick=close; E('cc-new-dm').onclick=newDirect; if(E('cc-new-grp')) E('cc-new-grp').onclick=function(){ editGroup(null); };
+  }
+  function open(roomId){
+    S.admin = !!(document.body.classList.contains('adm') && !document.body.classList.contains('tm') && !window.STAFF);
+    ensure(); S.open=true; E('cc-chat').classList.add('open');
+    loadRooms().then(function(){ if(roomId) openRoom(roomId); else if(!S.cur && S.rooms.length && window.innerWidth>760) openRoom(S.rooms[0].id); });
+    clearInterval(S.ftimer); S.ftimer=setInterval(function(){ if(!S.open || document.hidden) return; if(S.cur) pullMsgs(S.cur); loadRooms(); }, 4000);
+  }
+  function close(){ S.open=false; var c=E('cc-chat'); if(c) c.classList.remove('open'); clearInterval(S.ftimer); }
+
+  /* ---------- conversations ---------- */
+  function loadRooms(){
+    return rpc('chat_rooms_list').then(function(list){
+      S.rooms=list||[];
+      var total=S.rooms.reduce(function(s,r){ return s+(r.id===S.cur&&S.open?0:Number(r.unread||0)); },0);
+      alerts(); setBadge(total); drawRooms();
+    }).catch(function(e){ var b=E('cc-rooms'); if(b) b.innerHTML='<div class="cc-empty">Couldn\'t load messages. '+esc(e.message)+'</div>'; });
+  }
+  function drawRooms(){
+    var b=E('cc-rooms'); if(!b) return;
+    if(!S.rooms.length){ b.innerHTML='<div class="cc-empty">No conversations yet.<br>Tap “+ New message” to start one.</div>'; return; }
+    b.innerHTML=S.rooms.map(function(r){ var un=(r.id===S.cur)?0:Number(r.unread||0), last=r.last||{};
+      return '<div class="cc-room'+(r.id===S.cur?' on':'')+'" data-room="'+esc(r.id)+'"><div class="cc-av'+(r.kind==='group'?' grp':'')+'">'+(r.kind==='group'?'#':esc(initials(r.name)))+'</div>'
+        +'<div style="min-width:0;"><div class="cc-name">'+esc(r.name||'Conversation')+'</div><div class="cc-sub">'+(last.text?esc((r.kind==='group'&&last.by?last.by.split(' ')[0]+': ':'')+last.text):'No messages yet')+'</div></div>'
+        +'<div style="text-align:right;"><div class="cc-sub">'+(r.last_at?esc(when(r.last_at)):'')+'</div>'+(un?'<span class="cc-badge">'+un+'</span>':'')+'</div></div>'; }).join('');
+    Array.prototype.forEach.call(b.querySelectorAll('[data-room]'),function(el){ el.onclick=function(){ openRoom(el.getAttribute('data-room')); }; });
+  }
+  function room(id){ return S.rooms.filter(function(r){ return r.id===id; })[0]; }
+  function openRoom(id){
+    S.cur=id; S.task=null; var r=room(id); var th=E('cc-thread'); if(!th) return;
+    E('cc-shell').classList.add('in-thread');
+    var members=(r&&r.members||[]).map(function(m){ return m.name; }).join(', ');
+    th.innerHTML='<div class="cc-th"><button class="cc-btn cc-back" id="cc-back">‹</button><div class="cc-av'+(r&&r.kind==='group'?' grp':'')+'">'+(r&&r.kind==='group'?'#':esc(initials(r&&r.name)))+'</div>'
+      +'<div class="t"><b>'+esc(r?r.name:'Conversation')+'</b><span>'+(r&&r.kind==='group'?esc(members):'Direct message')+'</span></div>'
+      +(S.admin&&r&&r.kind==='group'?'<button class="cc-btn" id="cc-edit-grp">Edit group</button>':'')+'</div>'
+      +'<div class="cc-msgs" id="cc-msgs"><div class="cc-empty">Loading…</div></div>'
+      +'<div class="cc-comp"><div class="cc-row" id="cc-att"></div><textarea id="cc-text" placeholder="Write a message… (Enter to send, Shift+Enter for a new line)" maxlength="4000"></textarea>'
+      +'<div class="cc-row"><label class="cc-btn" style="cursor:pointer;">📎 Photo or file<input type="file" id="cc-file" style="display:none" accept="image/*,application/pdf,.zip,.doc,.docx,.xls,.xlsx,.txt,.mp4,.mov"></label>'
+      +'<button class="cc-btn" id="cc-link-task">🔗 Link a task</button><span style="flex:1"></span><button class="cc-btn lime" id="cc-send">Send</button></div><div class="cc-sub" id="cc-msg"></div></div>';
+    E('cc-back').onclick=function(){ E('cc-shell').classList.remove('in-thread'); S.cur=null; drawRooms(); };
+    if(E('cc-edit-grp')) E('cc-edit-grp').onclick=function(){ editGroup(r); };
+    E('cc-send').onclick=send;
+    E('cc-text').onkeydown=function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } };
+    E('cc-file').onchange=function(){ var f=this.files&&this.files[0]; this.value=''; if(f) upload(f); };
+    E('cc-link-task').onclick=pickTask;
+    S.msgs[id]=[]; S.last[id]=0;
+    pullMsgs(id, true); drawRooms();
+    setTimeout(function(){ var t=E('cc-text'); if(t && window.innerWidth>760) t.focus(); }, 50);
+  }
+  function pullMsgs(id, first){
+    var c=sb(); if(!c) return;
+    return Promise.resolve(c.from('chat_messages').select('*').eq('room_id',id).gt('id',S.last[id]||0).order('id',{ascending:true}).limit(300)).then(function(r){
+      if(r.error || id!==S.cur) return;
+      var rows=r.data||[];
+      if(rows.length || first){
+        rows.forEach(function(m){ var i=S.msgs[id].findIndex(function(x){ return x.id===m.id; }); if(i>-1) S.msgs[id][i]=m; else S.msgs[id].push(m); S.last[id]=Math.max(S.last[id]||0, m.id); });
+        drawMsgs(id, first || rows.some(function(m){ return m.sender_key===myKey(); }));
+        rpc('chat_mark_read',{p_room:id}).catch(function(){});
+      }
+    });
+  }
+  function drawMsgs(id, scroll){
+    var box=E('cc-msgs'); if(!box) return;
+    var near=box.scrollHeight-box.scrollTop-box.clientHeight<80, me=myKey(), r=room(id), lastDay='';
+    var list=S.msgs[id]||[];
+    if(!list.length){ box.innerHTML='<div class="cc-empty">No messages yet. Say hello 👋</div>'; return; }
+    box.innerHTML=list.map(function(m){ var d=new Date(m.created_at), dl=day(d), mine=m.sender_key===me, h='';
+      if(dl!==lastDay){ h+='<div class="cc-day">'+esc(dl)+'</div>'; lastDay=dl; }
+      var inner='';
+      if(m.deleted_at){ inner='<span class="cc-deleted">Message deleted</span>'; }
+      else {
+        if(m.file_path){ if(/^image\//.test(m.file_mime||'')) inner+='<img class="cc-img" data-img="'+esc(m.file_path)+'" alt="'+esc(m.file_name)+'">';
+                         else inner+='<a class="cc-file" data-file="'+esc(m.file_path)+'">📎 '+esc(m.file_name||'File')+' <span style="opacity:.7">'+esc(size(m.file_size))+'</span></a>'; }
+        if(m.task_id||m.task_title) inner+='<div><a class="cc-task" data-task-open="'+esc(m.task_id||'')+'">🔗 '+esc(m.task_title||'Task')+'</a></div>';
+        if(m.body) inner+='<div>'+esc(m.body)+'</div>';
+      }
+      return h+'<div class="cc-m'+(mine?' me':'')+'"><div class="cc-b">'+(!mine && r && r.kind==='group'?'<div class="cc-who">'+esc(m.sender_name||'')+'</div>':'')+inner
+        +'<div class="cc-time">'+esc(hm(d))+(mine && !m.deleted_at?'<button class="cc-del" data-del="'+m.id+'" title="Delete this message">Delete</button>':'')+'</div></div></div>'; }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('[data-img]'),function(img){ signed(img.getAttribute('data-img')).then(function(u){ if(u){ img.src=u; img.onclick=function(){ window.open(u,'_blank'); }; } }); });
+    Array.prototype.forEach.call(box.querySelectorAll('[data-file]'),function(a){ a.onclick=function(){ signed(a.getAttribute('data-file')).then(function(u){ if(u) window.open(u,'_blank'); else alert('Could not open this file.'); }); }; });
+    Array.prototype.forEach.call(box.querySelectorAll('[data-task-open]'),function(a){ a.onclick=function(){ var tid=a.getAttribute('data-task-open'), T=window.CancasTasks&&CancasTasks.state;
+      if(tid && T && (T.tasks||[]).some(function(t){ return t.id===tid; })){ close(); CancasTasks.openTask(tid); } else alert('This task isn\'t in your task list (it may be someone else\'s, or deleted).'); }; });
+    Array.prototype.forEach.call(box.querySelectorAll('[data-del]'),function(b){ b.onclick=function(){ if(!confirm('Delete this message for everyone?')) return; rpc('chat_delete_message',{p_id:Number(b.getAttribute('data-del'))}).then(function(){ var m=(S.msgs[id]||[]).filter(function(x){ return x.id===Number(b.getAttribute('data-del')); })[0]; if(m){ m.deleted_at=new Date().toISOString(); m.body=null; m.file_path=null; m.task_id=null; m.task_title=null; } drawMsgs(id); }).catch(function(e){ alert(e.message); }); }; });
+    if(scroll || near) box.scrollTop=box.scrollHeight;
+  }
+  function signed(path){
+    if(S.urls[path] && S.urls[path].t>Date.now()) return Promise.resolve(S.urls[path].u);
+    return Promise.resolve(sb().storage.from('chat-files').createSignedUrl(path, 3600)).then(function(r){ var u=r&&r.data&&r.data.signedUrl; if(u) S.urls[path]={u:u,t:Date.now()+3300000}; return u; }, function(){ return null; });
+  }
+
+  /* ---------- sending ---------- */
+  function msg(t,bad){ var m=E('cc-msg'); if(m) m.innerHTML=t?'<span style="color:'+(bad?'#c42b30':'#7b8087')+'">'+esc(t)+'</span>':''; }
+  function drawAtt(){ var a=E('cc-att'); if(!a) return; a.innerHTML=S.task?'<span class="cc-chip">🔗 '+esc(S.task.title)+'<button id="cc-untask" title="Remove">×</button></span>':''; if(E('cc-untask')) E('cc-untask').onclick=function(){ S.task=null; drawAtt(); }; }
+  function send(extra){
+    var id=S.cur; if(!id) return;
+    var t=E('cc-text'), body=(t&&t.value||'').trim(); extra=extra||{};
+    if(!body && !S.task && !extra.path) return;
+    var btn=E('cc-send'); if(btn) btn.disabled=true; msg('Sending…');
+    rpc('chat_send',{p_room:id, p_body:body||null, p_task:S.task?S.task.id:null, p_file_path:extra.path||null, p_file_name:extra.name||null, p_file_size:extra.size||null, p_file_mime:extra.mime||null})
+      .then(function(){ if(t && !extra.keepText) t.value=''; S.task=null; drawAtt(); msg(''); return pullMsgs(id); })
+      .then(function(){ loadRooms(); })
+      .catch(function(e){ msg('Not sent: '+e.message+'. Please try again.', true); })
+      .then(function(){ if(btn) btn.disabled=false; });
+  }
+  function upload(f){
+    if(!S.cur) return;
+    if(f.size>10485760){ msg('That file is over 10 MB. Please send a smaller one.', true); return; }
+    var safe=String(f.name||'file').replace(/[^\w.\-]+/g,'-').slice(-80), path=S.cur+'/'+Date.now()+'-'+safe;
+    msg('Uploading '+f.name+'…');
+    Promise.resolve(sb().storage.from('chat-files').upload(path, f, {contentType:f.type||'application/octet-stream', upsert:false})).then(function(r){
+      if(r && r.error){ msg('Upload failed: '+r.error.message, true); return; }
+      var t=E('cc-text'); send({path:path, name:f.name, size:f.size, mime:f.type||'', keepText:!(t&&t.value.trim())});
+    }, function(e){ msg('Upload failed: '+((e&&e.message)||'network'), true); });
+  }
+  function overlay(html){ var sh=E('cc-shell'); var o=document.createElement('div'); o.className='cc-pick'; o.innerHTML='<div>'+html+'</div>'; sh.style.position='relative'; sh.appendChild(o); o.onclick=function(e){ if(e.target===o) o.remove(); }; return o; }
+  function pickTask(){
+    var T=window.CancasTasks&&CancasTasks.state, tasks=((T&&T.tasks)||[]).filter(function(t){ return t.status!=='cancelled'; });
+    var o=overlay('<b style="font-size:16px;">Link a task</b><input type="text" id="cc-tq" placeholder="Search tasks">'
+      +'<div id="cc-tl">'+(tasks.length?'':'<div class="cc-empty">No tasks you can see yet.</div>')+'</div><div style="margin-top:10px;"><button class="cc-btn" id="cc-tx">Cancel</button></div>');
+    function draw(q){ E('cc-tl').innerHTML=tasks.filter(function(t){ return !q || (t.title+' '+(t.client_name||'')).toLowerCase().indexOf(q)>-1; }).slice(0,60).map(function(t){
+      return '<label data-t="'+esc(t.id)+'"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#7b8087;">T-'+String(t.ref||0).padStart(3,'0')+'</span><span>'+esc(t.title)+(t.client_name?' <span style="color:#7b8087">('+esc(t.client_name)+')</span>':'')+'</span></label>'; }).join('');
+      Array.prototype.forEach.call(o.querySelectorAll('[data-t]'),function(l){ l.onclick=function(){ var t=tasks.filter(function(x){ return x.id===l.getAttribute('data-t'); })[0]; S.task={id:t.id,title:t.title}; drawAtt(); o.remove(); var tx=E('cc-text'); if(tx) tx.focus(); }; }); }
+    if(tasks.length) draw('');
+    E('cc-tq').oninput=function(){ draw(this.value.trim().toLowerCase()); };
+    E('cc-tx').onclick=function(){ o.remove(); };
+  }
+  function directory(){ if(S.dir) return Promise.resolve(S.dir); return rpc('chat_directory').then(function(d){ S.dir=d||[]; return S.dir; }); }
+  function newDirect(){
+    directory().then(function(dir){
+      var me=myKey(), people=dir.filter(function(p){ return p.key!==me; });
+      var o=overlay('<b style="font-size:16px;">New message</b><div class="cc-sub" style="margin:4px 0 8px;">Who do you want to message?</div>'
+        +(people.length?people.map(function(p){ return '<label data-k="'+esc(p.key)+'"><span class="cc-av" style="width:30px;height:30px;font-size:11px;">'+esc(initials(p.name))+'</span><span><b style="font-weight:600">'+esc(p.name)+'</b> <span style="color:#7b8087">'+esc(p.role||'')+'</span></span></label>'; }).join(''):'<div class="cc-empty">No one else on the team yet.</div>')
+        +'<div style="margin-top:10px;"><button class="cc-btn" id="cc-dx">Cancel</button></div>');
+      E('cc-dx').onclick=function(){ o.remove(); };
+      Array.prototype.forEach.call(o.querySelectorAll('[data-k]'),function(l){ l.onclick=function(){ o.remove(); rpc('chat_open_direct',{p_other:l.getAttribute('data-k')}).then(function(id){ return loadRooms().then(function(){ openRoom(id); }); }).catch(function(e){ alert(e.message); }); }; });
+    }).catch(function(e){ alert(e.message); });
+  }
+  function editGroup(r){
+    directory().then(function(dir){
+      var people=dir.filter(function(p){ return p.key!=='admin'; }), inRoom={};
+      ((r&&r.members)||[]).forEach(function(m){ inRoom[m.key]=1; });
+      var o=overlay('<b style="font-size:16px;">'+(r?'Edit group':'New group')+'</b><input type="text" id="cc-gname" maxlength="80" placeholder="Group name, e.g. Website launch: Surya Bar" value="'+esc(r?r.name:'')+'">'
+        +'<div class="cc-sub" style="margin-bottom:4px;">Who is in this group? (you are always in it)</div>'
+        +(people.length?people.map(function(p){ return '<label><input type="checkbox" value="'+esc(p.key)+'"'+(inRoom[p.key]?' checked':'')+'> <b style="font-weight:600">'+esc(p.name)+'</b> <span style="color:#7b8087">'+esc(p.role||'')+'</span></label>'; }).join(''):'<div class="cc-empty">Invite your team first in Settings, Team.</div>')
+        +'<div style="display:flex;gap:8px;margin-top:12px;"><button class="cc-btn dark" id="cc-gsave">'+(r?'Save':'Create group')+'</button><button class="cc-btn" id="cc-gx">Cancel</button></div><div class="cc-sub" id="cc-gmsg"></div>');
+      E('cc-gx').onclick=function(){ o.remove(); };
+      E('cc-gsave').onclick=function(){
+        var name=E('cc-gname').value.trim(), keys=Array.prototype.map.call(o.querySelectorAll('input[type=checkbox]:checked'),function(c){ return c.value; });
+        if(!name){ E('cc-gmsg').textContent='Please give the group a name.'; return; }
+        var p = r ? rpc('chat_update_group',{p_room:r.id, p_name:name, p_members:keys}).then(function(){ return r.id; }) : rpc('chat_create_group',{p_name:name, p_members:keys});
+        p.then(function(id){ o.remove(); return loadRooms().then(function(){ openRoom(id); }); }).catch(function(e){ E('cc-gmsg').textContent=e.message; });
+      };
+    }).catch(function(e){ alert(e.message); });
+  }
+
+  /* ---------- badges + pop-up alerts ---------- */
+  function setBadge(n){
+    S.unread=n;
+    var sb1=E('as-n-chat'); if(sb1){ sb1.textContent=n||''; sb1.className='n'+(n?' chat':''); }
+    var tb=E('tp-chat-n'); if(tb){ tb.textContent=n; tb.style.display=n?'inline-block':'none'; }
+  }
+  function alerts(){
+    var now={}; S.rooms.forEach(function(r){ now[r.id]=Number(r.unread||0); });
+    if(S.seen===null){ S.seen=now; return; }
+    S.rooms.forEach(function(r){ var before=S.seen[r.id]||0, n=now[r.id];
+      if(n>before && !(S.open && S.cur===r.id && !document.hidden)){
+        var last=r.last||{};
+        try{ if(window.CancasNotify) CancasNotify.pop((r.kind==='group'?r.name+': ':'')+(last.by||'New message'), last.text||'', function(){ open(r.id); }); }catch(e){}
+      } });
+    S.seen=now;
+  }
+  function addEntry(){
+    // CRM sidebar (owner and department logins)
+    var side=E('adm-side');
+    if(side && !E('as-chat')){
+      var tasks=side.querySelector('[data-go="tasks"]'); if(tasks){
+        var b=document.createElement('button'); b.className='as-i'; b.id='as-chat';
+        b.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages<span class="n" id="as-n-chat"></span>';
+        b.onclick=function(){ open(); }; tasks.parentNode.insertBefore(b, tasks.nextSibling); setBadge(S.unread); }
+    }
+    // team page (people with no CRM areas)
+    var tp=document.querySelector('#team-panel .tp-top'); var bell=E('tp-bell');
+    if(tp && bell && !E('tp-chat-btn')){
+      var w=document.createElement('div'); w.style.position='relative';
+      w.innerHTML='<button class="pill light" id="tp-chat-btn">Messages<span id="tp-chat-n" style="display:none;margin-left:6px;background:var(--lime);color:#111;font-size:10px;font-weight:700;border-radius:99px;padding:1px 6px;"></span></button>';
+      bell.parentNode.parentNode.insertBefore(w, bell.parentNode); E('tp-chat-btn').onclick=function(){ open(); }; setBadge(S.unread);
+    }
+  }
+  function signedIn(){ var a=E('admin-panel'), t=E('team-panel'); return (a && a.classList.contains('open')) || (t && t.classList.contains('open')); }
+  function start(){
+    if(S.started) return; S.started=true;
+    setInterval(function(){ if(!signedIn()) return; addEntry(); }, 1500);
+    setInterval(function(){ if(!signedIn() || S.open) return; S.admin=!!(document.body.classList.contains('adm') && !document.body.classList.contains('tm') && !window.STAFF); loadRooms(); }, 20000);
+    setTimeout(function(){ if(signedIn()){ S.admin=!!(document.body.classList.contains('adm') && !document.body.classList.contains('tm') && !window.STAFF); addEntry(); loadRooms(); } }, 2500);
+  }
+  return { open:open, close:close, start:start, state:S, loadRooms:loadRooms };
+})();
+(function(){
+  // start once someone is signed in (owner, department login or team page)
+  var t=setInterval(function(){ var a=document.getElementById('admin-panel'), p=document.getElementById('team-panel');
+    if((a && a.classList.contains('open')) || (p && p.classList.contains('open'))){ clearInterval(t); CancasChat.start(); } }, 1000);
 })();
 </script>
 
